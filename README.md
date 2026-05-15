@@ -8,8 +8,8 @@ Sistem informasi manajemen restoran berbasis web dengan Next.js, TypeScript, dan
 - Melihat dan memilih produk
 - Keranjang belanja
 - Checkout
-- Pembayaran (Tunai, QRIS, EDC - dummy)
-- Menerima struk setelah pembayaran
+- Pembayaran (Tunai, QRIS,)
+- Menerima e-struk setelah pembayaran
 
 ### Admin
 - Dashboard monitoring:
@@ -18,9 +18,10 @@ Sistem informasi manajemen restoran berbasis web dengan Next.js, TypeScript, dan
   - Total penjualan harian dan bulanan
 - CRUD produk (Create, Read, Update, Delete)
 
-### Kitchen
+### Kasir
 - Menerima orderan dari queue
-- Update status orderan (Confirmed → Preparing → Ready)
+- Konfimasi pembayaran
+- Print struk pesanan untuk kitchen
 - Orderan diurutkan berdasarkan nomor order
 
 ## Tech Stack
@@ -95,7 +96,7 @@ Buka [http://localhost:3000](http://localhost:3000) di browser.
 ### Membuat Akun
 
 1. **Register (USER saja)**: Buka halaman register untuk membuat akun USER
-2. **Admin & Kitchen**: Dibuat melalui SQL seed atau akan dikelola oleh admin (fitur CRUD user akan ditambahkan)
+2. **Admin & Kasir**: Dibuat melalui SQL seed atau akan dikelola oleh admin (fitur CRUD user akan ditambahkan)
 
 ## Setup Database dengan Sample Data
 
@@ -112,7 +113,7 @@ Lihat file `prisma/seed.md` untuk detail lengkap.
 
 **Default Login Credentials (dari seed):**
 - Admin: admin@resto.com / admin123
-- Kitchen: kitchen@resto.com / kitchen123
+- Kasir: kasir@resto.com / kasir123
 - User: user1@example.com / user123
 
 ### User Flow
@@ -131,21 +132,20 @@ Lihat file `prisma/seed.md` untuk detail lengkap.
 3. Manage produk (tambah, edit, hapus)
 4. Monitor stok dan penjualan
 
-### Kitchen Flow
+### Kasir Flow
 
-1. Login sebagai Kitchen
+1. Login sebagai Kasir
 2. Lihat order queue
-3. Update status orderan:
-   - Start Preparing (dari Confirmed)
-   - Mark Ready (dari Preparing)
+3. Konfimasi pembayaran
+4. Print struk pesanan untuk kitchen
 
 ## Database Schema
 
-- **User**: Admin, User, Kitchen
+- **User**: Admin, User, Kasir
 - **Product**: Produk dengan stok
 - **Order**: Order dengan status (PENDING, CONFIRMED, PREPARING, READY, COMPLETED, CANCELLED)
 - **OrderItem**: Item dalam order
-- **Payment**: Pembayaran dengan metode (CASH, QRIS, EDC)
+- **Payment**: Pembayaran dengan metode (CASH, QRIS)
 - **StockHistory**: History perubahan stok
 
 ## API Routes
@@ -175,8 +175,8 @@ Lihat file `prisma/seed.md` untuk detail lengkap.
 ### Dashboard
 - `GET /api/dashboard/stats` - Get dashboard statistics (Admin only)
 
-### Kitchen
-- `GET /api/kitchen/orders` - Get kitchen orders (Kitchen/Admin)
+### Kasir
+- `GET /api/kitchen/orders` - Get kitchen orders (Kasir/Admin)
 
 ## Catatan Penting
 
