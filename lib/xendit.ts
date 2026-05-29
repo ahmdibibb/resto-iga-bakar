@@ -42,27 +42,6 @@ export async function generateQRIS(
   orderId: string,
   amount: number
 ): Promise<GenerateQRISResponse> {
-  // TODO: Replace with actual Xendit API call
-  // const response = await fetch('https://api.xendit.co/qr_codes', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Authorization': `Basic ${Buffer.from(process.env.XENDIT_API_KEY + ':').toString('base64')}`,
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify({
-  //     external_id: orderId,
-  //     type: 'DYNAMIC',
-  //     callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/xendit`,
-  //     amount: amount
-  //   })
-  // })
-  // const data = await response.json()
-  // return {
-  //   qr_string: data.qr_string,
-  //   transaction_id: data.id,
-  //   expires_at: data.expires_at
-  // }
-
   // Mock implementation for development
   console.log(`[XENDIT MOCK] Generating QRIS for order ${orderId}, amount: Rp ${amount.toLocaleString('id-ID')}`)
   
@@ -88,19 +67,6 @@ export async function generateQRIS(
 export async function checkPaymentStatus(
   transaction_id: string
 ): Promise<CheckPaymentStatusResponse> {
-  // TODO: Replace with actual Xendit API call
-  // const response = await fetch(`https://api.xendit.co/qr_codes/${transaction_id}`, {
-  //   method: 'GET',
-  //   headers: {
-  //     'Authorization': `Basic ${Buffer.from(process.env.XENDIT_API_KEY + ':').toString('base64')}`
-  //   }
-  // })
-  // const data = await response.json()
-  // return {
-  //   status: data.status === 'COMPLETED' ? 'PAID' : data.status === 'ACTIVE' ? 'PENDING' : 'FAILED',
-  //   paid_at: data.completed_at || null
-  // }
-
   // Mock implementation for development
   console.log(`[XENDIT MOCK] Checking payment status for transaction ${transaction_id}`)
   
@@ -126,10 +92,6 @@ export function verifyWebhookSignature(
   payload: string,
   signature: string
 ): boolean {
-  // TODO: Implement real signature verification
-  // const webhookToken = process.env.XENDIT_WEBHOOK_TOKEN
-  // return signature === webhookToken
-
   // Mock implementation for development
   console.log(`[XENDIT MOCK] Verifying webhook signature`)
   return true

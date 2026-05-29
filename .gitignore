@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+Laporan_Penjualan_*.pdf
 
 # debug
 npm-debug.log*

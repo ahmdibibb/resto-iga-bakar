@@ -40,10 +40,3 @@ export function parseWibDateStart(dateStr: string): Date {
 export function parseWibDateEnd(dateStr: string): Date {
   return new Date(`${dateStr}T23:59:59.999+07:00`)
 }
-
-export function formatWIB(date: Date, options?: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat('id-ID', {
-    timeZone: WIB_TIMEZONE,
-    ...options,
-  }).format(date)
-}

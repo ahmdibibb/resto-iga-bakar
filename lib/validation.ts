@@ -75,57 +75,6 @@ export function validateEmail(email: string): ValidationResult {
     return { isValid: true }
 }
 
-/**
- * Validates name field
- */
-export function validateName(name: string): ValidationResult {
-    if (!name || name.trim().length === 0) {
-        return {
-            isValid: false,
-            error: 'Nama tidak boleh kosong',
-        }
-    }
-
-    if (name.trim().length < 2) {
-        return {
-            isValid: false,
-            error: 'Nama minimal 2 karakter',
-        }
-    }
-
-    return { isValid: true }
-}
-
-/**
- * Validates registration form data
- */
-export function validateRegistrationData(data: {
-    name: string
-    email: string
-    password: string
-}): { isValid: boolean; errors: Record<string, string[]> } {
-    const errors: Record<string, string[]> = {}
-
-    const nameValidation = validateName(data.name)
-    if (!nameValidation.isValid && nameValidation.error) {
-        errors.name = [nameValidation.error]
-    }
-
-    const emailValidation = validateEmail(data.email)
-    if (!emailValidation.isValid && emailValidation.error) {
-        errors.email = [emailValidation.error]
-    }
-
-    const passwordValidation = validatePassword(data.password)
-    if (!passwordValidation.isValid) {
-        errors.password = passwordValidation.errors
-    }
-
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors,
-    }
-}
 
 /**
  * Validates login form data
