@@ -334,7 +334,7 @@ function MenuPageContent() {
   const isTakeaway = isTakeawayFromQR || savedOrderType === 'TAKEAWAY'
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas font-inter text-ink">
       <CustomerNavbar
         tableNumber={displayTable}
         isTakeaway={isTakeaway}
@@ -346,9 +346,9 @@ function MenuPageContent() {
       />
 
       {/* Main Content - 2 Column Layout */}
-      <div className="flex">
+      <div className="flex min-h-[calc(100vh-144px)]">
         {/* Left Side - Cart Sidebar (Desktop) */}
-        <div className="hidden lg:block lg:w-96 flex-shrink-0">
+        <div className="hidden lg:block lg:w-96 flex-shrink-0 border-r border-hairline bg-canvas">
           <CartSidebar
             cart={cart}
             onUpdateQuantity={updateQuantity}
@@ -358,54 +358,88 @@ function MenuPageContent() {
         </div>
 
         {/* Right Side - Products Grid */}
-        <div className="flex-1 px-4 py-8 lg:px-8 lg:ml-0">
+        <div className="flex-1 px-4 py-8 sm:px-6 lg:px-8 bg-canvas">
           <div className="mx-auto max-w-7xl">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-800 lg:text-3xl">
+            
+            {/* Hero Campaign Banner */}
+            <div className="relative mb-12 aspect-[16/9] w-full overflow-hidden bg-soft-cloud border border-hairline">
+              <img
+                src="/iga_bakar_hero.png"
+                alt="Iga Bakar Campaign"
+                className="h-full w-full object-cover brightness-[0.75]"
+              />
+              <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 md:p-12 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent">
+                <span className="text-xs font-bold tracking-widest text-canvas/80 uppercase font-jakarta mb-2">
+                  Spesial Akhir Pekan
+                </span>
+                <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight text-canvas font-bebas leading-[0.9] uppercase mb-4 max-w-2xl">
+                  IGA BAKAR MERAPI: THE RITUAL OF SMOKE
+                </h2>
+                <div className="flex">
+                  <button
+                    onClick={() => {
+                      const merapiProduct = products.find(p => p.name.toLowerCase().includes('merapi'));
+                      if (merapiProduct) {
+                        addToCart(merapiProduct);
+                      } else {
+                        const gridElement = document.getElementById('menu-grid');
+                        gridElement?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="rounded-full bg-canvas text-ink px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:bg-soft-cloud active:scale-95 cursor-pointer font-jakarta"
+                  >
+                    Pesan Sekarang
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="menu-grid" className="mb-8 flex items-end justify-between border-b border-hairline pb-4">
+              <h2 className="text-xl font-bold text-ink lg:text-2xl font-jakarta uppercase tracking-tight">
                 {selectedCategory === 'ALL'
                   ? 'Semua Menu'
                   : selectedCategory === 'MAKANAN'
                     ? 'Makanan'
                     : 'Minuman'}
               </h2>
-              <p className="text-sm text-gray-500">
-                {filteredProducts.length} produk
+              <p className="text-xs uppercase tracking-wider text-ash font-jakarta">
+                {filteredProducts.length} pilihan
               </p>
             </div>
 
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-lg text-gray-500">
+              <div className="text-center py-16 bg-soft-cloud border border-hairline">
+                <p className="text-sm font-medium text-charcoal font-jakarta uppercase tracking-wide">
                   Tidak ada produk tersedia untuk kategori ini
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
                 {filteredProducts.map((product, index) => (
                   <div
                     key={product.id}
-                    className="group relative flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-gray-100"
+                    className="group relative flex flex-col bg-canvas border border-transparent rounded-none"
                     style={{
                       animationDelay: `${index * 50}ms`,
                     }}
                   >
                     {/* Product Image */}
-                    <div className="relative aspect-square overflow-hidden bg-gray-50">
+                    <div className="relative aspect-square overflow-hidden bg-soft-cloud border border-hairline">
                       <img
                         src={product.image || getPlaceholderImage(product.category, product.name)}
                         alt={product.name}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {product.stock <= 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                          <span className="rounded-full bg-red-500 px-4 py-2 text-sm font-bold text-white">
+                        <div className="absolute inset-0 flex items-center justify-center bg-ink/75">
+                          <span className="bg-sale text-canvas px-3 py-1.5 text-xs font-bold uppercase tracking-widest">
                             Habis
                           </span>
                         </div>
                       )}
                       {product.stock > 0 && product.stock <= 5 && (
-                        <div className="absolute top-2 right-2">
-                          <span className="rounded-full bg-orange-500 px-2 py-1 text-xs font-semibold text-white shadow-md">
+                        <div className="absolute top-2.5 left-2.5">
+                          <span className="bg-canvas border border-hairline text-sale px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">
                             Stok: {product.stock}
                           </span>
                         </div>
@@ -413,19 +447,33 @@ function MenuPageContent() {
                     </div>
 
                     {/* Product Info */}
-                    <div className="flex flex-col flex-1 p-3">
-                      <h3 className="mb-1 text-sm font-bold text-gray-900 line-clamp-2 min-h-[2.5rem]">
+                    <div className="flex flex-col flex-1 pt-4 pb-2">
+                      <span className="text-[10px] font-semibold text-mute uppercase tracking-widest mb-1.5 block">
+                        {product.category || 'MENU'}
+                      </span>
+                      
+                      <h3 className="mb-1 text-base font-bold text-ink tracking-tight font-jakarta line-clamp-1">
                         {product.name}
                       </h3>
+
+                      {product.name.toLowerCase().match(/(pedas|merapi|ricarica|ricang)/) && (
+                        <div className="flex items-center gap-1 mb-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-sale" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-sale" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-sale" />
+                          <span className="text-[9px] font-bold text-sale uppercase tracking-wider ml-1">Spicy</span>
+                        </div>
+                      )}
+
                       {product.description && (
-                        <p className="mb-3 text-xs text-gray-500 line-clamp-2 min-h-[2rem]">
+                        <p className="mb-3 text-xs text-charcoal font-inter line-clamp-2 min-h-[2rem] leading-relaxed">
                           {product.description}
                         </p>
                       )}
 
                       {/* Price */}
                       <div className="mt-auto">
-                        <p className="mb-2 text-base font-bold text-orange-600 sm:text-lg">
+                        <p className="mb-3 text-base font-extrabold text-ink font-jakarta">
                           Rp {product.price.toLocaleString('id-ID')}
                         </p>
 
@@ -433,9 +481,9 @@ function MenuPageContent() {
                         <button
                           onClick={() => addToCart(product)}
                           disabled={product.stock <= 0}
-                          className="w-full flex items-center justify-center gap-2 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-orange-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-orange-600"
+                          className="w-full flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-canvas transition-all duration-200 hover:bg-charcoal active:scale-95 disabled:cursor-not-allowed disabled:bg-soft-cloud disabled:text-ash border border-transparent cursor-pointer font-jakarta"
                         >
-                          <ShoppingCart size={18} />
+                          <ShoppingCart size={13} />
                           <span>Tambah</span>
                         </button>
                       </div>

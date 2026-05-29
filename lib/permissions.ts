@@ -2,7 +2,7 @@
  * Permission checking utilities for role-based access control
  */
 
-export type UserRole = 'OWNER' | 'ADMIN' | 'KASIR' | 'USER'
+export type UserRole = 'OWNER' | 'ADMIN' | 'KASIR'
 
 export interface PermissionCheck {
   role: UserRole
@@ -59,11 +59,7 @@ export function hasReadAccess(role: UserRole, resource: string): boolean {
     return kasirReadResources.some(r => resource.startsWith(r))
   }
 
-  // USER has minimal read access
-  if (role === 'USER') {
-    const userReadResources = ['/menu', '/orders', '/products']
-    return userReadResources.some(r => resource.startsWith(r))
-  }
+  // Note: Guest/anonymous users do not require registration/roles for public routes
 
   return false
 }
@@ -96,11 +92,7 @@ export function hasWriteAccess(role: UserRole, resource: string): boolean {
     return kasirWriteResources.some(r => resource.startsWith(r))
   }
 
-  // USER has minimal write access
-  if (role === 'USER') {
-    const userWriteResources = ['/orders', '/cart']
-    return userWriteResources.some(r => resource.startsWith(r))
-  }
+  // Note: Guest/anonymous users do not require registration/roles for public writes
 
   return false
 }
@@ -122,7 +114,7 @@ export function hasDeleteAccess(role: UserRole, resource: string): boolean {
     return true
   }
 
-  // KASIR and USER have no delete access
+  // KASIR has no delete access
   return false
 }
 
@@ -155,11 +147,6 @@ export const PERMISSIONS = {
   KASIR: {
     orders: ['create', 'read', 'update_status'],
     products: ['read']
-  },
-  USER: {
-    orders: ['create', 'read'],
-    products: ['read'],
-    cart: ['create', 'read', 'update', 'delete']
   }
 } as const
 

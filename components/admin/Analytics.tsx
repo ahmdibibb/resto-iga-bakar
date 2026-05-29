@@ -80,17 +80,17 @@ export default function Analytics() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 text-ink font-inter">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <TrendingUp className="text-orange-600" size={28} />
-                    <h2 className="text-2xl font-bold text-gray-900">Sales Analytics</h2>
+                    <TrendingUp className="text-ink" size={20} />
+                    <h2 className="text-sm font-bold text-ink uppercase tracking-wider font-jakarta">Sales Analytics</h2>
                 </div>
                 <select
                     value={days}
                     onChange={(e) => setDays(parseInt(e.target.value))}
-                    className="rounded-xl border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                    className="bg-soft-cloud text-ink border border-hairline rounded-full px-4 py-2 focus:bg-canvas focus:border-ink focus:outline-none text-xs font-bold uppercase tracking-wider appearance-none"
                 >
                     <option value={7}>Last 7 days</option>
                     <option value={30}>Last 30 days</option>
@@ -101,35 +101,35 @@ export default function Analytics() {
             {/* Overview Stats */}
             {overview && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 p-6 border border-blue-200">
+                    <div className="bg-soft-cloud border border-hairline p-6 rounded-none">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-blue-600 font-medium">Total Orders</p>
-                                <p className="text-4xl font-bold text-blue-900 mt-2">{overview.totalOrders}</p>
+                                <p className="text-xs font-semibold uppercase tracking-wider text-mute">Total Orders</p>
+                                <p className="text-3xl font-bold text-ink mt-2">{overview.totalOrders}</p>
                             </div>
-                            <Package size={32} className="text-blue-600" />
+                            <Package size={20} className="text-ink" />
                         </div>
                     </div>
-                    <div className="rounded-2xl bg-gradient-to-br from-green-50 to-green-100 p-6 border border-green-200">
+                    <div className="bg-soft-cloud border border-hairline p-6 rounded-none">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-green-600 font-medium">Total Revenue</p>
-                                <p className="text-3xl font-bold text-green-900 mt-2">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-mute">Total Revenue</p>
+                                <p className="text-2xl font-bold text-ink mt-2">
                                     Rp {overview.totalRevenue.toLocaleString('id-ID')}
                                 </p>
                             </div>
-                            <DollarSign size={32} className="text-green-600" />
+                            <DollarSign size={20} className="text-ink" />
                         </div>
                     </div>
-                    <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 p-6 border border-purple-200">
+                    <div className="bg-soft-cloud border border-hairline p-6 rounded-none">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-purple-600 font-medium">Avg Order Value</p>
-                                <p className="text-3xl font-bold text-purple-900 mt-2">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-mute">Avg Order Value</p>
+                                <p className="text-2xl font-bold text-ink mt-2">
                                     Rp {Math.round(overview.averageOrderValue).toLocaleString('id-ID')}
                                 </p>
                             </div>
-                            <TrendingUp size={32} className="text-purple-600" />
+                            <TrendingUp size={20} className="text-ink" />
                         </div>
                     </div>
                 </div>
@@ -137,15 +137,15 @@ export default function Analytics() {
 
             <div className="grid grid-cols-1 gap-6">
                 {/* Top Products Bar Chart */}
-                <div className="rounded-2xl bg-white p-8 shadow-lg border border-gray-100">
+                <div className="bg-canvas border border-hairline p-6 rounded-none">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                                <Package size={20} className="text-white" />
+                            <div className="w-9 h-9 bg-soft-cloud border border-hairline rounded-none flex items-center justify-center">
+                                <Package size={16} className="text-ink" />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold text-gray-900">Top 10 Products</h3>
-                                <p className="text-sm text-gray-500 mt-0.5">Best selling items by quantity</p>
+                                <h3 className="text-sm font-bold text-ink uppercase tracking-wider font-jakarta">Top 10 Products</h3>
+                                <p className="text-xs text-charcoal mt-0.5">Best selling items by quantity</p>
                             </div>
                         </div>
                     </div>
@@ -155,11 +155,11 @@ export default function Analytics() {
                             config={{
                                 quantity: {
                                     label: "Quantity Sold",
-                                    color: "#F97316",
+                                    color: "#15110F",
                                 },
                                 revenue: {
                                     label: "Revenue",
-                                    color: "#10b981",
+                                    color: "#8A8077",
                                 },
                             }}
                             className="h-96 w-full"
@@ -175,7 +175,7 @@ export default function Analytics() {
                                 }))}
                                 margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                             >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#D2C9BF" vertical={false} />
                                 <XAxis
                                     dataKey="name"
                                     tickLine={false}
@@ -184,38 +184,38 @@ export default function Analytics() {
                                     angle={-45}
                                     textAnchor="end"
                                     height={80}
-                                    tick={{ fill: '#9ca3af', fontSize: 11 }}
+                                    tick={{ fill: '#8A8077', fontSize: 10, fontWeight: 600 }}
                                 />
                                 <YAxis
                                     tickLine={false}
                                     axisLine={false}
                                     tickMargin={10}
-                                    tick={{ fill: '#9ca3af', fontSize: 12 }}
+                                    tick={{ fill: '#8A8077', fontSize: 10, fontWeight: 600 }}
                                 />
                                 <ChartTooltip
                                     content={
                                         <ChartTooltipContent
-                                            className="w-56"
+                                            className="w-56 bg-canvas border border-hairline rounded-none shadow-none text-ink text-xs"
                                             formatter={(value: any, name: any, props: any) => (
                                                 <div className="flex flex-col gap-1">
-                                                    <div className="font-semibold text-gray-900 mb-1">
+                                                    <div className="font-bold text-ink mb-1">
                                                         {props.payload.name}
                                                     </div>
                                                     <div className="flex items-center justify-between gap-4">
-                                                        <span className="text-muted-foreground">Quantity:</span>
-                                                        <span className="font-bold text-orange-600">
+                                                        <span className="text-mute font-medium">Quantity:</span>
+                                                        <span className="font-bold text-ink">
                                                             {props.payload.quantity} sold
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center justify-between gap-4">
-                                                        <span className="text-muted-foreground">Revenue:</span>
-                                                        <span className="font-bold text-green-600">
+                                                        <span className="text-mute font-medium">Revenue:</span>
+                                                        <span className="font-bold text-ink">
                                                             Rp {Number(props.payload.revenue).toLocaleString('id-ID')}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center justify-between gap-4">
-                                                        <span className="text-muted-foreground">Category:</span>
-                                                        <span className="text-xs px-2 py-1 rounded-full bg-gray-100">
+                                                        <span className="text-mute font-medium">Category:</span>
+                                                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-hairline bg-soft-cloud font-bold">
                                                             {props.payload.category}
                                                         </span>
                                                     </div>
@@ -226,33 +226,33 @@ export default function Analytics() {
                                 />
                                 <Bar
                                     dataKey="quantity"
-                                    fill="#F97316"
-                                    radius={[8, 8, 0, 0]}
+                                    fill="#15110F"
+                                    radius={[0, 0, 0, 0]}
                                     maxBarSize={60}
                                 />
                             </BarChart>
                         </ChartContainer>
                     ) : (
-                        <div className="h-96 flex flex-col items-center justify-center text-gray-400">
-                            <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-                                <Package size={40} className="text-gray-300" />
+                        <div className="h-96 flex flex-col items-center justify-center text-mute">
+                            <div className="w-16 h-16 bg-soft-cloud border border-hairline rounded-none flex items-center justify-center mb-4">
+                                <Package size={24} className="text-ink" />
                             </div>
-                            <p className="font-semibold text-gray-600 text-lg">No product data available</p>
-                            <p className="text-sm mt-2 text-gray-500">Start selling to see top products</p>
+                            <p className="font-bold text-ink text-sm uppercase tracking-wider">No product data available</p>
+                            <p className="text-xs mt-1 text-charcoal">Start selling to see top products</p>
                         </div>
                     )}
                 </div>
 
                 {/* Revenue by Category Horizontal Bar Chart */}
-                <div className="rounded-2xl bg-white p-8 shadow-lg border border-gray-100">
+                <div className="bg-canvas border border-hairline p-6 rounded-none">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                                <DollarSign size={20} className="text-white" />
+                            <div className="w-9 h-9 bg-soft-cloud border border-hairline rounded-none flex items-center justify-center">
+                                <DollarSign size={16} className="text-ink" />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-bold text-gray-900">Revenue by Category</h3>
-                                <p className="text-sm text-gray-500 mt-0.5">Compare food vs drinks performance</p>
+                                <h3 className="text-sm font-bold text-ink uppercase tracking-wider font-jakarta">Revenue by Category</h3>
+                                <p className="text-xs text-charcoal mt-0.5">Compare food vs drinks performance</p>
                             </div>
                         </div>
                     </div>
@@ -262,11 +262,11 @@ export default function Analytics() {
                             config={{
                                 Food: {
                                     label: "Food",
-                                    color: "#F97316",
+                                    color: "#15110F",
                                 },
                                 Drinks: {
                                     label: "Drinks",
-                                    color: "#3b82f6",
+                                    color: "#8A8077",
                                 },
                             }}
                             className="h-48 w-full"
@@ -288,8 +288,8 @@ export default function Analytics() {
                                         .reduce((sum, p) => sum + p.quantitySold, 0)
                                     
                                     return [
-                                        { category: 'Food', revenue: foodRevenue, quantity: foodQty, fill: '#F97316' },
-                                        { category: 'Drinks', revenue: drinkRevenue, quantity: drinkQty, fill: '#3b82f6' }
+                                        { category: 'Food', revenue: foodRevenue, quantity: foodQty, fill: '#15110F' },
+                                        { category: 'Drinks', revenue: drinkRevenue, quantity: drinkQty, fill: '#8A8077' }
                                     ]
                                 })()}
                                 layout="vertical"
@@ -307,28 +307,28 @@ export default function Analytics() {
                                     tickMargin={10}
                                     axisLine={false}
                                     width={60}
-                                    tick={{ fill: '#111827', fontSize: 15, fontWeight: 700 }}
+                                    tick={{ fill: '#15110F', fontSize: 13, fontWeight: 700 }}
                                 />
                                 <ChartTooltip
                                     cursor={false}
                                     content={
                                         <ChartTooltipContent 
                                             hideLabel
-                                            className="w-48"
+                                            className="w-48 bg-canvas border border-hairline rounded-none shadow-none text-ink text-xs"
                                             formatter={(value: any, name: any, props: any) => (
                                                 <div className="flex flex-col gap-1">
-                                                    <div className="font-semibold text-gray-900 mb-1">
+                                                    <div className="font-bold text-ink mb-1">
                                                         {props.payload.category}
                                                     </div>
                                                     <div className="flex items-center justify-between gap-4">
-                                                        <span className="text-muted-foreground">Revenue:</span>
-                                                        <span className="font-bold text-orange-600">
+                                                        <span className="text-mute font-medium">Revenue:</span>
+                                                        <span className="font-bold text-ink">
                                                             Rp {Number(props.payload.revenue).toLocaleString('id-ID')}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center justify-between gap-4">
-                                                        <span className="text-muted-foreground">Quantity:</span>
-                                                        <span className="font-semibold">
+                                                        <span className="text-mute font-medium">Quantity:</span>
+                                                        <span className="font-bold text-ink">
                                                             {props.payload.quantity} items
                                                         </span>
                                                     </div>
@@ -339,11 +339,11 @@ export default function Analytics() {
                                 />
                                 <Bar 
                                     dataKey="revenue" 
-                                    radius={5}
+                                    radius={0}
                                 >
                                     {[
-                                        { category: 'Food', revenue: 0, quantity: 0, fill: '#F97316' },
-                                        { category: 'Drinks', revenue: 0, quantity: 0, fill: '#3b82f6' }
+                                        { category: 'Food', revenue: 0, quantity: 0, fill: '#15110F' },
+                                        { category: 'Drinks', revenue: 0, quantity: 0, fill: '#8A8077' }
                                     ].map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.fill} />
                                     ))}
@@ -351,12 +351,12 @@ export default function Analytics() {
                             </BarChart>
                         </ChartContainer>
                     ) : (
-                        <div className="h-48 flex flex-col items-center justify-center text-gray-400">
-                            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
-                                <DollarSign size={32} className="text-gray-300" />
+                        <div className="h-48 flex flex-col items-center justify-center text-mute">
+                            <div className="w-16 h-16 bg-soft-cloud border border-hairline rounded-none flex items-center justify-center mb-3">
+                                <DollarSign size={24} className="text-ink" />
                             </div>
-                            <p className="font-semibold text-gray-600">No category data available</p>
-                            <p className="text-xs mt-1 text-gray-500">Start selling to see category breakdown</p>
+                            <p className="font-bold text-ink text-xs uppercase tracking-wider">No category data available</p>
+                            <p className="text-xs mt-1 text-charcoal">Start selling to see category breakdown</p>
                         </div>
                     )}
                 </div>
@@ -364,21 +364,21 @@ export default function Analytics() {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* Top Products */}
-                <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
-                    <h3 className="mb-6 text-xl font-bold text-gray-900">Top Products</h3>
+                <div className="bg-canvas border border-hairline p-6 rounded-none">
+                    <h3 className="mb-6 text-sm font-bold text-ink uppercase tracking-wider font-jakarta">Top Products</h3>
 
                     {/* Foods */}
                     {foodProducts.length > 0 && (
                         <div className="mb-6">
-                            <h4 className="text-sm font-semibold text-gray-600 mb-3">🍽️ Foods</h4>
-                            <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-mute uppercase tracking-wider mb-3">🍽️ Foods</h4>
+                            <div className="space-y-2">
                                 {foodProducts.slice(0, 5).map((item, index) => (
-                                    <div key={index} className="flex items-center justify-between rounded-xl bg-orange-50 p-4 border border-orange-100">
+                                    <div key={index} className="flex items-center justify-between bg-soft-cloud/40 p-4 border-b border-hairline last:border-b-0">
                                         <div className="flex-1">
-                                            <p className="font-semibold text-gray-900">{item.product.name}</p>
-                                            <p className="text-xs text-gray-500">{item.quantitySold} sold</p>
+                                            <p className="font-semibold text-xs text-ink">{item.product.name}</p>
+                                            <p className="text-[10px] text-charcoal mt-0.5">{item.quantitySold} sold</p>
                                         </div>
-                                        <p className="font-bold text-orange-600">
+                                        <p className="font-bold text-xs text-ink">
                                             Rp {item.totalRevenue.toLocaleString('id-ID')}
                                         </p>
                                     </div>
@@ -390,15 +390,15 @@ export default function Analytics() {
                     {/* Drinks */}
                     {drinkProducts.length > 0 && (
                         <div>
-                            <h4 className="text-sm font-semibold text-gray-600 mb-3">🥤 Drinks</h4>
-                            <div className="space-y-3">
+                            <h4 className="text-xs font-bold text-mute uppercase tracking-wider mb-3">🥤 Drinks</h4>
+                            <div className="space-y-2">
                                 {drinkProducts.slice(0, 5).map((item, index) => (
-                                    <div key={index} className="flex items-center justify-between rounded-xl bg-blue-50 p-4 border border-blue-100">
+                                    <div key={index} className="flex items-center justify-between bg-soft-cloud/40 p-4 border-b border-hairline last:border-b-0">
                                         <div className="flex-1">
-                                            <p className="font-semibold text-gray-900">{item.product.name}</p>
-                                            <p className="text-xs text-gray-500">{item.quantitySold} sold</p>
+                                            <p className="font-semibold text-xs text-ink">{item.product.name}</p>
+                                            <p className="text-[10px] text-charcoal mt-0.5">{item.quantitySold} sold</p>
                                         </div>
-                                        <p className="font-bold text-blue-600">
+                                        <p className="font-bold text-xs text-ink">
                                             Rp {item.totalRevenue.toLocaleString('id-ID')}
                                         </p>
                                     </div>
@@ -408,7 +408,7 @@ export default function Analytics() {
                     )}
 
                     {topProducts.length === 0 && (
-                        <p className="text-center text-gray-400 py-8">No product data available</p>
+                        <p className="text-center text-mute py-8 text-xs font-semibold uppercase tracking-wider">No product data available</p>
                     )}
                 </div>
 

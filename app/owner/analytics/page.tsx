@@ -1,90 +1,101 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { TrendingUp, Download, RefreshCw, Package, DollarSign, ShoppingBag } from 'lucide-react'
-import OwnerShell from '@/components/owner/OwnerShell'
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { useState, useEffect } from 'react'
+import { TrendingUp, Package, DollarSign, Calendar, Users } from 'lucide-react'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import OwnerShell from '@/components/owner/OwnerShell'
 
 interface AnalyticsData {
-  salesTrend?: Array<{ date: string; revenue: number; orders: number }>
-  topProducts?: Array<{ name: string; category: string; quantitySold: number; totalRevenue: number }>
-  revenueByMethod?: { CASH: number; QRIS: number }
-  revenueByOrderType?: { DINE_IN: number; TAKEAWAY: number }
-  revenueByCategory?: { [key: string]: number }
+  totalOrders: number
+  totalRevenue: number
+  averageOrderValue: number
+  newCustomers: number
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
+interface TopProduct {
+  product: {
+    name: string
+    category: string
+  }
+  quantitySold: number
+  totalRevenue: number
+}
+
+interface RevenueBreakdown {
+  revenueByMethod: {
+    CASH: number
+    QRIS: number
+  }
+  revenueByOrderType: {
+    DINE_IN: number
+    TAKEAWAY: number
+  }
+}
 
 export default function OwnerAnalyticsPage() {
-  const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [period, setPeriod] = useState(30)
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({})
-
-  useEffect(() => { fetchAnalytics() }, [period])
+  const [days, setDays] = useState(30)
+  const [overview, setOverview] = useState<AnalyticsData | null>(null)
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([])
+  const [revenue, setRevenue] = useState<RevenueBreakdown | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const interval = setInterval(() => fetchAnalytics(), 60000)
-    return () => clearInterval(interval)
-  }, [period])
+    fetchAnalytics()
+  }, [days])
 
   const fetchAnalytics = async () => {
-    setRefreshing(true)
+    setLoading(true)
     try {
-      const [trendRes, productsRes, revenueRes, categoryRes] = await Promise.all([
-        fetch(`/api/owner/analytics?type=sales-trend&days=${period}`, { credentials: 'include' }),
-        fetch(`/api/owner/analytics?type=top-products&days=${period}`, { credentials: 'include' }),
-        fetch(`/api/owner/analytics?type=revenue-breakdown&days=${period}`, { credentials: 'include' }),
-        fetch(`/api/owner/analytics?type=category-revenue&days=${period}`, { credentials: 'include' }),
+      const [overviewRes, productsRes, revenueRes] = await Promise.all([
+        fetch(`/api/owner/analytics?days=${days}&type=overview`, { credentials: 'include' }),
+        fetch(`/api/owner/analytics?days=${days}&type=top-products`, { credentials: 'include' }),
+        fetch(`/api/owner/analytics?days=${days}&type=revenue-breakdown`, { credentials: 'include' }),
       ])
 
-      const [trendData, productsData, revenueData, categoryData] = await Promise.all([
-        trendRes.ok ? trendRes.json() : null,
-        productsRes.ok ? productsRes.json() : null,
-        revenueRes.ok ? revenueRes.json() : null,
-        categoryRes.ok ? categoryRes.json() : null,
+      const [overviewData, productsData, revenueData] = await Promise.all([
+        overviewRes.json(),
+        productsRes.json(),
+        revenueRes.json(),
       ])
 
-      setAnalyticsData({
-        salesTrend: trendData?.salesTrend,
-        topProducts: productsData?.topProducts,
-        revenueByMethod: revenueData?.revenueByMethod,
-        revenueByOrderType: revenueData?.revenueByOrderType,
-        revenueByCategory: categoryData?.revenueByCategory,
-      })
-      setError(null)
-    } catch {
-      setError('Gagal memuat data analytics')
+      setOverview(overviewData)
+      setTopProducts(productsData.topProducts || [])
+      setRevenue(revenueData)
+    } catch (error) {
+      console.error('Error fetching analytics:', error)
     } finally {
-      setRefreshing(false)
+      setLoading(false)
     }
   }
 
-  const handleExport = async () => {
-    try {
-      const res = await fetch(`/api/owner/analytics/export?days=${period}&format=csv&type=overview`, { credentials: 'include' })
-      if (!res.ok) throw new Error()
-      const blob = await res.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url; a.download = `analytics-${period}days.csv`
-      document.body.appendChild(a); a.click()
-      window.URL.revokeObjectURL(url); document.body.removeChild(a)
-    } catch {
-      alert('Gagal export analytics')
-    }
-  }
+  const foodProducts = topProducts.filter(p => p.product.category === 'MAKANAN')
+  const drinkProducts = topProducts.filter(p => p.product.category === 'MINUMAN')
 
   const headerRight = (
-    <button
-      onClick={handleExport}
-      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-semibold shadow-md shadow-blue-200"
+    <select
+      value={days}
+      onChange={(e) => setDays(parseInt(e.target.value))}
+      className="rounded-full border border-hairline bg-canvas px-4 py-2 focus:border-ink focus:outline-none text-xs font-bold uppercase tracking-wider cursor-pointer"
     >
-      <Download size={15} />
-      Export CSV
-    </button>
+      <option value={7}>7 Hari Terakhir</option>
+      <option value={30}>30 Hari Terakhir</option>
+      <option value={90}>90 Hari Terakhir</option>
+    </select>
   )
+
+  if (loading) {
+    return (
+      <OwnerShell title="Analytics" subtitle="Business intelligence dan insight performa" headerRight={headerRight} onRefresh={fetchAnalytics}>
+        <div className="flex items-center justify-center py-24 font-jakarta">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 border-2 border-ink border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs text-mute font-bold uppercase tracking-widest">Memuat data analytics...</p>
+          </div>
+        </div>
+      </OwnerShell>
+    )
+  }
 
   return (
     <OwnerShell
@@ -93,253 +104,435 @@ export default function OwnerAnalyticsPage() {
       headerRight={headerRight}
       onRefresh={fetchAnalytics}
     >
-      <div className="space-y-6">
-
-        {error && (
-          <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200">
-            <p className="text-sm text-red-800 font-medium">⚠️ {error}</p>
-          </div>
-        )}
-
-        {/* Period Selector */}
-        <div className="flex gap-2 bg-white rounded-xl p-1.5 border border-gray-200 w-fit shadow-sm">
-          {[7, 30, 90].map(d => (
-            <button
-              key={d}
-              onClick={() => setPeriod(d)}
-              className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
-                period === d
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-200'
-                  : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
-              }`}
-            >
-              {d} Hari
-            </button>
-          ))}
-        </div>
-
-        {/* Sales Trend */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <TrendingUp size={19} className="text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">Sales Trend</h3>
-              <p className="text-sm text-gray-500">Revenue selama {period} hari terakhir</p>
-            </div>
-            {refreshing && (
-              <RefreshCw size={16} className="ml-auto text-blue-400 animate-spin" />
-            )}
-          </div>
-
-          {analyticsData.salesTrend && analyticsData.salesTrend.length > 0 ? (
-            <ChartContainer
-              config={{ revenue: { label: 'Revenue', color: '#3B82F6' } }}
-              className="h-72 w-full"
-            >
-              <BarChart data={analyticsData.salesTrend} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tickLine={false} axisLine={false} tickMargin={10}
-                  tick={{ fill: '#9ca3af', fontSize: 11 }}
-                  tickFormatter={(v) => new Date(v).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                />
-                <YAxis
-                  tickLine={false} axisLine={false} tickMargin={10}
-                  tick={{ fill: '#9ca3af', fontSize: 11 }}
-                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                />
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value: any) => (
-                        <span className="font-bold text-blue-600">Rp {Number(value).toLocaleString('id-ID')}</span>
-                      )}
-                    />
-                  }
-                />
-                <Bar dataKey="revenue" fill="#3B82F6" radius={[6, 6, 0, 0]} maxBarSize={50} />
-              </BarChart>
-            </ChartContainer>
-          ) : (
-            <div className="h-72 flex items-center justify-center">
-              <div className="text-center text-gray-400">
-                <TrendingUp size={48} className="mx-auto mb-3 text-gray-200" />
-                <p>Belum ada data sales</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Revenue Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* By Payment Method */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                <DollarSign size={19} className="text-white" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-gray-900">Revenue by Pembayaran</h3>
-                <p className="text-sm text-gray-500">Distribusi metode bayar</p>
-              </div>
-            </div>
-            {analyticsData.revenueByMethod ? (
-              <div className="space-y-4">
-                {Object.entries(analyticsData.revenueByMethod).map(([method, amount], i) => {
-                  const total = Object.values(analyticsData.revenueByMethod!).reduce((a, b) => a + b, 0)
-                  const pct = total > 0 ? Math.round((amount / total) * 100) : 0
-                  return (
-                    <div key={method}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                          <span className="text-sm font-semibold text-gray-700">{method}</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-sm font-bold text-gray-900">Rp {amount.toLocaleString('id-ID')}</span>
-                          <span className="text-xs text-gray-400 ml-2">{pct}%</span>
-                        </div>
-                      </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{ width: `${pct}%`, backgroundColor: COLORS[i % COLORS.length] }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="text-gray-400 text-sm text-center py-8">Tidak ada data</p>
-            )}
-          </div>
-
-          {/* By Order Type */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                <ShoppingBag size={19} className="text-white" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-gray-900">Revenue by Tipe Order</h3>
-                <p className="text-sm text-gray-500">Dine-in vs Takeaway</p>
-              </div>
-            </div>
-            {analyticsData.revenueByOrderType ? (
-              <div className="space-y-4">
-                {Object.entries(analyticsData.revenueByOrderType).map(([type, amount], i) => {
-                  const total = Object.values(analyticsData.revenueByOrderType!).reduce((a, b) => a + b, 0)
-                  const pct = total > 0 ? Math.round((amount / total) * 100) : 0
-                  const color = COLORS[(i + 2) % COLORS.length]
-                  return (
-                    <div key={type}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-                          <span className="text-sm font-semibold text-gray-700">{type.replace('_', ' ')}</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-sm font-bold text-gray-900">Rp {amount.toLocaleString('id-ID')}</span>
-                          <span className="text-xs text-gray-400 ml-2">{pct}%</span>
-                        </div>
-                      </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{ width: `${pct}%`, backgroundColor: color }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="text-gray-400 text-sm text-center py-8">Tidak ada data</p>
-            )}
-          </div>
-        </div>
-
-        {/* Top Products */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-3 p-6 border-b border-gray-100">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Package size={19} className="text-white" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-gray-900">Top Selling Products</h3>
-              <p className="text-sm text-gray-500">Produk terlaris {period} hari terakhir</p>
-            </div>
-          </div>
-
-          {analyticsData.topProducts && analyticsData.topProducts.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50/80">
-                  <tr>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Rank</th>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Produk</th>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kategori</th>
-                    <th className="text-right py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Terjual</th>
-                    <th className="text-right py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analyticsData.topProducts.map((product, i) => (
-                    <tr key={i} className="border-t border-gray-50 hover:bg-orange-50/20 transition-colors">
-                      <td className="py-3.5 px-5">
-                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-xl font-bold text-sm ${
-                          i === 0 ? 'bg-yellow-100 text-yellow-700 shadow-sm' :
-                          i === 1 ? 'bg-gray-100 text-gray-600' :
-                          i === 2 ? 'bg-orange-100 text-orange-700' :
-                          'bg-gray-50 text-gray-500'
-                        }`}>
-                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5 text-sm font-semibold text-gray-900">{product.name}</td>
-                      <td className="py-3.5 px-5">
-                        <span className="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-600 font-medium">
-                          {product.category || 'Uncategorized'}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5 text-sm font-bold text-gray-900 text-right">{product.quantitySold}</td>
-                      <td className="py-3.5 px-5 text-sm font-bold text-blue-700 text-right">
-                        Rp {product.totalRevenue.toLocaleString('id-ID')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-16 text-gray-400">
-              <Package size={48} className="mx-auto mb-3 text-gray-200" />
-              <p>Belum ada data produk</p>
-            </div>
-          )}
-        </div>
-
-        {/* Revenue by Category */}
-        {analyticsData.revenueByCategory && Object.keys(analyticsData.revenueByCategory).length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-base font-bold text-gray-900 mb-5">Revenue by Kategori</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {Object.entries(analyticsData.revenueByCategory).map(([category, amount], i) => (
-                <div key={category} className="p-4 rounded-xl border border-gray-100 hover:shadow-md transition-shadow bg-gray-50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    <span className="text-sm font-semibold text-gray-700">{category}</span>
-                  </div>
-                  <p className="text-xl font-bold text-gray-900">Rp {amount.toLocaleString('id-ID')}</p>
+      <div className="space-y-6 font-inter text-ink">
+        {/* Overview Stats */}
+        {overview && (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div className="bg-soft-cloud p-6 border border-hairline rounded-none">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-mute font-jakarta">Total Orders</p>
+                  <p className="text-3xl font-bold text-ink mt-2 font-jakarta tracking-tight">{overview.totalOrders}</p>
                 </div>
-              ))}
+                <div className="w-10 h-10 bg-ink rounded-full flex items-center justify-center text-canvas">
+                  <Package size={18} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-soft-cloud p-6 border border-hairline rounded-none">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-mute font-jakarta">Total Revenue</p>
+                  <p className="text-3xl font-bold text-ink mt-2 font-jakarta tracking-tight">
+                    Rp {overview.totalRevenue.toLocaleString('id-ID')}
+                  </p>
+                </div>
+                <div className="w-10 h-10 bg-ink rounded-full flex items-center justify-center text-canvas">
+                  <DollarSign size={18} />
+                </div>
+              </div>
+            </div>
+            <div className="bg-soft-cloud p-6 border border-hairline rounded-none">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-mute font-jakarta">Avg Order Value</p>
+                  <p className="text-3xl font-bold text-ink mt-2 font-jakarta tracking-tight">
+                    Rp {Math.round(overview.averageOrderValue).toLocaleString('id-ID')}
+                  </p>
+                </div>
+                <div className="w-10 h-10 bg-ink rounded-full flex items-center justify-center text-canvas">
+                  <TrendingUp size={18} />
+                </div>
+              </div>
             </div>
           </div>
         )}
+
+        <div className="grid grid-cols-1 gap-6">
+          {/* Top Products Bar Chart */}
+          <div className="bg-canvas border border-hairline p-6 rounded-none">
+            <div className="flex items-center gap-3 mb-6 font-jakarta">
+              <div className="w-8 h-8 bg-ink rounded-full flex items-center justify-center">
+                <Package size={15} className="text-canvas" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-ink">Top 10 Products</h3>
+                <p className="text-[10px] text-mute uppercase tracking-widest mt-0.5">Best selling items by quantity sold</p>
+              </div>
+            </div>
+
+            {topProducts.length > 0 ? (
+              <ChartContainer
+                config={{
+                  quantity: {
+                    label: "Quantity Sold",
+                    color: "#15110F",
+                  },
+                  revenue: {
+                    label: "Revenue",
+                    color: "#C0392B",
+                  },
+                }}
+                className="h-96 w-full font-inter"
+              >
+                <BarChart
+                  data={topProducts.slice(0, 10).map(item => ({
+                    name: item.product.name.length > 15 
+                      ? item.product.name.substring(0, 15) + '...' 
+                      : item.product.name,
+                    quantity: item.quantitySold,
+                    revenue: item.totalRevenue,
+                    category: item.product.category
+                  }))}
+                  margin={{ top: 20, right: 10, left: 10, bottom: 40 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#EBE5DC" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                    tick={{ fill: '#8A8077', fontSize: 10, fontWeight: 600 }}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    tick={{ fill: '#8A8077', fontSize: 10, fontWeight: 600 }}
+                  />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        className="w-56 bg-canvas border border-hairline font-inter"
+                        formatter={(value: any, name: any, props: any) => (
+                          <div className="flex flex-col gap-1 text-ink">
+                            <div className="font-bold text-xs uppercase tracking-wide border-b border-hairline pb-1 mb-1 font-jakarta">
+                              {props.payload.name}
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-[10px] text-mute uppercase font-semibold">Quantity:</span>
+                              <span className="font-bold text-xs text-ink">
+                                {props.payload.quantity} sold
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-[10px] text-mute uppercase font-semibold">Revenue:</span>
+                              <span className="font-bold text-xs text-sale">
+                                Rp {Number(props.payload.revenue).toLocaleString('id-ID')}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4 mt-1 pt-1 border-t border-hairline/50">
+                              <span className="text-[10px] text-mute uppercase font-semibold">Category:</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded-full bg-soft-cloud border border-hairline text-ink font-bold uppercase">
+                                {props.payload.category}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      />
+                    }
+                  />
+                  <Bar
+                    dataKey="quantity"
+                    fill="#15110F"
+                    radius={[0, 0, 0, 0]}
+                    maxBarSize={40}
+                  />
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <div className="h-96 flex flex-col items-center justify-center text-mute font-jakarta">
+                <Package size={40} className="mb-2 text-hairline" />
+                <p className="text-xs font-bold uppercase tracking-wider">No product data available</p>
+              </div>
+            )}
+          </div>
+
+          {/* Revenue by Category Horizontal Bar Chart */}
+          <div className="bg-canvas border border-hairline p-6 rounded-none">
+            <div className="flex items-center gap-3 mb-6 font-jakarta">
+              <div className="w-8 h-8 bg-ink rounded-full flex items-center justify-center">
+                <DollarSign size={15} className="text-canvas" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-ink">Revenue by Category</h3>
+                <p className="text-[10px] text-mute uppercase tracking-widest mt-0.5">Compare food vs drinks performance</p>
+              </div>
+            </div>
+
+            {topProducts.length > 0 ? (
+              <ChartContainer
+                config={{
+                  Food: {
+                    label: "Food",
+                    color: "#15110F",
+                  },
+                  Drinks: {
+                    label: "Drinks",
+                    color: "#C0392B",
+                  },
+                }}
+                className="h-44 w-full"
+              >
+                <BarChart
+                  data={(() => {
+                    const foodRevenue = topProducts
+                      .filter(p => p.product.category === 'MAKANAN')
+                      .reduce((sum, p) => sum + p.totalRevenue, 0)
+                    const drinkRevenue = topProducts
+                      .filter(p => p.product.category === 'MINUMAN')
+                      .reduce((sum, p) => sum + p.totalRevenue, 0)
+                    const foodQty = topProducts
+                      .filter(p => p.product.category === 'MAKANAN')
+                      .reduce((sum, p) => sum + p.quantitySold, 0)
+                    const drinkQty = topProducts
+                      .filter(p => p.product.category === 'MINUMAN')
+                      .reduce((sum, p) => sum + p.quantitySold, 0)
+                    
+                    return [
+                      { category: 'Makanan', revenue: foodRevenue, quantity: foodQty, fill: '#15110F' },
+                      { category: 'Minuman', revenue: drinkRevenue, quantity: drinkQty, fill: '#D35400' }
+                    ]
+                  })()}
+                  layout="vertical"
+                  margin={{ left: 10, right: 10 }}
+                >
+                  <XAxis type="number" dataKey="revenue" hide />
+                  <YAxis
+                    dataKey="category"
+                    type="category"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    width={80}
+                    tick={{ fill: '#15110F', fontSize: 11, fontWeight: 700 }}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent
+                        hideLabel
+                        className="w-48 bg-canvas border border-hairline"
+                        formatter={(value: any, name: any, props: any) => (
+                          <div className="flex flex-col gap-1 text-ink font-inter">
+                            <div className="font-bold text-xs uppercase tracking-wider font-jakarta border-b border-hairline pb-1 mb-1">
+                              {props.payload.category}
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-[10px] text-mute uppercase font-semibold">Revenue:</span>
+                              <span className="font-bold text-xs text-ink">
+                                Rp {Number(props.payload.revenue).toLocaleString('id-ID')}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-[10px] text-mute uppercase font-semibold">Quantity:</span>
+                              <span className="font-bold text-xs text-mute">
+                                {props.payload.quantity} items sold
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      />
+                    }
+                  />
+                  <Bar dataKey="revenue" radius={[0, 0, 0, 0]}>
+                    {[
+                      { category: 'Makanan', fill: '#15110F' },
+                      { category: 'Minuman', fill: '#D35400' }
+                    ].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            ) : (
+              <div className="h-44 flex items-center justify-center text-mute font-jakarta">
+                <p className="text-xs font-bold uppercase tracking-wider">No category data available</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Top Products Lists */}
+          <div className="bg-canvas border border-hairline p-6 rounded-none font-jakarta">
+            <h3 className="mb-5 text-sm font-bold uppercase tracking-wider text-ink border-b border-hairline pb-3">Top Products</h3>
+
+            {/* Foods */}
+            {foodProducts.length > 0 && (
+              <div className="mb-6 font-inter">
+                <h4 className="text-xs font-bold text-mute uppercase tracking-widest mb-3">🍽️ Makanan</h4>
+                <div className="space-y-2">
+                  {foodProducts.slice(0, 5).map((item, index) => (
+                    <div key={index} className="flex items-center justify-between bg-soft-cloud p-3.5 border border-hairline rounded-none">
+                      <div className="flex-1 pr-2">
+                        <p className="font-bold text-ink text-xs uppercase tracking-wide">{item.product.name}</p>
+                        <p className="text-[10px] text-mute mt-0.5 font-bold uppercase tracking-wider">{item.quantitySold} terjual</p>
+                      </div>
+                      <p className="font-bold text-ink text-xs font-jakarta">
+                        Rp {item.totalRevenue.toLocaleString('id-ID')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Drinks */}
+            {drinkProducts.length > 0 && (
+              <div className="font-inter">
+                <h4 className="text-xs font-bold text-mute uppercase tracking-widest mb-3">🥤 Minuman</h4>
+                <div className="space-y-2">
+                  {drinkProducts.slice(0, 5).map((item, index) => (
+                    <div key={index} className="flex items-center justify-between bg-soft-cloud p-3.5 border border-hairline rounded-none">
+                      <div className="flex-1 pr-2">
+                        <p className="font-bold text-ink text-xs uppercase tracking-wide">{item.product.name}</p>
+                        <p className="text-[10px] text-mute mt-0.5 font-bold uppercase tracking-wider">{item.quantitySold} terjual</p>
+                      </div>
+                      <p className="font-bold text-ink text-xs font-jakarta">
+                        Rp {item.totalRevenue.toLocaleString('id-ID')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {topProducts.length === 0 && (
+              <p className="text-center text-mute py-8 text-xs font-bold uppercase tracking-wider">No product data available</p>
+            )}
+          </div>
+
+          {/* Revenue Breakdown */}
+          {revenue && (
+            <div className="bg-canvas border border-hairline p-6 rounded-none font-jakarta">
+              <h3 className="mb-5 text-sm font-bold uppercase tracking-wider text-ink border-b border-hairline pb-3">Revenue Breakdown</h3>
+
+              <div className="space-y-6">
+                {/* By Payment Method */}
+                <div>
+                  <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-mute text-center">By Payment Method</h4>
+                  <ChartContainer
+                    config={{
+                      CASH: { label: "Cash", color: "#15110F" },
+                      QRIS: { label: "QRIS", color: "#D35400" }
+                    }}
+                    className="mx-auto aspect-square max-h-[200px]"
+                  >
+                    <PieChart>
+                      <ChartTooltip
+                        content={
+                          <ChartTooltipContent
+                            className="bg-canvas border border-hairline font-inter"
+                            formatter={(value: any, name: any) => (
+                              <div className="flex items-center justify-between gap-4 text-ink">
+                                <span className="text-[10px] text-mute uppercase font-semibold">{name}:</span>
+                                <span className="font-bold text-xs">
+                                  Rp {Number(value).toLocaleString('id-ID')}
+                                </span>
+                              </div>
+                            )}
+                          />
+                        }
+                      />
+                      <Pie
+                        data={[
+                          { method: "CASH", revenue: revenue.revenueByMethod.CASH, fill: "#15110F" },
+                          { method: "QRIS", revenue: revenue.revenueByMethod.QRIS, fill: "#D35400" },
+                        ]}
+                        dataKey="revenue"
+                        nameKey="method"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={65}
+                      />
+                    </PieChart>
+                  </ChartContainer>
+
+                  {/* Legend */}
+                  <div className="flex justify-center gap-4 mt-2 font-inter">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 bg-ink rounded-none"></div>
+                      <span className="text-[10px] text-mute uppercase font-semibold">Cash:</span>
+                      <span className="text-xs font-bold text-ink">
+                        Rp {revenue.revenueByMethod.CASH.toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 bg-[#D35400] rounded-none"></div>
+                      <span className="text-[10px] text-mute uppercase font-semibold">QRIS:</span>
+                      <span className="text-xs font-bold text-ink">
+                        Rp {revenue.revenueByMethod.QRIS.toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* By Order Type */}
+                <div className="pt-4 border-t border-hairline font-jakarta">
+                  <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-mute text-center">By Order Type</h4>
+                  <ChartContainer
+                    config={{
+                      DINE_IN: { label: "Dine-In", color: "#15110F" },
+                      TAKEAWAY: { label: "Takeaway", color: "#C0392B" }
+                    }}
+                    className="mx-auto aspect-square max-h-[200px]"
+                  >
+                    <PieChart>
+                      <ChartTooltip
+                        content={
+                          <ChartTooltipContent
+                            className="bg-canvas border border-hairline font-inter"
+                            formatter={(value: any, name: any) => (
+                              <div className="flex items-center justify-between gap-4 text-ink">
+                                <span className="text-[10px] text-mute uppercase font-semibold">{name}:</span>
+                                <span className="font-bold text-xs">
+                                  Rp {Number(value).toLocaleString('id-ID')}
+                                </span>
+                              </div>
+                            )}
+                          />
+                        }
+                      />
+                      <Pie
+                        data={[
+                          { type: "Dine-In", revenue: revenue.revenueByOrderType.DINE_IN, fill: "#15110F" },
+                          { type: "Takeaway", revenue: revenue.revenueByOrderType.TAKEAWAY, fill: "#C0392B" },
+                        ]}
+                        dataKey="revenue"
+                        nameKey="type"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={65}
+                      />
+                    </PieChart>
+                  </ChartContainer>
+
+                  {/* Legend */}
+                  <div className="flex justify-center gap-4 mt-2 font-inter">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 bg-ink rounded-none"></div>
+                      <span className="text-[10px] text-mute uppercase font-semibold">Dine-In:</span>
+                      <span className="text-xs font-bold text-ink">
+                        Rp {revenue.revenueByOrderType.DINE_IN.toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 bg-sale rounded-none"></div>
+                      <span className="text-[10px] text-mute uppercase font-semibold">Takeaway:</span>
+                      <span className="text-xs font-bold text-ink">
+                        Rp {revenue.revenueByOrderType.TAKEAWAY.toLocaleString('id-ID')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </OwnerShell>
   )

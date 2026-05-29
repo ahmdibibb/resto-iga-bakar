@@ -52,53 +52,53 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4">
+            <div className="bg-canvas border border-hairline rounded-none shadow-none max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 {/* Header */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                <div className="sticky top-0 bg-canvas border-b border-hairline px-6 py-4 flex items-center justify-between rounded-none z-10">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
-                        <p className="text-sm text-gray-500">{order.orderNumber}</p>
+                        <h2 className="text-lg font-bold text-ink uppercase tracking-wider font-jakarta">Order Details</h2>
+                        <p className="text-xs text-mute font-semibold mt-0.5">{order.orderNumber}</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="p-1 rounded-full text-mute hover:text-ink hover:bg-soft-cloud transition-colors cursor-pointer"
                     >
-                        <X size={24} />
+                        <X size={20} />
                     </button>
                 </div>
 
                 {/* Content */}
                 <div className="p-6 space-y-6">
                     {/* Customer Info */}
-                    <div className="bg-gray-50 rounded-xl p-4">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-2">Customer Information</h3>
+                    <div className="bg-soft-cloud border border-hairline p-4 rounded-none">
+                        <h3 className="text-xs font-bold text-ink uppercase tracking-wider mb-2">Customer Information</h3>
                         <div className="space-y-1">
-                            <p className="text-gray-900 font-medium">{order.customerName || order.user?.name || 'Guest'}</p>
-                            {order.user?.email && <p className="text-sm text-gray-600">{order.user.email}</p>}
+                            <p className="text-ink font-semibold text-sm">{order.customerName || order.user?.name || 'Guest'}</p>
+                            {order.user?.email && <p className="text-xs text-charcoal">{order.user.email}</p>}
                         </div>
                     </div>
 
                     {/* Order Info */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className="text-xs text-gray-500 mb-1">Order Type</p>
-                            <p className="font-medium text-gray-900">
+                            <p className="text-[10px] font-bold text-mute uppercase tracking-wider mb-1">Order Type</p>
+                            <p className="font-semibold text-xs text-ink">
                                 {order.orderType === 'DINE_IN' ? '🍽️ Dine-In' : '🥡 Takeaway'}
                             </p>
                             {(order.table?.name || order.tableNumber) && (
-                                <p className="text-sm text-gray-600">Table {order.table?.name || order.tableNumber}</p>
+                                <p className="text-xs text-charcoal mt-0.5">Table {order.table?.name || order.tableNumber}</p>
                             )}
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500 mb-1">Status</p>
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(order.status)}`}>
+                            <p className="text-[10px] font-bold text-mute uppercase tracking-wider mb-1">Status</p>
+                            <span className={`inline-block border px-2.5 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(order.status)}`}>
                                 {order.status}
                             </span>
                         </div>
                         <div className="col-span-2">
-                            <p className="text-xs text-gray-500 mb-1">Order Date</p>
-                            <p className="font-medium text-gray-900">
+                            <p className="text-[10px] font-bold text-mute uppercase tracking-wider mb-1">Order Date</p>
+                            <p className="font-semibold text-xs text-ink">
                                 {new Date(order.createdAt).toLocaleString('id-ID', {
                                     dateStyle: 'medium',
                                     timeStyle: 'short'
@@ -109,17 +109,17 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
 
                     {/* Order Items */}
                     <div>
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Order Items</h3>
+                        <h3 className="text-xs font-bold text-ink uppercase tracking-wider mb-3">Order Items</h3>
                         <div className="space-y-3">
                             {order.items.map((item) => (
-                                <div key={item.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                                <div key={item.id} className="flex items-center justify-between bg-soft-cloud border border-hairline p-3 rounded-none">
                                     <div className="flex-1">
-                                        <p className="font-medium text-gray-900">{item.product.name}</p>
-                                        <p className="text-sm text-gray-600">
+                                        <p className="font-semibold text-xs text-ink">{item.product.name}</p>
+                                        <p className="text-[10px] text-charcoal mt-0.5">
                                             {item.quantity} × Rp {item.price.toLocaleString('id-ID')}
                                         </p>
                                     </div>
-                                    <p className="font-semibold text-gray-900">
+                                    <p className="font-bold text-xs text-ink">
                                         Rp {item.subtotal.toLocaleString('id-ID')}
                                     </p>
                                 </div>
@@ -128,10 +128,10 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
                     </div>
 
                     {/* Total */}
-                    <div className="border-t border-gray-200 pt-4">
+                    <div className="border-t border-hairline pt-4">
                         <div className="flex items-center justify-between">
-                            <p className="text-lg font-semibold text-gray-900">Total Amount</p>
-                            <p className="text-2xl font-bold text-orange-600">
+                            <p className="text-sm font-bold text-ink uppercase tracking-wider">Total Amount</p>
+                            <p className="text-lg font-bold text-ink">
                                 Rp {order.totalAmount.toLocaleString('id-ID')}
                             </p>
                         </div>
@@ -139,10 +139,10 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
                 </div>
 
                 {/* Footer */}
-                <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 rounded-b-2xl">
+                <div className="bg-soft-cloud border-t border-hairline px-6 py-4 rounded-none flex justify-end">
                     <button
                         onClick={onClose}
-                        className="w-full bg-orange-600 text-white py-2 rounded-xl hover:bg-orange-700 transition-colors font-medium"
+                        className="w-full bg-ink text-canvas py-2.5 rounded-full hover:bg-charcoal transition-all text-xs font-semibold uppercase tracking-wider cursor-pointer"
                     >
                         Close
                     </button>

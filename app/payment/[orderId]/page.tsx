@@ -203,10 +203,10 @@ export default function PaymentPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100">
+      <div className="flex min-h-screen items-center justify-center bg-canvas font-inter text-ink">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-orange-600 border-t-transparent"></div>
-          <p className="text-lg text-gray-600">Memuat...</p>
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-ink border-t-transparent"></div>
+          <p className="text-lg text-charcoal font-medium">Memuat...</p>
         </div>
       </div>
     )
@@ -214,14 +214,14 @@ export default function PaymentPage() {
 
   if (error && !order) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100">
-        <div className="text-center max-w-md mx-auto px-4">
+      <div className="flex min-h-screen items-center justify-center bg-canvas font-inter text-ink">
+        <div className="text-center max-w-md mx-auto px-4 rounded-none bg-soft-cloud border border-hairline p-12 shadow-none w-full">
           <div className="mb-4 text-6xl">😕</div>
-          <p className="text-xl font-semibold text-gray-800 mb-2">Oops!</p>
-          <p className="text-gray-600 mb-6">{error.message}</p>
+          <p className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2">Oops!</p>
+          <p className="text-charcoal mb-6 font-medium">{error.message}</p>
           <button
             onClick={() => router.push('/menu')}
-            className="rounded-lg bg-orange-600 px-6 py-3 text-white hover:bg-orange-700"
+            className="rounded-full bg-ink px-6 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
           >
             Kembali ke Menu
           </button>
@@ -239,7 +239,7 @@ export default function PaymentPage() {
           title: 'Scan QR Code untuk Pembayaran',
           description: 'Gunakan aplikasi e-wallet Anda untuk scan QR code di bawah ini',
           icon: '📱',
-          color: 'blue'
+          color: 'neutral'
         }
       }
       if (order.payment_status === 'PAID' && order.status !== 'COMPLETED') {
@@ -258,7 +258,7 @@ export default function PaymentPage() {
           title: 'Menunggu Pembayaran di Kasir',
           description: 'Silakan ke kasir untuk konfirmasi pembayaran cash',
           icon: '💵',
-          color: 'orange'
+          color: 'neutral'
         }
       }
     }
@@ -285,20 +285,20 @@ export default function PaymentPage() {
       title: 'Memproses Pesanan',
       description: 'Mohon tunggu sebentar...',
       icon: '⏳',
-      color: 'gray'
+      color: 'neutral'
     }
   }
 
   const statusMessage = getStatusMessage()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <div className="min-h-screen bg-canvas font-inter text-ink">
       {/* Header */}
-      <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10 shadow-sm">
+      <div className="border-b border-hairline bg-canvas/80 backdrop-blur-sm sticky top-0 z-10 shadow-none">
         <div className="mx-auto max-w-6xl px-4 py-4">
           <button
             onClick={() => router.push('/menu')}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-2 text-charcoal hover:text-ink transition-colors font-medium"
           >
             <ArrowLeft size={20} />
             <span className="font-medium">Kembali ke Menu</span>
@@ -308,23 +308,21 @@ export default function PaymentPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-8">
         {/* Status Message */}
-        <div className={`mb-8 rounded-2xl p-6 text-center ${
-          statusMessage.color === 'green' ? 'bg-green-50 border-2 border-green-200' :
-          statusMessage.color === 'blue' ? 'bg-blue-50 border-2 border-blue-200' :
-          statusMessage.color === 'orange' ? 'bg-orange-50 border-2 border-orange-200' :
-          statusMessage.color === 'red' ? 'bg-red-50 border-2 border-red-200' :
-          'bg-gray-50 border-2 border-gray-200'
+        <div className={`mb-8 rounded-none p-6 text-center border shadow-none ${
+          statusMessage.color === 'green' ? 'bg-success/10 border-success/20 text-success' :
+          statusMessage.color === 'red' ? 'bg-sale/10 border-sale/20 text-sale' :
+          'bg-soft-cloud border-hairline text-ink'
         }`}>
           <div className="text-6xl mb-4">{statusMessage.icon}</div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold font-jakarta text-ink uppercase tracking-tight mb-2">
             {statusMessage.title}
           </h1>
-          <p className="text-gray-600 text-lg">{statusMessage.description}</p>
+          <p className="text-charcoal text-lg font-medium">{statusMessage.description}</p>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-xl bg-red-50 border border-red-200 p-4">
-            <p className="text-sm text-red-600 font-medium">⚠️ {error.message}</p>
+          <div className="mb-6 rounded-none bg-sale/10 border border-sale/20 p-4">
+            <p className="text-sm text-sale font-bold">⚠️ {error.message}</p>
           </div>
         )}
 
@@ -333,10 +331,10 @@ export default function PaymentPage() {
           <div className="space-y-6">
             {/* QRIS QR Code */}
             {order.payment_method === 'QRIS' && order.status === 'PENDING_PAYMENT' && order.payment?.qris_string && (
-              <div className="rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">QR Code Pembayaran</h2>
+              <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
+                <h2 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-4 text-center">QR Code Pembayaran</h2>
                 <div className="flex justify-center mb-4">
-                  <div className="p-4 bg-white rounded-xl border-4 border-gray-200">
+                  <div className="p-4 bg-canvas rounded-none border border-hairline">
                     <QRCodeSVG
                       value={order.payment.qris_string}
                       size={256}
@@ -345,13 +343,13 @@ export default function PaymentPage() {
                     />
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 text-center mb-4">
+                <p className="text-sm text-charcoal text-center mb-4 font-medium">
                   Scan QR code ini dengan aplikasi e-wallet Anda
                 </p>
                 <button
                   onClick={handleConfirmPayment}
                   disabled={confirming}
-                  className="w-full rounded-xl bg-gradient-to-r from-green-500 to-green-600 py-4 text-lg font-bold text-white shadow-lg transition-all hover:from-green-600 hover:to-green-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-full bg-ink py-4 text-lg font-bold text-canvas transition-all hover:bg-ink/90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {confirming ? (
                     <span className="flex items-center justify-center gap-2">
@@ -367,12 +365,12 @@ export default function PaymentPage() {
 
             {/* CASH Message */}
             {order.payment_method === 'CASH' && (
-              <div className="rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
+              <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
                 <div className="text-center">
                   <div className="text-5xl mb-4">💵</div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">Pembayaran Cash</h2>
+                  <h2 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2">Pembayaran Cash</h2>
                   {order.status === 'PENDING_PAYMENT' && (
-                    <p className="text-gray-600">
+                    <p className="text-charcoal font-medium">
                       Silakan ke kasir untuk konfirmasi pembayaran cash.
                     </p>
                   )}
@@ -382,15 +380,15 @@ export default function PaymentPage() {
 
             {/* Order Processing Status */}
             {order.status === 'PENDING_PAYMENT' && order.payment_status !== 'PAID' && (
-              <div className="rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 p-6 shadow-lg border border-blue-200">
+              <div className="rounded-none bg-soft-cloud p-6 border border-hairline shadow-none">
                 <div className="flex items-center gap-3 mb-3">
-                  <Loader2 size={24} className="animate-spin text-blue-600" />
-                  <h3 className="text-lg font-bold text-gray-900">Status Pesanan</h3>
+                  <Loader2 size={24} className="animate-spin text-ink" />
+                  <h3 className="text-lg font-bold font-jakarta uppercase tracking-wider text-ink">Status Pesanan</h3>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <CheckCircle2 size={20} />
-                    <span className="font-medium">Menunggu Pembayaran</span>
+                  <div className="flex items-center gap-2 text-charcoal font-semibold">
+                    <CheckCircle2 size={20} className="text-ink" />
+                    <span>Menunggu Pembayaran</span>
                   </div>
                 </div>
               </div>
@@ -399,54 +397,54 @@ export default function PaymentPage() {
 
           {/* Right Side - Order Summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">Detail Pesanan</h2>
+            <div className="sticky top-24 rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <div className="flex items-center justify-between mb-4 border-b border-hairline pb-3">
+                <h2 className="text-lg font-bold font-jakarta text-ink uppercase tracking-tight">Detail Pesanan</h2>
                 <PaymentMethodBadge method={order.payment_method} />
               </div>
 
-              <div className="mb-4 rounded-xl bg-gray-50 p-4">
-                <p className="text-sm text-gray-600">Nomor Pesanan</p>
-                <p className="font-mono text-lg font-bold text-gray-900">{order.orderNumber}</p>
+              <div className="mb-4 rounded-none bg-soft-cloud p-4 border border-hairline">
+                <p className="text-sm text-charcoal font-medium">Nomor Pesanan</p>
+                <p className="font-mono text-lg font-bold text-ink uppercase tracking-tight">#{order.orderNumber}</p>
               </div>
 
               {order.customerName && (
-                <div className="mb-4 flex justify-between text-sm">
-                  <span className="text-gray-600">Customer</span>
-                  <span className="font-semibold text-gray-900">{order.customerName}</span>
+                <div className="mb-4 flex justify-between text-sm font-medium">
+                  <span className="text-charcoal">Customer</span>
+                  <span className="font-bold text-ink">{order.customerName}</span>
                 </div>
               )}
 
-              <div className="mb-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tipe</span>
-                  <span className="font-semibold text-gray-900">
+              <div className="mb-4 space-y-2 font-medium text-sm">
+                <div className="flex justify-between">
+                  <span className="text-charcoal">Tipe</span>
+                  <span className="font-bold text-ink">
                     {order.orderType === 'DINE_IN' ? '🍽️ Dine-in' : '🥡 Takeaway'}
                   </span>
                 </div>
                 {order.table && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Meja</span>
-                    <span className="font-semibold text-gray-900">{order.table.name}</span>
+                  <div className="flex justify-between">
+                    <span className="text-charcoal">Meja</span>
+                    <span className="font-bold text-ink">{order.table.name}</span>
                   </div>
                 )}
                 {order.orderType === 'DINE_IN' && order.tableNumber && !order.table && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Meja</span>
-                    <span className="font-semibold text-gray-900">#{order.tableNumber}</span>
+                  <div className="flex justify-between">
+                    <span className="text-charcoal">Meja</span>
+                    <span className="font-bold text-ink">#{order.tableNumber}</span>
                   </div>
                 )}
               </div>
 
-              <div className="mb-4 border-t border-gray-200 pt-4">
-                <p className="mb-2 text-sm font-semibold text-gray-700">Items:</p>
+              <div className="mb-4 border-t border-hairline pt-4">
+                <p className="mb-2 text-sm font-bold font-jakarta uppercase tracking-wider text-ink">Items:</p>
                 <div className="space-y-2">
                   {order.items.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-gray-600">
+                    <div key={item.id} className="flex justify-between text-sm font-medium">
+                      <span className="text-charcoal">
                         {item.product.name} x{item.quantity}
                       </span>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-bold text-ink font-inter">
                         Rp {(item.subtotal || 0).toLocaleString('id-ID')}
                       </span>
                     </div>
@@ -454,19 +452,19 @@ export default function PaymentPage() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4">
+              <div className="border-t border-hairline pt-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-gray-900">Total</span>
-                  <span className="text-3xl font-bold text-orange-600">
+                  <span className="text-lg font-bold font-jakarta text-ink uppercase tracking-wider">Total</span>
+                  <span className="text-3xl font-bold text-ink font-jakarta">
                     Rp {(order.totalAmount || 0).toLocaleString('id-ID')}
                   </span>
                 </div>
               </div>
 
               {order.notes && (
-                <div className="mt-4 rounded-xl bg-yellow-50 p-3 border border-yellow-200">
-                  <p className="text-xs text-gray-600 mb-1">Catatan:</p>
-                  <p className="text-sm text-gray-900">{order.notes}</p>
+                <div className="mt-4 rounded-none bg-soft-cloud p-3 border border-hairline">
+                  <p className="text-xs font-bold text-ink uppercase tracking-wider mb-1">Catatan:</p>
+                  <p className="text-sm text-charcoal font-medium">{order.notes}</p>
                 </div>
               )}
             </div>

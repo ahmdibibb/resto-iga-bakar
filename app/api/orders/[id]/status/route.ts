@@ -9,6 +9,7 @@ import {
   NotFoundError 
 } from '@/lib/errorHandler'
 import { withApiPermission } from '@/lib/apiPermissions'
+import { orderEventEmitter } from '@/lib/orderEvents'
 
 /**
  * PATCH /api/orders/[id]/status
@@ -60,6 +61,9 @@ export async function PATCH(
         status: status
       }
     })
+
+    // Emit event for real-time cashier dashboard
+    orderEventEmitter.emit('orderUpdate', { id: updatedOrder.id, status: updatedOrder.status })
 
     return NextResponse.json({
       id: updatedOrder.id,

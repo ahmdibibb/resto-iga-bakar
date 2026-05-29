@@ -121,27 +121,27 @@ export default function QRGeneratorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas font-inter text-ink">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white shadow-md">
+      <div className="sticky top-0 z-10 bg-canvas border-b border-hairline">
         <div className="mx-auto max-w-7xl px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/admin"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 text-charcoal hover:text-ink transition-colors"
               >
                 <ArrowLeft size={20} />
                 <span className="font-medium">Kembali</span>
               </Link>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold font-jakarta text-ink uppercase tracking-tight">
                 QR Code Generator
               </h1>
             </div>
             <button
               onClick={fetchTables}
               disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg disabled:opacity-50"
+              className="flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all disabled:opacity-50"
             >
               <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
               Refresh
@@ -153,17 +153,17 @@ export default function QRGeneratorPage() {
       {/* Loading State */}
       {loading && (
         <div className="mx-auto max-w-7xl px-4 py-12 text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
-          <p className="mt-4 text-gray-600">Memuat data meja...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-ink border-t-transparent"></div>
+          <p className="mt-4 text-charcoal font-medium">Memuat data meja...</p>
         </div>
       )}
 
       {/* Tables List */}
       {!loading && tables.length === 0 && (
         <div className="mx-auto max-w-7xl px-4 py-12 text-center">
-          <QrCode size={64} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 text-lg">Tidak ada meja yang tersedia.</p>
-          <p className="text-gray-500 text-sm mt-2">Silakan tambahkan meja terlebih dahulu.</p>
+          <QrCode size={64} className="mx-auto text-charcoal mb-4" />
+          <p className="text-ink text-lg font-bold font-jakarta uppercase tracking-tight">Tidak ada meja yang tersedia.</p>
+          <p className="text-charcoal text-sm mt-2">Silakan tambahkan meja terlebih dahulu.</p>
         </div>
       )}
 
@@ -173,11 +173,11 @@ export default function QRGeneratorPage() {
           {takeawayTable && (
             <div className="mb-8">
               <div className="mb-4">
-                <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <ShoppingBag size={24} className="text-purple-600" />
+                <h2 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2 flex items-center gap-2">
+                  <ShoppingBag size={24} className="text-ink" />
                   QR Code Takeaway
                 </h2>
-                <p className="text-gray-600 text-sm">
+                <p className="text-charcoal text-sm">
                   QR code khusus untuk pesanan takeaway (dibawa pulang).
                 </p>
               </div>
@@ -189,31 +189,31 @@ export default function QRGeneratorPage() {
                   const qrUrl = hasQR ? qrData[table.id].table.qr_url : `${baseUrl}/menu?takeaway=true&token=${table.qr_token}`
 
                   return (
-                    <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 p-6 shadow-lg border-2 border-purple-200">
+                    <div className="rounded-none bg-soft-cloud p-6 border border-hairline shadow-none">
                       {/* QR Code Preview */}
                       {hasQR ? (
                         <div className="mb-4">
-                          <div id={`qr-${table.id}`} className="flex flex-col items-center justify-center bg-white p-4 rounded-xl border-2 border-purple-300">
-                            <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1">
-                              <ShoppingBag size={14} className="text-purple-600" />
-                              <span className="text-xs font-bold text-purple-700">TAKEAWAY</span>
+                          <div id={`qr-${table.id}`} className="flex flex-col items-center justify-center bg-canvas p-4 rounded-none border border-hairline">
+                            <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-canvas">
+                              <ShoppingBag size={14} className="text-canvas" />
+                              <span className="text-xs font-bold uppercase tracking-wider font-jakarta">TAKEAWAY</span>
                             </div>
                             <QRCodeSVG
                               value={qrUrl}
                               size={200}
                               level="H"
                               includeMargin={true}
-                              fgColor="#9333ea"
+                              fgColor="#15110F"
                             />
-                            <p className="text-sm font-bold text-gray-900 mt-2">Takeaway Order</p>
+                            <p className="text-sm font-bold font-jakarta uppercase tracking-tight text-ink mt-2">Takeaway Order</p>
                           </div>
-                          <p className="text-xs text-gray-500 mt-2 break-all">{qrUrl}</p>
+                          <p className="text-xs text-charcoal mt-2 break-all font-medium">{qrUrl}</p>
                         </div>
                       ) : (
-                        <div className="mb-4 flex items-center justify-center bg-white rounded-xl border-2 border-dashed border-purple-300 h-64">
+                        <div className="mb-4 flex items-center justify-center bg-canvas rounded-none border border-dashed border-hairline h-64">
                           <div className="text-center">
-                            <QrCode size={48} className="mx-auto text-purple-400 mb-2" />
-                            <p className="text-gray-500 text-sm">QR Code belum di-generate</p>
+                            <QrCode size={48} className="mx-auto text-charcoal mb-2" />
+                            <p className="text-charcoal text-sm font-medium">QR Code belum di-generate</p>
                           </div>
                         </div>
                       )}
@@ -224,11 +224,11 @@ export default function QRGeneratorPage() {
                           <button
                             onClick={() => handleGenerateQR(table.id)}
                             disabled={generatingQR === table.id}
-                            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-3 text-white font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-md disabled:opacity-50"
+                            className="flex-1 flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all disabled:opacity-50"
                           >
                             {generatingQR === table.id ? (
                               <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-canvas border-t-transparent"></div>
                                 Generating...
                               </>
                             ) : (
@@ -242,7 +242,7 @@ export default function QRGeneratorPage() {
                           <>
                             <button
                               onClick={() => handleDownloadQR(table.id, 'TAKEAWAY')}
-                              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-white font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-md"
+                              className="flex-1 flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
                             >
                               <Download size={18} />
                               Download QR Code
@@ -250,7 +250,7 @@ export default function QRGeneratorPage() {
                             <button
                               onClick={() => handleGenerateQR(table.id)}
                               disabled={generatingQR === table.id}
-                              className="px-4 py-3 rounded-xl bg-white text-purple-700 font-semibold hover:bg-purple-50 transition-all border-2 border-purple-200"
+                              className="px-4 py-3 rounded-full bg-soft-cloud text-ink font-semibold hover:bg-hairline-soft transition-all border border-hairline active:scale-95"
                               title="Regenerate QR"
                             >
                               <RefreshCw size={18} />
@@ -266,12 +266,12 @@ export default function QRGeneratorPage() {
           )}
 
           {/* Regular Tables Section */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <UtensilsCrossed size={24} className="text-orange-600" />
+          <div className="mb-6 border-t border-hairline pt-8">
+            <h2 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2 flex items-center gap-2">
+              <UtensilsCrossed size={24} className="text-ink" />
               Daftar Meja ({regularTables.length} meja)
             </h2>
-            <p className="text-gray-600 text-sm">
+            <p className="text-charcoal text-sm">
               Klik "Generate QR" untuk membuat QR code, lalu klik "Download QR Code" untuk menyimpan sebagai gambar.
             </p>
           </div>
@@ -284,38 +284,38 @@ export default function QRGeneratorPage() {
               return (
                 <div
                   key={table.id}
-                  className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100"
+                  className="rounded-none bg-canvas p-6 border border-hairline shadow-none"
                 >
                   {/* Table Header */}
                   <div className="flex items-center gap-2 mb-4">
-                    <UtensilsCrossed size={20} className="text-orange-600" />
-                    <h3 className="text-lg font-bold text-gray-900">{table.name}</h3>
+                    <UtensilsCrossed size={20} className="text-ink" />
+                    <h3 className="text-lg font-bold font-jakarta text-ink">{table.name}</h3>
                   </div>
 
                   {/* QR Code Preview */}
                   {hasQR ? (
                     <div className="mb-4">
-                      <div id={`qr-${table.id}`} className="flex flex-col items-center justify-center bg-white p-4 rounded-xl border-2 border-gray-200">
-                        <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1">
-                          <UtensilsCrossed size={14} className="text-orange-600" />
-                          <span className="text-xs font-bold text-orange-700">{table.name}</span>
+                      <div id={`qr-${table.id}`} className="flex flex-col items-center justify-center bg-canvas p-4 rounded-none border border-hairline">
+                        <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-canvas">
+                          <UtensilsCrossed size={14} className="text-canvas" />
+                          <span className="text-xs font-bold font-jakarta uppercase tracking-wider">{table.name}</span>
                         </div>
                         <QRCodeSVG
                           value={qrUrl}
                           size={200}
                           level="H"
                           includeMargin={true}
-                          fgColor="#ea580c"
+                          fgColor="#15110F"
                         />
-                        <p className="text-sm font-bold text-gray-900 mt-2">{table.name}</p>
+                        <p className="text-sm font-bold font-jakarta uppercase tracking-tight text-ink mt-2">{table.name}</p>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2 break-all">{qrUrl}</p>
+                      <p className="text-xs text-charcoal mt-2 break-all font-medium">{qrUrl}</p>
                     </div>
                   ) : (
-                    <div className="mb-4 flex items-center justify-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 h-64">
+                    <div className="mb-4 flex items-center justify-center bg-soft-cloud rounded-none border border-dashed border-hairline h-64">
                       <div className="text-center">
-                        <QrCode size={48} className="mx-auto text-gray-400 mb-2" />
-                        <p className="text-gray-500 text-sm">QR Code belum di-generate</p>
+                        <QrCode size={48} className="mx-auto text-charcoal mb-2" />
+                        <p className="text-charcoal text-sm font-medium">QR Code belum di-generate</p>
                       </div>
                     </div>
                   )}
@@ -326,11 +326,11 @@ export default function QRGeneratorPage() {
                       <button
                         onClick={() => handleGenerateQR(table.id)}
                         disabled={generatingQR === table.id}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all shadow-md disabled:opacity-50"
+                        className="flex-1 flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all disabled:opacity-50"
                       >
                         {generatingQR === table.id ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-canvas border-t-transparent"></div>
                             Generating...
                           </>
                         ) : (
@@ -344,7 +344,7 @@ export default function QRGeneratorPage() {
                       <>
                         <button
                           onClick={() => handleDownloadQR(table.id, table.name)}
-                          className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-white font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-md"
+                          className="flex-1 flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
                         >
                           <Download size={18} />
                           Download QR Code
@@ -352,7 +352,7 @@ export default function QRGeneratorPage() {
                         <button
                           onClick={() => handleGenerateQR(table.id)}
                           disabled={generatingQR === table.id}
-                          className="px-4 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all"
+                          className="px-4 py-3 rounded-full bg-soft-cloud text-ink font-semibold hover:bg-hairline-soft border border-hairline active:scale-95 transition-all"
                           title="Regenerate QR"
                         >
                           <RefreshCw size={18} />

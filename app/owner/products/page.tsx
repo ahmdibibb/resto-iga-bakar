@@ -44,44 +44,44 @@ export default function OwnerProductsPage() {
       subtitle="Monitor inventori dan status produk"
       onRefresh={fetchProducts}
     >
-      <div className="space-y-5">
+      <div className="space-y-5 font-inter text-ink">
 
         {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200">
-            <p className="text-sm text-red-800 font-medium">⚠️ {error}</p>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-none bg-canvas border border-sale">
+            <p className="text-sm text-sale font-semibold">⚠️ {error}</p>
           </div>
         )}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Total Produk', value: products.length, color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-            { label: 'Aktif', value: activeCount, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-            { label: 'Non-aktif', value: products.length - activeCount, color: 'text-gray-600', bg: 'bg-gray-50 border-gray-200' },
-            { label: 'Stok Rendah', value: lowStock.length, color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
+            { label: 'Total Produk', value: products.length, color: 'text-ink', bg: 'bg-soft-cloud border-hairline' },
+            { label: 'Aktif', value: activeCount, color: 'text-success', bg: 'bg-soft-cloud border-hairline' },
+            { label: 'Non-aktif', value: products.length - activeCount, color: 'text-mute', bg: 'bg-soft-cloud border-hairline' },
+            { label: 'Stok Rendah', value: lowStock.length, color: lowStock.length > 0 ? 'text-sale' : 'text-ink', bg: 'bg-soft-cloud border-hairline' },
           ].map((card) => (
-            <div key={card.label} className={`rounded-2xl p-4 border ${card.bg} shadow-sm`}>
-              <p className="text-xs text-gray-500 font-medium">{card.label}</p>
-              <p className={`text-3xl font-bold mt-1 ${card.color}`}>{card.value}</p>
+            <div key={card.label} className={`rounded-none p-4 border ${card.bg}`}>
+              <p className="text-[10px] text-mute font-bold uppercase tracking-wider font-jakarta">{card.label}</p>
+              <p className={`text-2xl font-black mt-1 font-jakarta ${card.color}`}>{card.value}</p>
             </div>
           ))}
         </div>
 
         {/* Low Stock Alert */}
         {lowStock.length > 0 && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-200">
+          <div className="bg-canvas p-5 border border-sale rounded-none">
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                <AlertTriangle size={18} className="text-white" />
+              <div className="w-9 h-9 bg-sale rounded-full flex items-center justify-center flex-shrink-0">
+                <AlertTriangle size={16} className="text-canvas" />
               </div>
-              <div className="flex-1">
-                <h4 className="font-bold text-amber-900 mb-1">⚠️ Low Stock Alert</h4>
-                <p className="text-sm text-amber-700 mb-3">{lowStock.length} produk perlu segera direstok (stok &lt; 10)</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="flex-1 font-jakarta">
+                <h4 className="font-bold text-sale uppercase tracking-wider text-xs mb-1">⚠️ Peringatan Stok Tipis</h4>
+                <p className="text-xs text-charcoal mb-3">{lowStock.length} produk perlu segera direstok (stok &lt; 10)</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-inter">
                   {lowStock.map(product => (
-                    <div key={product.id} className="flex items-center justify-between bg-white/70 rounded-xl px-4 py-2.5 border border-amber-100">
-                      <span className="text-sm font-medium text-amber-900">{product.name}</span>
-                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${product.stock === 0 ? 'bg-red-200 text-red-800' : 'bg-amber-200 text-amber-800'}`}>
+                    <div key={product.id} className="flex items-center justify-between bg-soft-cloud rounded-none px-4 py-2 border border-hairline">
+                      <span className="text-xs font-bold text-ink uppercase tracking-wide">{product.name}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${product.stock === 0 ? 'bg-sale text-canvas' : 'bg-soft-cloud border border-hairline text-ink'}`}>
                         {product.stock} unit
                       </span>
                     </div>
@@ -93,20 +93,20 @@ export default function OwnerProductsPage() {
         )}
 
         {/* Products Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-4">
-            <div className="flex items-center gap-2 flex-1">
-              <Package size={18} className="text-blue-600" />
-              <h3 className="font-bold text-gray-900">Daftar Produk</h3>
+        <div className="bg-canvas rounded-none border border-hairline overflow-hidden">
+          <div className="px-5 py-4 border-b border-hairline flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-jakarta">
+            <div className="flex items-center gap-2">
+              <Package size={16} className="text-ink" />
+              <h3 className="font-bold text-ink uppercase tracking-wider text-sm">Daftar Produk</h3>
             </div>
-            <div className="relative">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="relative self-start sm:self-auto">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari produk..."
-                className="pl-8 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white w-52 transition-colors"
+                className="pl-8 pr-4 py-2 text-xs border border-hairline rounded-full focus:border-ink focus:outline-none bg-soft-cloud focus:bg-canvas w-52 transition-colors font-semibold"
               />
             </div>
           </div>
@@ -114,74 +114,72 @@ export default function OwnerProductsPage() {
           {fetching ? (
             <div className="p-8 space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="animate-pulse flex items-center gap-4 py-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded-xl" />
+                <div key={i} className="animate-pulse flex items-center gap-4 py-3 border-b border-hairline/50">
+                  <div className="w-11 h-11 bg-soft-cloud border border-hairline" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-1/3" />
-                    <div className="h-3 bg-gray-100 rounded w-1/4" />
+                    <div className="h-4 bg-soft-cloud rounded w-1/3" />
+                    <div className="h-3 bg-soft-cloud rounded w-1/4" />
                   </div>
-                  <div className="h-4 bg-gray-200 rounded w-24" />
-                  <div className="h-4 bg-gray-200 rounded w-16" />
+                  <div className="h-4 bg-soft-cloud rounded w-24" />
+                  <div className="h-4 bg-soft-cloud rounded w-16" />
                 </div>
               ))}
             </div>
           ) : filtered.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50/80">
-                  <tr>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Produk</th>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kategori</th>
-                    <th className="text-right py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Harga</th>
-                    <th className="text-right py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Stok</th>
-                    <th className="text-center py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-soft-cloud border-b border-hairline">
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta">Produk</th>
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta">Kategori</th>
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta text-right">Harga</th>
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta text-right">Stok</th>
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-hairline">
                   {filtered.map((product) => (
-                    <tr key={product.id} className="border-t border-gray-50 hover:bg-blue-50/20 transition-colors">
+                    <tr key={product.id} className="hover:bg-soft-cloud/30 transition-colors">
                       <td className="py-3.5 px-5">
                         <div className="flex items-center gap-3">
                           {product.image ? (
-                            <img src={product.image} alt={product.name} className="w-11 h-11 rounded-xl object-cover shadow-sm border border-gray-100" />
+                            <img src={product.image} alt={product.name} className="w-11 h-11 rounded-none object-cover border border-hairline bg-soft-cloud" />
                           ) : (
-                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border border-gray-100">
-                              <Package size={18} className="text-gray-400" />
+                            <div className="w-11 h-11 rounded-none bg-soft-cloud flex items-center justify-center border border-hairline">
+                              <Package size={16} className="text-mute" />
                             </div>
                           )}
                           <div>
-                            <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
+                            <p className="font-bold text-ink text-xs uppercase tracking-wide">{product.name}</p>
                             {product.description && (
-                              <p className="text-xs text-gray-400 line-clamp-1 max-w-xs">{product.description}</p>
+                              <p className="text-[10px] text-mute line-clamp-1 max-w-xs">{product.description}</p>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="py-3.5 px-5">
-                        <span className="text-xs font-medium px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-soft-cloud border border-hairline text-ink">
                           {product.category || 'Uncategorized'}
                         </span>
                       </td>
-                      <td className="py-3.5 px-5 text-right">
-                        <span className="text-sm font-bold text-gray-900">
-                          Rp {Number(product.price).toLocaleString('id-ID')}
-                        </span>
+                      <td className="py-3.5 px-5 text-right font-jakarta font-bold text-xs">
+                        Rp {Number(product.price).toLocaleString('id-ID')}
                       </td>
                       <td className="py-3.5 px-5 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <span className={`text-sm font-bold ${product.stock === 0 ? 'text-red-600' : product.stock < 10 ? 'text-amber-600' : 'text-gray-900'}`}>
+                          <span className={`text-xs font-bold ${product.stock === 0 ? 'text-sale' : product.stock < 10 ? 'text-sale' : 'text-ink'}`}>
                             {product.stock}
                           </span>
                           {product.stock < 10 && (
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${product.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${product.stock === 0 ? 'bg-sale text-canvas border-sale' : 'bg-canvas text-sale border-sale'}`}>
                               {product.stock === 0 ? 'HABIS' : 'LOW'}
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="py-3.5 px-5 text-center">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
-                          product.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                          product.isActive ? 'bg-canvas text-success border-success' : 'bg-canvas text-mute border-hairline'
                         }`}>
                           {product.isActive ? 'Aktif' : 'Non-aktif'}
                         </span>
@@ -192,9 +190,9 @@ export default function OwnerProductsPage() {
               </table>
             </div>
           ) : (
-            <div className="text-center py-16">
-              <Package size={48} className="mx-auto mb-3 text-gray-200" />
-              <p className="text-gray-500 font-medium">{search ? 'Produk tidak ditemukan' : 'Belum ada produk'}</p>
+            <div className="text-center py-16 text-mute">
+              <Package size={40} className="mx-auto mb-3 text-hairline" />
+              <p className="text-xs font-bold uppercase tracking-wider">{search ? 'Produk tidak ditemukan' : 'Belum ada produk'}</p>
             </div>
           )}
         </div>

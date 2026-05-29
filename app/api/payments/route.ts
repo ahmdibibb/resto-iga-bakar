@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { handleApiError, OrderValidationError, NotFoundError, ConflictError } from '@/lib/errorHandler'
+import { orderEventEmitter } from '@/lib/orderEvents'
 
 // POST create payment (Guest or Authenticated)
 export async function POST(request: NextRequest) {
@@ -82,6 +83,9 @@ export async function POST(request: NextRequest) {
         where: { id: orderId },
         data: { status: 'CONFIRMED' },
       })
+
+      // Emit event for real-time cashier dashboard
+      orderEventEmitter.emit('orderUpdate', { id: orderId, status: 'CONFIRMED', payment_status: 'PAID' })
     }
 
     // Convert Decimal to number for frontend

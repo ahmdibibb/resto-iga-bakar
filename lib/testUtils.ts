@@ -38,7 +38,6 @@ export async function generateTestUsers(config: {
   owners?: number
   admins?: number
   kasirs?: number
-  users?: number
 }): Promise<TestUserData[]> {
   const testUsers: TestUserData[] = []
 
@@ -60,13 +59,6 @@ export async function generateTestUsers(config: {
   if (config.kasirs) {
     for (let i = 1; i <= config.kasirs; i++) {
       testUsers.push(await generateTestUser('KASIR', i))
-    }
-  }
-
-  // Generate USER users
-  if (config.users) {
-    for (let i = 1; i <= config.users; i++) {
-      testUsers.push(await generateTestUser('USER', i))
     }
   }
 

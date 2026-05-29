@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
+import { orderEventEmitter } from '@/lib/orderEvents'
 import { 
   handleApiError, 
   NotFoundError, 
@@ -48,6 +49,9 @@ export async function PATCH(
         status: 'COMPLETED'
       }
     })
+
+    // Emit event for real-time cashier dashboard
+    orderEventEmitter.emit('orderUpdate', { id: updatedOrder.id, status: updatedOrder.status })
 
     return NextResponse.json({
       id: updatedOrder.id,

@@ -35,24 +35,22 @@ export default function OwnerUsersPage() {
 
   const getRoleStyle = (role: string) => {
     const map: Record<string, { badge: string; dot: string; label: string }> = {
-      OWNER:  { badge: 'bg-violet-100 text-violet-700 border-violet-200', dot: 'bg-violet-500', label: 'Owner' },
-      ADMIN:  { badge: 'bg-blue-100 text-blue-700 border-blue-200',       dot: 'bg-blue-500',   label: 'Admin' },
-      KASIR:  { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500', label: 'Kasir' },
-      USER:   { badge: 'bg-gray-100 text-gray-600 border-gray-200',       dot: 'bg-gray-400',   label: 'User' },
+      OWNER:  { badge: 'bg-canvas text-ink border-ink',       dot: 'bg-ink',   label: 'Owner' },
+      ADMIN:  { badge: 'bg-canvas text-ink border-ink',       dot: 'bg-ink',   label: 'Admin' },
+      KASIR:  { badge: 'bg-canvas text-success border-success', dot: 'bg-success', label: 'Kasir' },
     }
-    return map[role] || map.USER
+    return map[role] || { badge: 'bg-canvas text-mute border-hairline', dot: 'bg-mute', label: role }
   }
 
   const getInitials = (name: string) => name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
 
-  const getAvatarGradient = (role: string) => {
+  const getAvatarBg = (role: string) => {
     const map: Record<string, string> = {
-      OWNER: 'from-violet-500 to-indigo-600',
-      ADMIN: 'from-blue-500 to-blue-700',
-      KASIR: 'from-emerald-500 to-teal-600',
-      USER:  'from-gray-400 to-gray-600',
+      OWNER: 'bg-ink text-canvas',
+      ADMIN: 'bg-ink text-canvas',
+      KASIR: 'bg-soft-cloud text-ink',
     }
-    return map[role] || map.USER
+    return map[role] || 'bg-soft-cloud text-ink'
   }
 
   const filtered = users.filter(u =>
@@ -68,28 +66,26 @@ export default function OwnerUsersPage() {
       subtitle="Monitor akun sistem dan peran pengguna"
       onRefresh={fetchUsers}
     >
-      <div className="space-y-5">
+      <div className="space-y-5 font-inter text-ink">
 
         {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200">
-            <p className="text-sm text-red-800 font-medium">⚠️ {error}</p>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-none bg-canvas border border-sale">
+            <p className="text-sm text-sale font-semibold">⚠️ {error}</p>
           </div>
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { label: 'Total Users', value: users.length, color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200', icon: Users },
-            { label: 'Admin', value: roleCount('ADMIN'), color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200', icon: Shield },
-            { label: 'Kasir', value: roleCount('KASIR'), color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: UserCheck },
-            { label: 'Customers', value: roleCount('USER'), color: 'text-gray-600', bg: 'bg-gray-50 border-gray-200', icon: Users },
+            { label: 'Total Users', value: users.length, bg: 'bg-soft-cloud border-hairline' },
+            { label: 'Admin', value: roleCount('ADMIN'), bg: 'bg-soft-cloud border-hairline' },
+            { label: 'Kasir', value: roleCount('KASIR'), bg: 'bg-soft-cloud border-hairline' },
           ].map((card) => {
-            const Icon = card.icon
             return (
-              <div key={card.label} className={`rounded-2xl p-4 border ${card.bg} shadow-sm flex items-center gap-4`}>
+              <div key={card.label} className={`rounded-none p-4 border ${card.bg}`}>
                 <div>
-                  <p className="text-xs text-gray-500 font-medium">{card.label}</p>
-                  <p className={`text-3xl font-bold mt-1 ${card.color}`}>{card.value}</p>
+                  <p className="text-[10px] text-mute font-bold uppercase tracking-wider font-jakarta">{card.label}</p>
+                  <p className="text-2xl font-black mt-1 font-jakarta text-ink">{card.value}</p>
                 </div>
               </div>
             )
@@ -97,82 +93,83 @@ export default function OwnerUsersPage() {
         </div>
 
         {/* Filter & Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 flex-1">
-              <Users size={18} className="text-blue-600" />
-              <h3 className="font-bold text-gray-900">Daftar User</h3>
+        <div className="bg-canvas rounded-none border border-hairline overflow-hidden">
+          <div className="px-5 py-4 border-b border-hairline flex flex-wrap items-center gap-3 font-jakarta justify-between">
+            <div className="flex items-center gap-2">
+              <Users size={16} className="text-ink" />
+              <h3 className="font-bold text-ink uppercase tracking-wider text-sm">Daftar User</h3>
             </div>
-            {/* Role filter */}
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
-            >
-              <option value="">All Roles</option>
-              <option value="ADMIN">Admin</option>
-              <option value="KASIR">Kasir</option>
-              <option value="USER">User</option>
-            </select>
-            {/* Search */}
-            <div className="relative">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari user..."
-                className="pl-8 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 w-48 transition-colors"
-              />
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Role filter */}
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-4 py-1.5 border border-hairline rounded-full focus:border-ink focus:outline-none bg-soft-cloud focus:bg-canvas text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                <option value="">All Roles</option>
+                <option value="ADMIN">Admin</option>
+                <option value="KASIR">Kasir</option>
+              </select>
+              {/* Search */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari user..."
+                  className="pl-8 pr-4 py-1.5 text-xs border border-hairline rounded-full focus:border-ink focus:outline-none bg-soft-cloud focus:bg-canvas w-48 transition-colors font-semibold"
+                />
+              </div>
             </div>
           </div>
 
           {fetching ? (
             <div className="p-8 space-y-3">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse flex items-center gap-4 py-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                <div key={i} className="animate-pulse flex items-center gap-4 py-3 border-b border-hairline/50">
+                  <div className="w-10 h-10 bg-soft-cloud rounded-full" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-1/4" />
-                    <div className="h-3 bg-gray-100 rounded w-1/3" />
+                    <div className="h-4 bg-soft-cloud rounded w-1/4" />
+                    <div className="h-3 bg-soft-cloud rounded w-1/3" />
                   </div>
-                  <div className="h-6 bg-gray-200 rounded-full w-16" />
-                  <div className="h-4 bg-gray-200 rounded w-28" />
+                  <div className="h-6 bg-soft-cloud rounded-full w-16" />
+                  <div className="h-4 bg-soft-cloud rounded w-28" />
                 </div>
               ))}
             </div>
           ) : filtered.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50/80">
-                  <tr>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Nama</th>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</th>
-                    <th className="text-center py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Role</th>
-                    <th className="text-left py-3 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Bergabung</th>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-soft-cloud border-b border-hairline">
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta">Nama</th>
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta">Email</th>
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta text-center">Role</th>
+                    <th className="py-3 px-5 text-xs font-bold text-mute uppercase tracking-wider font-jakarta">Bergabung</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-hairline">
                   {filtered.map((user) => {
                     const roleStyle = getRoleStyle(user.role)
                     return (
-                      <tr key={user.id} className="border-t border-gray-50 hover:bg-blue-50/20 transition-colors">
+                      <tr key={user.id} className="hover:bg-soft-cloud/30 transition-colors">
                         <td className="py-3.5 px-5">
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAvatarGradient(user.role)} flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0`}>
+                            <div className={`w-9 h-9 rounded-full ${getAvatarBg(user.role)} flex items-center justify-center font-bold text-xs flex-shrink-0`}>
                               {getInitials(user.name)}
                             </div>
-                            <span className="font-semibold text-gray-900 text-sm">{user.name}</span>
+                            <span className="font-bold text-ink text-xs uppercase tracking-wide">{user.name}</span>
                           </div>
                         </td>
-                        <td className="py-3.5 px-5 text-sm text-gray-600">{user.email}</td>
+                        <td className="py-3.5 px-5 text-xs text-charcoal">{user.email}</td>
                         <td className="py-3.5 px-5 text-center">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${roleStyle.badge}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${roleStyle.dot}`} />
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${roleStyle.badge}`}>
+                            <span className={`w-1 h-1 rounded-full ${roleStyle.dot}`} />
                             {roleStyle.label}
                           </span>
                         </td>
-                        <td className="py-3.5 px-5 text-sm text-gray-500">
+                        <td className="py-3.5 px-5 text-xs text-mute uppercase">
                           {new Date(user.createdAt).toLocaleDateString('id-ID', {
                             day: 'numeric', month: 'short', year: 'numeric'
                           })}
@@ -184,22 +181,22 @@ export default function OwnerUsersPage() {
               </table>
             </div>
           ) : (
-            <div className="text-center py-16">
-              <Users size={48} className="mx-auto mb-3 text-gray-200" />
-              <p className="text-gray-500 font-medium">{search ? 'User tidak ditemukan' : 'Belum ada user'}</p>
+            <div className="text-center py-16 text-mute">
+              <Users size={40} className="mx-auto mb-3 text-hairline" />
+              <p className="text-xs font-bold uppercase tracking-wider">{search ? 'User tidak ditemukan' : 'Belum ada user'}</p>
             </div>
           )}
         </div>
 
         {/* Security Notice */}
-        <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-5">
+        <div className="bg-canvas border border-hairline p-5 rounded-none">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-              <Key size={16} className="text-white" />
+            <div className="w-9 h-9 bg-soft-cloud border border-hairline rounded-full flex items-center justify-center flex-shrink-0 text-ink">
+              <Key size={14} />
             </div>
-            <div>
-              <h4 className="font-bold text-gray-900 mb-1">Catatan Keamanan</h4>
-              <p className="text-sm text-gray-600">
+            <div className="font-jakarta">
+              <h4 className="font-bold text-ink uppercase tracking-wider text-xs mb-1">Catatan Keamanan</h4>
+              <p className="text-xs text-charcoal font-inter">
                 Akun OWNER lain disembunyikan dari tampilan ini untuk keamanan. Hanya ADMIN yang dapat melihat dan mengelola akun OWNER.
               </p>
             </div>

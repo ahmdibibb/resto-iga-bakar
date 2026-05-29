@@ -214,14 +214,14 @@ export default function ProductsPage() {
         <div className="flex-1 px-4 py-8 lg:px-8 lg:ml-0">
           <div className="mx-auto max-w-7xl">
             <ErrorAlert error={error} onDismiss={() => setError(null)} />
-            
+
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-800 lg:text-3xl">
                 {selectedCategory === "ALL"
-                  ? "Semua Menu"
+                  ? "ALL MENU"
                   : selectedCategory === "MAKANAN"
-                    ? "Makanan"
-                    : "Minuman"}
+                    ? "Food"
+                    : "Drink"}
               </h2>
               <p className="text-sm text-gray-500">
                 {filteredProducts.length} produk

@@ -155,7 +155,7 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas font-inter text-ink">
       <Navbar title="Laporan Penjualan" />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
@@ -163,8 +163,8 @@ export default function ReportsPage() {
         <div className="mb-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Laporan Penjualan</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold font-jakarta text-ink uppercase tracking-tight">Laporan Penjualan</h1>
+              <p className="text-sm text-charcoal mt-1">
                 Analisis lengkap transaksi dan performa penjualan
               </p>
             </div>
@@ -172,7 +172,7 @@ export default function ReportsPage() {
             <button
               onClick={handleDownloadPDF}
               disabled={loading || !reportData}
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -189,7 +189,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Filter Section */}
-          <div className="mt-6 rounded-xl bg-white p-6 shadow-md border border-gray-100">
+          <div className="mt-6 rounded-none bg-soft-cloud p-6 border border-hairline shadow-none">
             <div className="flex flex-col gap-4">
               {/* Preset Buttons */}
               <div className="flex flex-wrap gap-2">
@@ -203,10 +203,10 @@ export default function ReportsPage() {
                   <button
                     key={item.value}
                     onClick={() => handlePresetChange(item.value as PresetType)}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                    className={`px-4 py-2 rounded-full font-semibold transition-all text-sm border ${
                       preset === item.value
-                        ? 'bg-orange-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-ink text-canvas border-ink'
+                        : 'bg-canvas text-ink border-hairline hover:bg-soft-cloud'
                     }`}
                   >
                     {item.label}
@@ -218,35 +218,35 @@ export default function ReportsPage() {
               {showCustomDate && (
                 <div className="flex flex-col gap-4 md:flex-row md:items-end">
                   <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
                       Tanggal Mulai
                     </label>
                     <input
                       type="date"
                       value={format(startDate, 'yyyy-MM-dd')}
                       onChange={(e) => setStartDate(new Date(e.target.value))}
-                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                      className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-2 focus:outline-none focus:ring-1 focus:ring-ink font-medium"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
                       Tanggal Akhir
                     </label>
                     <input
                       type="date"
                       value={format(endDate, 'yyyy-MM-dd')}
                       onChange={(e) => setEndDate(new Date(e.target.value))}
-                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                      className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-2 focus:outline-none focus:ring-1 focus:ring-ink font-medium"
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
                       Periode Grafik
                     </label>
                     <select
                       value={period}
                       onChange={(e) => setPeriod(e.target.value as PeriodType)}
-                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                      className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-2 focus:outline-none focus:ring-1 focus:ring-ink font-medium"
                     >
                       <option value="daily">Harian</option>
                       <option value="weekly">Mingguan</option>
@@ -262,15 +262,15 @@ export default function ReportsPage() {
 
         {/* Error State */}
         {error && (
-          <div className="mb-6 rounded-xl bg-red-50 border border-red-200 p-4">
-            <p className="text-red-800 font-semibold">{error}</p>
+          <div className="mb-6 rounded-none bg-sale/10 border border-sale/20 p-4">
+            <p className="text-sale font-semibold">{error}</p>
           </div>
         )}
 
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={48} className="animate-spin text-orange-600" />
+            <Loader2 size={48} className="animate-spin text-ink" />
           </div>
         )}
 
@@ -279,43 +279,43 @@ export default function ReportsPage() {
           <div className="space-y-6">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 text-white shadow-lg">
+              <div className="rounded-none bg-soft-cloud p-6 text-ink border border-hairline shadow-none">
                 <div className="flex items-center justify-between mb-2">
-                  <DollarSign size={32} />
-                  <TrendingUp size={20} />
+                  <DollarSign size={32} className="text-ink" />
+                  <TrendingUp size={20} className="text-ink" />
                 </div>
-                <p className="text-sm opacity-90">Total Pendapatan</p>
-                <p className="text-2xl font-bold mt-1">
+                <p className="text-sm text-charcoal font-medium">Total Pendapatan</p>
+                <p className="text-2xl font-bold font-jakarta mt-1 text-ink">
                   {formatCurrency(reportData.summary.totalRevenue)}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+              <div className="rounded-none bg-soft-cloud p-6 text-ink border border-hairline shadow-none">
                 <div className="flex items-center justify-between mb-2">
-                  <ShoppingCart size={32} />
+                  <ShoppingCart size={32} className="text-ink" />
                 </div>
-                <p className="text-sm opacity-90">Total Order</p>
-                <p className="text-2xl font-bold mt-1">
+                <p className="text-sm text-charcoal font-medium">Total Order</p>
+                <p className="text-2xl font-bold font-jakarta mt-1 text-ink">
                   {reportData.summary.totalOrders}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg">
+              <div className="rounded-none bg-soft-cloud p-6 text-ink border border-hairline shadow-none">
                 <div className="flex items-center justify-between mb-2">
-                  <Package size={32} />
+                  <Package size={32} className="text-ink" />
                 </div>
-                <p className="text-sm opacity-90">Produk Terjual</p>
-                <p className="text-2xl font-bold mt-1">
+                <p className="text-sm text-charcoal font-medium">Produk Terjual</p>
+                <p className="text-2xl font-bold font-jakarta mt-1 text-ink">
                   {reportData.summary.totalProductsSold}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
+              <div className="rounded-none bg-soft-cloud p-6 text-ink border border-hairline shadow-none">
                 <div className="flex items-center justify-between mb-2">
-                  <FileText size={32} />
+                  <FileText size={32} className="text-ink" />
                 </div>
-                <p className="text-sm opacity-90">Rata-rata Nilai Order</p>
-                <p className="text-2xl font-bold mt-1">
+                <p className="text-sm text-charcoal font-medium">Rata-rata Nilai Order</p>
+                <p className="text-2xl font-bold font-jakarta mt-1 text-ink">
                   {formatCurrency(reportData.summary.averageOrderValue)}
                 </p>
               </div>
@@ -335,23 +335,23 @@ export default function ReportsPage() {
             />
 
             {/* Top Products */}
-            <div className="rounded-xl bg-white p-6 shadow-md border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Top 5 Produk Terlaris</h2>
+            <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <h2 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-4">Top 5 Produk Terlaris</h2>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Produk</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Qty Terjual</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Total Revenue</th>
+                    <tr className="border-b border-hairline">
+                      <th className="text-left py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Produk</th>
+                      <th className="text-right py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Qty Terjual</th>
+                      <th className="text-right py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Total Revenue</th>
                     </tr>
                   </thead>
                   <tbody>
                     {reportData.topProducts.map((product, index) => (
-                      <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{product.name}</td>
-                        <td className="py-3 px-4 text-right text-gray-700">{product.quantitySold}</td>
-                        <td className="py-3 px-4 text-right font-semibold text-orange-600">
+                      <tr key={index} className="border-b border-hairline-soft hover:bg-soft-cloud/40 transition-colors">
+                        <td className="py-3 px-4 font-medium text-ink">{product.name}</td>
+                        <td className="py-3 px-4 text-right text-charcoal">{product.quantitySold}</td>
+                        <td className="py-3 px-4 text-right font-bold text-ink">
                           {formatCurrency(product.totalRevenue)}
                         </td>
                       </tr>
@@ -362,41 +362,41 @@ export default function ReportsPage() {
             </div>
 
             {/* Transactions Table */}
-            <div className="rounded-xl bg-white p-6 shadow-md border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Detail Transaksi</h2>
+            <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <h2 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-4">Detail Transaksi</h2>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">No. Order</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Tanggal</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Customer</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Items</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Metode</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Total</th>
+                    <tr className="border-b border-hairline">
+                      <th className="text-left py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">No. Order</th>
+                      <th className="text-left py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Tanggal</th>
+                      <th className="text-left py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Customer</th>
+                      <th className="text-left py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Items</th>
+                      <th className="text-left py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Metode</th>
+                      <th className="text-right py-3 px-4 font-semibold text-charcoal font-jakarta text-xs uppercase tracking-wider">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {reportData.transactions.slice(0, 20).map((transaction, index) => (
-                      <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium text-gray-900">{transaction.orderNumber}</td>
-                        <td className="py-3 px-4 text-gray-700 text-sm">
+                      <tr key={index} className="border-b border-hairline-soft hover:bg-soft-cloud/40 transition-colors">
+                        <td className="py-3 px-4 font-medium text-ink">{transaction.orderNumber}</td>
+                        <td className="py-3 px-4 text-charcoal text-sm font-medium">
                           {format(new Date(transaction.date), 'dd MMM yyyy HH:mm')}
                         </td>
-                        <td className="py-3 px-4 text-gray-700">{transaction.customerName}</td>
-                        <td className="py-3 px-4 text-gray-600 text-sm max-w-xs truncate">
+                        <td className="py-3 px-4 text-charcoal">{transaction.customerName}</td>
+                        <td className="py-3 px-4 text-charcoal text-sm max-w-xs truncate">
                           {transaction.items}
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${
                             transaction.paymentMethod === 'QRIS' 
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-orange-100 text-orange-800'
+                              ? 'bg-success/10 text-success border-success/20'
+                              : 'bg-soft-cloud text-ink border-hairline'
                           }`}>
                             {transaction.paymentMethod}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-right font-semibold text-orange-600">
+                        <td className="py-3 px-4 text-right font-bold text-ink">
                           {formatCurrency(transaction.total)}
                         </td>
                       </tr>
@@ -405,7 +405,7 @@ export default function ReportsPage() {
                 </table>
               </div>
               {reportData.transactions.length > 20 && (
-                <p className="text-sm text-gray-500 mt-4 text-center">
+                <p className="text-sm text-ash mt-4 text-center font-medium">
                   Menampilkan 20 dari {reportData.transactions.length} transaksi. Download PDF untuk melihat semua data.
                 </p>
               )}

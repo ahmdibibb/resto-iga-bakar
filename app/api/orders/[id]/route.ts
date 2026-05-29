@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { withApiPermission } from '@/lib/apiPermissions'
+import { orderEventEmitter } from '@/lib/orderEvents'
 import { handleApiError } from '@/lib/errorHandler'
 
 // GET single order with proper authentication
@@ -151,6 +152,9 @@ export async function PUT(
         },
       },
     })
+
+    // Emit event for real-time cashier dashboard
+    orderEventEmitter.emit('orderUpdate', { id: order.id, status: order.status })
 
     return NextResponse.json(order)
   } catch (error) {

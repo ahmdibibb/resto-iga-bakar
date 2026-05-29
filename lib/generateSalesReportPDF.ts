@@ -84,6 +84,7 @@ export function generateSalesReportPDF(data: SalesReportData) {
   // Summary Section
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
+  doc.setTextColor(21, 17, 15) // Smoked Black
   doc.text('RINGKASAN', margin, yPos)
   yPos += 10
 
@@ -94,11 +95,13 @@ export function generateSalesReportPDF(data: SalesReportData) {
   doc.setFont('helvetica', 'normal')
   
   // Total Products Sold
-  doc.setFillColor(34, 197, 94) // green
-  doc.roundedRect(margin, yPos, 85, 25, 3, 3, 'F')
-  doc.setTextColor(255, 255, 255)
+  doc.setFillColor(243, 239, 233) // Warm Stone
+  doc.setDrawColor(210, 201, 191) // Ember Divider
+  doc.roundedRect(margin, yPos, 85, 25, 0, 0, 'FD')
+  doc.setTextColor(92, 85, 81) // Ash
   doc.setFont('helvetica', 'bold')
   doc.text('Total Produk Terjual', margin + 5, yPos + 8)
+  doc.setTextColor(21, 17, 15) // Smoked Black
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(12)
   doc.text(
@@ -108,13 +111,15 @@ export function generateSalesReportPDF(data: SalesReportData) {
   )
 
   // Total Revenue
-  doc.setFillColor(249, 115, 22) // orange
-  doc.roundedRect(margin + 90, yPos, 85, 25, 3, 3, 'F')
-  doc.setTextColor(255, 255, 255)
+  doc.setFillColor(243, 239, 233) // Warm Stone
+  doc.setDrawColor(210, 201, 191) // Ember Divider
+  doc.roundedRect(margin + 90, yPos, 85, 25, 0, 0, 'FD')
+  doc.setTextColor(92, 85, 81) // Ash
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(10)
   doc.text('Total Pendapatan', margin + 95, yPos + 8)
-  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(21, 17, 15) // Smoked Black
+  doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
   doc.text(
     `Rp ${data.totalRevenue.toLocaleString('id-ID')}`,
@@ -122,7 +127,7 @@ export function generateSalesReportPDF(data: SalesReportData) {
     yPos + 18
   )
 
-  doc.setTextColor(0, 0, 0) // Reset to black
+  doc.setTextColor(21, 17, 15) // Reset to Smoked Black
   yPos += 35
 
   checkPageBreak(50)
@@ -137,9 +142,10 @@ export function generateSalesReportPDF(data: SalesReportData) {
   doc.setFont('helvetica', 'normal')
 
   // Cash
-  doc.setFillColor(59, 130, 246) // blue
-  doc.roundedRect(margin, yPos, 60, 20, 3, 3, 'F')
-  doc.setTextColor(255, 255, 255)
+  doc.setFillColor(243, 239, 233) // Warm Stone
+  doc.setDrawColor(210, 201, 191) // Ember Divider
+  doc.roundedRect(margin, yPos, 60, 20, 0, 0, 'FD')
+  doc.setTextColor(21, 17, 15) // Smoked Black
   doc.setFont('helvetica', 'bold')
   doc.text('CASH', margin + 5, yPos + 8)
   doc.setFont('helvetica', 'normal')
@@ -147,18 +153,19 @@ export function generateSalesReportPDF(data: SalesReportData) {
   doc.text(
     `Rp ${data.revenueByMethod.CASH.toLocaleString('id-ID')}`,
     margin + 5,
-    yPos + 15
+    yPos + 14
   )
   const cashPercent =
     data.totalRevenue > 0
       ? ((data.revenueByMethod.CASH / data.totalRevenue) * 100).toFixed(1)
       : '0'
-  doc.text(`${cashPercent}%`, margin + 5, yPos + 20)
+  doc.text(`${cashPercent}%`, margin + 5, yPos + 18)
 
   // QRIS
-  doc.setFillColor(147, 51, 234) // purple
-  doc.roundedRect(margin + 65, yPos, 60, 20, 3, 3, 'F')
-  doc.setTextColor(255, 255, 255)
+  doc.setFillColor(243, 239, 233) // Warm Stone
+  doc.setDrawColor(210, 201, 191) // Ember Divider
+  doc.roundedRect(margin + 65, yPos, 60, 20, 0, 0, 'FD')
+  doc.setTextColor(21, 17, 15) // Smoked Black
   doc.setFont('helvetica', 'bold')
   doc.text('QRIS', margin + 70, yPos + 8)
   doc.setFont('helvetica', 'normal')
@@ -166,15 +173,15 @@ export function generateSalesReportPDF(data: SalesReportData) {
   doc.text(
     `Rp ${data.revenueByMethod.QRIS.toLocaleString('id-ID')}`,
     margin + 70,
-    yPos + 15
+    yPos + 14
   )
   const qrisPercent =
     data.totalRevenue > 0
       ? ((data.revenueByMethod.QRIS / data.totalRevenue) * 100).toFixed(1)
       : '0'
-  doc.text(`${qrisPercent}%`, margin + 70, yPos + 20)
+  doc.text(`${qrisPercent}%`, margin + 70, yPos + 18)
 
-  doc.setTextColor(0, 0, 0) // Reset to black
+  doc.setTextColor(21, 17, 15) // Reset to black
   yPos += 30
 
   checkPageBreak(40)
@@ -187,14 +194,15 @@ export function generateSalesReportPDF(data: SalesReportData) {
 
   if (data.productSales.length > 0) {
     // Table header
-    doc.setFillColor(243, 244, 246) // gray-100
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8)
+    doc.setFillColor(21, 17, 15) // Smoked Black
+    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F')
     doc.setFontSize(9)
     doc.setFont('helvetica', 'bold')
-    doc.text('No', margin + 3, yPos + 6)
-    doc.text('Nama Produk', margin + 15, yPos + 6)
-    doc.text('Jumlah', pageWidth - margin - 50, yPos + 6, { align: 'right' })
-    doc.text('Pendapatan', pageWidth - margin - 5, yPos + 6, { align: 'right' })
+    doc.setTextColor(252, 250, 247) // Clay Parchment
+    doc.text('NO', margin + 3, yPos + 6)
+    doc.text('NAMA PRODUK', margin + 15, yPos + 6)
+    doc.text('JUMLAH', pageWidth - margin - 50, yPos + 6, { align: 'right' })
+    doc.text('PENDAPATAN', pageWidth - margin - 5, yPos + 6, { align: 'right' })
     yPos += 10
 
     // Table rows
@@ -202,10 +210,11 @@ export function generateSalesReportPDF(data: SalesReportData) {
     data.productSales.forEach((item, index) => {
       checkPageBreak(10)
 
+      doc.setTextColor(21, 17, 15) // Reset row text to black
       // Alternate row color
       if (index % 2 === 0) {
-        doc.setFillColor(249, 250, 251) // gray-50
-        doc.rect(margin, yPos - 2, pageWidth - 2 * margin, 8)
+        doc.setFillColor(243, 239, 233) // Warm Stone
+        doc.rect(margin, yPos - 2, pageWidth - 2 * margin, 8, 'F')
       }
 
       doc.setFontSize(8)

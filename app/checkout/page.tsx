@@ -196,13 +196,13 @@ export default function CheckoutPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100">
-        <div className="text-center">
-          <div className="mb-4 text-6xl">🛒</div>
-          <p className="text-lg text-gray-600 mb-4">Keranjang kosong</p>
+      <div className="flex min-h-screen items-center justify-center bg-canvas font-inter text-ink">
+        <div className="rounded-none bg-soft-cloud p-12 text-center border border-hairline shadow-none max-w-md w-full">
+          <div className="mb-4 text-6xl text-ink">🛒</div>
+          <p className="text-lg font-bold font-jakarta uppercase tracking-tight text-ink mb-4">Keranjang Anda Kosong</p>
           <Link
             href="/menu"
-            className="inline-block rounded-xl bg-orange-600 px-6 py-3 text-white hover:bg-orange-700 transition-all"
+            className="inline-block rounded-full bg-ink px-6 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
           >
             Kembali ke Menu
           </Link>
@@ -212,13 +212,13 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <div className="min-h-screen bg-canvas font-inter text-ink">
       {/* Header */}
-      <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10 shadow-sm">
+      <div className="border-b border-hairline bg-canvas/80 backdrop-blur-sm sticky top-0 z-10 shadow-none">
         <div className="mx-auto max-w-6xl px-4 py-4">
           <Link
             href="/menu"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-2 text-charcoal hover:text-ink transition-colors font-medium"
           >
             <ArrowLeft size={20} />
             <span className="font-medium">Kembali ke Menu</span>
@@ -228,10 +228,10 @@ export default function CheckoutPage() {
 
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold font-jakarta text-ink uppercase tracking-tight mb-2">
             Review Pesanan Anda
           </h1>
-          <p className="text-gray-600">Periksa kembali pesanan sebelum melanjutkan ke pembayaran</p>
+          <p className="text-charcoal text-sm font-medium">Periksa kembali pesanan sebelum melanjutkan ke pembayaran</p>
         </div>
 
         <ErrorAlert error={error} onDismiss={() => setError(null)} />
@@ -240,14 +240,14 @@ export default function CheckoutPage() {
           {/* Left Side - Cart Items & Order Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Customer Name */}
-            <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
-              <h2 className="mb-4 text-xl font-bold text-gray-900 flex items-center gap-2">
-                <User size={22} className="text-orange-600" />
+            <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <h2 className="mb-4 text-xl font-bold font-jakarta text-ink uppercase tracking-tight flex items-center gap-2">
+                <User size={22} className="text-ink" />
                 Informasi Customer
               </h2>
               <div>
-                <label htmlFor="customerName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Nama Customer <span className="text-red-500">*</span>
+                <label htmlFor="customerName" className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
+                  Nama Customer <span className="text-sale">*</span>
                 </label>
                 <input
                   id="customerName"
@@ -255,26 +255,26 @@ export default function CheckoutPage() {
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Masukkan nama Anda"
-                  className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-lg focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
+                  className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-3 text-lg focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
                 />
               </div>
             </div>
 
             {/* Cart Items */}
-            <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Pesanan</h2>
+            <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <h2 className="text-xl font-bold font-jakarta text-ink uppercase tracking-tight mb-4">Pesanan</h2>
               <div className="space-y-3">
                 {cart.map((item) => (
                   <div
                     key={item.productId}
-                    className="flex items-center justify-between rounded-xl bg-gradient-to-r from-orange-50 to-transparent p-4 border border-orange-100"
+                    className="flex items-center justify-between rounded-none bg-soft-cloud p-4 border border-hairline"
                   >
                     <div className="flex-1">
-                      <h3 className="font-bold text-gray-900">{item.name}</h3>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                      <h3 className="font-bold text-ink">{item.name}</h3>
+                      <p className="text-sm text-charcoal font-medium">Qty: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-orange-600 text-lg">
+                      <p className="font-bold text-ink text-lg">
                         Rp {(item.price * item.quantity).toLocaleString('id-ID')}
                       </p>
                     </div>
@@ -285,29 +285,29 @@ export default function CheckoutPage() {
 
             {/* DINE-IN SECTION */}
             {orderType === 'DINE_IN' && (
-              <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100 animate-fadeIn">
-                <h2 className="mb-4 text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <UtensilsCrossed size={22} className="text-orange-600" />
+              <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none animate-fadeIn">
+                <h2 className="mb-4 text-xl font-bold font-jakarta text-ink uppercase tracking-tight flex items-center gap-2">
+                  <UtensilsCrossed size={22} className="text-ink" />
                   Tipe Pesanan
                 </h2>
                 
                 {/* Order Type Display */}
-                <div className="mb-6 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100 p-4 border-2 border-orange-200">
+                <div className="mb-6 rounded-none bg-soft-cloud p-4 border border-hairline">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-xl p-3 bg-gradient-to-br from-orange-500 to-orange-600">
-                      <UtensilsCrossed size={24} className="text-white" />
+                    <div className="rounded-full p-3 bg-ink">
+                      <UtensilsCrossed size={24} className="text-canvas" />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-900">Dine-in</p>
-                      <p className="text-sm text-gray-600">Makan di tempat</p>
+                      <p className="font-bold font-jakarta text-ink uppercase tracking-wider">Dine-in</p>
+                      <p className="text-sm text-charcoal font-medium">Makan di tempat</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Table Number Input */}
                 <div>
-                  <label htmlFor="tableNumber" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nomor Meja <span className="text-red-500">*</span>
+                  <label htmlFor="tableNumber" className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
+                    Nomor Meja <span className="text-sale">*</span>
                   </label>
                   <input
                     id="tableNumber"
@@ -315,11 +315,11 @@ export default function CheckoutPage() {
                     value={tableNumber}
                     onChange={(e) => setTableNumber(e.target.value)}
                     placeholder="Contoh: 5"
-                    className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 text-lg focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
+                    className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-3 text-lg focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
                     readOnly={tableFromQR}
                   />
                   {tableFromQR && (
-                    <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                    <p className="mt-2 text-xs text-success font-semibold flex items-center gap-1">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
@@ -332,21 +332,21 @@ export default function CheckoutPage() {
 
             {/* TAKEAWAY SECTION */}
             {orderType === 'TAKEAWAY' && (
-              <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100 animate-fadeIn">
-                <h2 className="mb-4 text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <ShoppingBag size={22} className="text-purple-600" />
+              <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none animate-fadeIn">
+                <h2 className="mb-4 text-xl font-bold font-jakarta text-ink uppercase tracking-tight flex items-center gap-2">
+                  <ShoppingBag size={22} className="text-ink" />
                   Tipe Pesanan
                 </h2>
                 
                 {/* Order Type Display */}
-                <div className="rounded-xl bg-gradient-to-r from-purple-50 to-purple-100 p-4 border-2 border-purple-200">
+                <div className="rounded-none bg-soft-cloud p-4 border border-hairline">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-xl p-3 bg-gradient-to-br from-purple-500 to-purple-600">
-                      <ShoppingBag size={24} className="text-white" />
+                    <div className="rounded-full p-3 bg-ink">
+                      <ShoppingBag size={24} className="text-canvas" />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-900">Takeaway</p>
-                      <p className="text-sm text-gray-600">Bawa pulang</p>
+                      <p className="font-bold font-jakarta text-ink uppercase tracking-wider">Takeaway</p>
+                      <p className="text-sm text-charcoal font-medium">Bawa pulang</p>
                     </div>
                   </div>
                 </div>
@@ -354,8 +354,8 @@ export default function CheckoutPage() {
             )}
 
             {/* Special Notes */}
-            <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
-              <label htmlFor="notes" className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <label htmlFor="notes" className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
                 Catatan Khusus (Opsional)
               </label>
               <textarea
@@ -364,26 +364,28 @@ export default function CheckoutPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Contoh: Tidak pakai sambal, level pedas sedang, dll"
                 rows={3}
-                className="w-full rounded-xl border-2 border-gray-300 px-4 py-3 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
+                className="w-full rounded-none border border-hairline bg-canvas text-ink px-4 py-3 focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
               />
             </div>
 
             {/* Payment Method Selection */}
-            <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
-              <h2 className="mb-4 text-xl font-bold text-gray-900">Metode Pembayaran <span className="text-red-500">*</span></h2>
+            <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <h2 className="mb-4 text-xl font-bold font-jakarta text-ink uppercase tracking-tight">Metode Pembayaran <span className="text-sale">*</span></h2>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setPaymentMethod('QRIS')}
-                  className={`group relative overflow-hidden rounded-2xl border-2 p-6 transition-all duration-300 ${paymentMethod === 'QRIS'
-                    ? 'border-green-600 bg-gradient-to-br from-green-50 to-green-100 shadow-lg scale-105'
-                    : 'border-gray-300 bg-white hover:border-green-300 hover:shadow-md'
-                    }`}
+                  className={`group relative overflow-hidden rounded-none border p-6 transition-all duration-300 ${
+                    paymentMethod === 'QRIS'
+                      ? 'border-ink bg-soft-cloud'
+                      : 'border-hairline bg-canvas hover:border-ink'
+                  }`}
                 >
                   <div className="flex flex-col items-center gap-3">
-                    <div className={`rounded-xl p-3 transition-all ${paymentMethod === 'QRIS'
-                      ? 'bg-gradient-to-br from-green-500 to-green-600'
-                      : 'bg-gray-100 group-hover:bg-green-100'
-                      }`}>
+                    <div className={`rounded-full p-3 transition-all ${
+                      paymentMethod === 'QRIS'
+                        ? 'bg-ink text-canvas'
+                        : 'bg-soft-cloud text-ink group-hover:bg-hairline-soft'
+                    }`}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="32"
@@ -394,7 +396,7 @@ export default function CheckoutPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className={paymentMethod === 'QRIS' ? 'text-white' : 'text-gray-600 group-hover:text-green-600'}
+                        className="currentColor"
                       >
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                         <rect x="7" y="7" width="3" height="3"></rect>
@@ -404,24 +406,26 @@ export default function CheckoutPage() {
                       </svg>
                     </div>
                     <div className="text-center">
-                      <p className="font-bold text-gray-900">QRIS</p>
-                      <p className="text-xs text-gray-500">Bayar dengan scan QR</p>
+                      <p className="font-bold font-jakarta text-ink uppercase tracking-wider">QRIS</p>
+                      <p className="text-xs text-charcoal font-medium">Bayar dengan scan QR</p>
                     </div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => setPaymentMethod('CASH')}
-                  className={`group relative overflow-hidden rounded-2xl border-2 p-6 transition-all duration-300 ${paymentMethod === 'CASH'
-                    ? 'border-orange-600 bg-gradient-to-br from-orange-50 to-orange-100 shadow-lg scale-105'
-                    : 'border-gray-300 bg-white hover:border-orange-300 hover:shadow-md'
-                    }`}
+                  className={`group relative overflow-hidden rounded-none border p-6 transition-all duration-300 ${
+                    paymentMethod === 'CASH'
+                      ? 'border-ink bg-soft-cloud'
+                      : 'border-hairline bg-canvas hover:border-ink'
+                  }`}
                 >
                   <div className="flex flex-col items-center gap-3">
-                    <div className={`rounded-xl p-3 transition-all ${paymentMethod === 'CASH'
-                      ? 'bg-gradient-to-br from-orange-500 to-orange-600'
-                      : 'bg-gray-100 group-hover:bg-orange-100'
-                      }`}>
+                    <div className={`rounded-full p-3 transition-all ${
+                      paymentMethod === 'CASH'
+                        ? 'bg-ink text-canvas'
+                        : 'bg-soft-cloud text-ink group-hover:bg-hairline-soft'
+                    }`}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="32"
@@ -432,15 +436,15 @@ export default function CheckoutPage() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className={paymentMethod === 'CASH' ? 'text-white' : 'text-gray-600 group-hover:text-orange-600'}
+                        className="currentColor"
                       >
                         <line x1="12" y1="1" x2="12" y2="23"></line>
                         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                       </svg>
                     </div>
                     <div className="text-center">
-                      <p className="font-bold text-gray-900">Cash</p>
-                      <p className="text-xs text-gray-500">Bayar di kasir</p>
+                      <p className="font-bold font-jakarta text-ink uppercase tracking-wider">Cash</p>
+                      <p className="text-xs text-charcoal font-medium">Bayar di kasir</p>
                     </div>
                   </div>
                 </button>
@@ -450,47 +454,47 @@ export default function CheckoutPage() {
 
           {/* Right Side - Order Summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
-              <h2 className="mb-6 text-lg font-bold text-gray-900">Rincian Pesanan</h2>
+            <div className="sticky top-24 rounded-none bg-canvas p-6 border border-hairline shadow-none">
+              <h2 className="mb-6 text-lg font-bold font-jakarta text-ink uppercase tracking-tight">Rincian Pesanan</h2>
 
-              <div className="space-y-3 border-b border-gray-200 pb-4 mb-4">
+              <div className="space-y-3 border-b border-hairline pb-4 mb-4">
                 {cart.map((item) => (
                   <div key={item.productId} className="flex justify-between text-sm">
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{item.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-semibold text-ink">{item.name}</p>
+                      <p className="text-xs text-charcoal font-medium">
                         {item.quantity} × Rp {item.price.toLocaleString('id-ID')}
                       </p>
                     </div>
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-bold text-ink">
                       Rp {(item.price * item.quantity).toLocaleString('id-ID')}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="space-y-3 border-b border-gray-200 pb-4 mb-4">
+              <div className="space-y-3 border-b border-hairline pb-4 mb-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold text-gray-900">
+                  <span className="text-charcoal font-medium">Subtotal</span>
+                  <span className="font-bold text-ink">
                     Rp {getSubtotal().toLocaleString('id-ID')}
                   </span>
                 </div>
 
                 {getDiscount() > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Discount</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="text-charcoal font-medium">Discount</span>
+                    <span className="font-bold text-sale">
                       -Rp {getDiscount().toLocaleString('id-ID')}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="mb-6 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100 p-4">
+              <div className="mb-6 rounded-none bg-soft-cloud p-4 border border-hairline">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-gray-900">Total</span>
-                  <span className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
+                  <span className="text-lg font-bold font-jakarta text-ink uppercase tracking-wider">Total</span>
+                  <span className="text-3xl font-bold text-ink font-jakarta">
                     Rp {getFinalTotal().toLocaleString('id-ID')}
                   </span>
                 </div>
@@ -499,11 +503,11 @@ export default function CheckoutPage() {
               <button
                 onClick={handleCreateOrder}
                 disabled={loading}
-                className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 py-4 text-lg font-bold text-white shadow-lg transition-all hover:from-orange-600 hover:to-orange-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-full bg-ink py-4 text-lg font-bold text-canvas transition-all hover:bg-ink/90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-canvas border-t-transparent"></div>
                     Memproses...
                   </span>
                 ) : (

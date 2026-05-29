@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, route: '/owner/analytics' },
   { id: 'reports', label: 'Reports', icon: FileText, route: '/owner/reports' },
   { id: 'products', label: 'Products', icon: Package, route: '/owner/products', badge: 'View' },
-  { id: 'orders', label: 'Orders', icon: ShoppingCart, route: '/owner/orders', badge: 'View' },
+  { id: 'orders', label: 'Orders', icon: ShoppingCart, route: '/owner/orders' },
   { id: 'users', label: 'Users', icon: UsersIcon, route: '/owner/users', badge: 'View' },
 ]
 
@@ -112,12 +112,12 @@ export default function OwnerShell({
   if (loading) return <Loading />
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+    <div className="flex min-h-screen bg-canvas font-inter text-ink">
 
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -126,50 +126,46 @@ export default function OwnerShell({
       <aside
         className={`fixed left-0 top-0 h-full w-64 z-50 flex flex-col transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
-        style={{
-          background: 'linear-gradient(180deg, #1e3a5f 0%, #1a3356 40%, #162b47 100%)',
-          boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
-        }}
+        } lg:translate-x-0 bg-ink border-r border-hairline font-jakarta`}
       >
         {/* Logo */}
-        <div className="px-5 pt-6 pb-5 flex items-center justify-between border-b border-white/10">
+        <div className="px-5 pt-6 pb-5 flex items-center justify-between border-b border-hairline/25">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/50 flex-shrink-0">
-              <span className="text-lg">👔</span>
+            <div className="w-9 h-9 bg-soft-cloud rounded-none flex items-center justify-center flex-shrink-0">
+              <span className="text-sm">👔</span>
             </div>
             <div>
-              <p className="text-white font-bold text-sm leading-tight">Iga Bakar</p>
-              <p className="text-blue-300 text-xs">Owner Portal</p>
+              <p className="text-canvas font-bold text-sm leading-tight tracking-wider uppercase font-jakarta">Iga Bakar</p>
+              <p className="text-stone-brand text-[10px] uppercase font-semibold tracking-wider font-jakarta mt-0.5">Owner Portal</p>
             </div>
           </div>
           {isMobile && (
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1 rounded-full text-stone-brand hover:text-canvas hover:bg-soft-cloud/10 transition-colors"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           )}
         </div>
 
         {/* User Card */}
-        <div className="mx-4 mt-4 mb-2 p-3 rounded-xl bg-white/8 border border-white/10 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg">
+        <div className="mx-4 mt-4 mb-2 p-3 rounded-none bg-soft-cloud/10 border border-hairline/20 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-soft-cloud flex items-center justify-center text-ink font-bold text-xs flex-shrink-0">
             {userInitial}
           </div>
           <div className="overflow-hidden">
-            <p className="text-white text-sm font-semibold truncate">{userName}</p>
+            <p className="text-canvas text-sm font-semibold truncate">{userName}</p>
             <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <p className="text-blue-300 text-xs">Owner</p>
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+              <p className="text-stone-brand text-xs">Owner</p>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-0.5">
-          <p className="text-blue-400/60 text-xs font-semibold uppercase tracking-wider px-3 py-2">Menu</p>
+        <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-1">
+          <p className="text-stone-brand/50 text-[10px] font-bold uppercase tracking-widest px-3 py-2">Menu</p>
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = item.route === '/owner'
@@ -182,43 +178,40 @@ export default function OwnerShell({
                   router.push(item.route)
                   if (isMobile) setSidebarOpen(false)
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative ${
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-none transition-all duration-150 group relative cursor-pointer ${
                   isActive
-                    ? 'bg-white/15 text-white shadow-sm'
-                    : 'text-blue-200/70 hover:text-white hover:bg-white/8'
+                    ? 'bg-soft-cloud/15 text-canvas'
+                    : 'text-stone-brand hover:text-canvas hover:bg-soft-cloud/5'
                 }`}
               >
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-400 rounded-r-full" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-canvas" />
                 )}
-                <div className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
-                  isActive ? 'bg-blue-500/30' : 'group-hover:bg-white/10'
-                }`}>
-                  <Icon size={16} className={isActive ? 'text-blue-300' : 'text-blue-300/60 group-hover:text-blue-200'} />
+                <div className="p-1 rounded-none flex-shrink-0">
+                  <Icon size={15} className={isActive ? 'text-canvas' : 'text-stone-brand group-hover:text-canvas'} />
                 </div>
-                <span className="text-sm font-medium flex-1 text-left">{item.label}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider flex-1 text-left">{item.label}</span>
                 {item.badge && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 flex items-center gap-0.5">
-                    <Eye size={9} />
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-canvas/10 text-canvas flex items-center gap-0.5">
+                    <Eye size={8} />
                     {item.badge}
                   </span>
                 )}
-                {isActive && <ChevronRight size={14} className="text-blue-400 flex-shrink-0" />}
               </button>
             )
           })}
         </nav>
 
         {/* Logout */}
-        <div className="px-3 pb-6 pt-2 border-t border-white/10">
+        <div className="px-3 pb-6 pt-2 border-t border-hairline/25">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-300/70 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 group"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-none text-sale hover:text-red-400 hover:bg-sale/10 transition-all duration-150 group cursor-pointer"
           >
-            <div className="p-1.5 rounded-lg group-hover:bg-red-500/20 transition-colors">
-              <LogOut size={16} />
+            <div className="p-1 rounded-none flex-shrink-0">
+              <LogOut size={15} />
             </div>
-            <span className="text-sm font-medium">Sign Out</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Sign Out</span>
           </button>
         </div>
       </aside>
@@ -227,27 +220,27 @@ export default function OwnerShell({
       <div className={`flex-1 transition-all duration-300 ${sidebarOpen && !isMobile ? 'lg:ml-64' : ''} flex flex-col min-h-screen`}>
 
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
-          <div className="flex items-center justify-between px-6 py-3.5">
+        <header className="sticky top-0 z-40 bg-canvas border-b border-hairline">
+          <div className="flex items-center justify-between px-6 py-3 font-jakarta">
             {/* Left: Hamburger + Breadcrumb */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700 lg:hidden"
+                className="p-1.5 rounded-full border border-hairline hover:bg-soft-cloud transition-colors text-ink lg:hidden cursor-pointer"
               >
-                <Menu size={20} />
+                <Menu size={16} />
               </button>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+                  <h1 className="text-lg font-bold text-ink uppercase tracking-wider">{title}</h1>
                   {activeRoute?.badge && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
-                      <Eye size={11} />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-soft-cloud text-ink border border-hairline">
+                      <Eye size={10} />
                       View Only
                     </span>
                   )}
                 </div>
-                {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+                {subtitle && <p className="text-[10px] text-mute uppercase tracking-wider mt-0.5">{subtitle}</p>}
               </div>
             </div>
 
@@ -258,26 +251,26 @@ export default function OwnerShell({
                 <button
                   onClick={handleRefresh}
                   disabled={refreshing}
-                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                  className="p-1.5 rounded-full border border-hairline hover:bg-soft-cloud transition-colors text-ink disabled:opacity-50 cursor-pointer"
                   title="Refresh data"
                 >
-                  <RefreshCw size={18} className={refreshing ? 'animate-spin text-blue-600' : ''} />
+                  <RefreshCw size={15} className={refreshing ? 'animate-spin text-ink' : ''} />
                 </button>
               )}
               <div className="relative">
                 <button
                   onClick={() => setNotifOpen(!notifOpen)}
-                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700 relative"
+                  className="p-1.5 rounded-full border border-hairline hover:bg-soft-cloud transition-colors text-ink cursor-pointer"
                 >
-                  <Bell size={18} />
+                  <Bell size={15} />
                 </button>
               </div>
-              <div className="pl-3 ml-1 border-l border-gray-200 flex items-center gap-2.5">
+              <div className="pl-3 ml-1 border-l border-hairline flex items-center gap-2.5">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-semibold text-gray-800 leading-tight">{userName}</p>
-                  <p className="text-xs text-gray-500">Owner</p>
+                  <p className="text-xs font-bold text-ink leading-tight">{userName}</p>
+                  <p className="text-[10px] text-mute uppercase tracking-widest mt-0.5">Owner</p>
                 </div>
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg text-white font-bold text-sm cursor-pointer hover:scale-105 transition-transform">
+                <div className="w-8 h-8 bg-ink rounded-full flex items-center justify-center text-canvas font-bold text-xs cursor-pointer hover:bg-charcoal transition-colors">
                   {userInitial}
                 </div>
               </div>

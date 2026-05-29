@@ -8,6 +8,7 @@ import {
   NotFoundError 
 } from '@/lib/errorHandler'
 import { withApiPermission } from '@/lib/apiPermissions'
+import { orderEventEmitter } from '@/lib/orderEvents'
 
 // GET all orders (OWNER and ADMIN can see all, USER sees only their own)
 export async function GET(request: NextRequest) {
@@ -348,6 +349,9 @@ export async function POST(request: NextRequest) {
       })),
       qris: qrisData
     }
+
+    // Emit event for real-time cashier dashboard
+    orderEventEmitter.emit('orderCreate', { id: order.id, orderNumber })
 
     return NextResponse.json(orderResponse, { status: 201 })
   } catch (error) {

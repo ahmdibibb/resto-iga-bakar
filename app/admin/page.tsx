@@ -301,34 +301,34 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-canvas font-inter text-ink">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-ink/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-white to-gray-50/50 border-r border-gray-200/80 flex flex-col py-6 z-50 shadow-xl transition-transform duration-300 ease-in-out ${
+      <div className={`fixed left-0 top-0 h-full w-64 bg-ink border-r border-hairline flex flex-col py-6 z-50 transition-transform duration-300 ease-in-out ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}>
+      } lg:translate-x-0 font-jakarta`}>
         {/* Logo */}
-        <div className="px-6 mb-8 flex items-center justify-between">
+        <div className="px-6 mb-8 flex items-center justify-between border-b border-hairline/25 pb-5">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200 transform transition-transform hover:scale-105">
-              <span className="text-xl">🔥</span>
+            <div className="w-9 h-9 bg-soft-cloud rounded-none flex items-center justify-center">
+              <span className="text-sm">🔥</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Resto Iga Bakar</span>
+            <span className="text-sm font-bold uppercase tracking-wider text-canvas">Admin Portal</span>
           </div>
           {/* Close button for mobile */}
           {isMobile && (
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-1.5 rounded-full text-stone-brand hover:text-canvas hover:bg-soft-cloud/10"
             >
-              <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-stone-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -336,10 +336,12 @@ export default function AdminDashboard() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4">
-          <div className="space-y-2">
+        <nav className="flex-1 px-4 space-y-1">
+          <p className="text-stone-brand/50 text-[10px] font-bold uppercase tracking-widest px-4 py-2">Menu</p>
+          <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon
+              const isActive = activeTab === item.id
               return (
                 <button
                   key={item.id}
@@ -350,15 +352,16 @@ export default function AdminDashboard() {
                       setActiveTab(item.id)
                     }
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group ${activeTab === item.id
-                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg shadow-orange-200 scale-[1.02]'
-                    : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md hover:scale-[1.01]'
-                    }`}
+                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-none transition-all duration-150 group cursor-pointer ${
+                    isActive
+                      ? 'bg-soft-cloud/15 text-canvas'
+                      : 'text-stone-brand hover:text-canvas hover:bg-soft-cloud/5'
+                  }`}
                 >
-                  <div className={`${activeTab === item.id ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-orange-100'} p-1.5 rounded-lg transition-colors`}>
-                    <Icon size={18} className={activeTab === item.id ? 'text-white' : 'text-gray-700 group-hover:text-orange-600'} />
+                  <div className="p-1 rounded-none flex-shrink-0">
+                    <Icon size={15} className={isActive ? 'text-canvas' : 'text-stone-brand group-hover:text-canvas'} />
                   </div>
-                  <span className="text-sm">{item.label}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider">{item.label}</span>
                 </button>
               )
             })}
@@ -370,12 +373,12 @@ export default function AdminDashboard() {
                 <button
                   key={link.href}
                   onClick={() => router.push(link.href)}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md hover:scale-[1.01]"
+                  className="w-full flex items-center gap-3 px-4 py-2 rounded-none transition-all duration-150 group text-stone-brand hover:text-canvas hover:bg-soft-cloud/5 cursor-pointer"
                 >
-                  <div className="bg-gray-100 group-hover:bg-orange-100 p-1.5 rounded-lg transition-colors">
-                    <Icon size={18} className="text-gray-700 group-hover:text-orange-600" />
+                  <div className="p-1 rounded-none flex-shrink-0">
+                    <Icon size={15} className="text-stone-brand group-hover:text-canvas" />
                   </div>
-                  <span className="text-sm">{link.label}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider">{link.label}</span>
                 </button>
               )
             })}
@@ -383,24 +386,24 @@ export default function AdminDashboard() {
         </nav>
 
         {/* Settings & Logout */}
-        <div className="px-4 space-y-2 border-t border-gradient-to-r from-transparent via-gray-200 to-transparent pt-4 mt-4">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md transition-all duration-200 group">
-            <div className="bg-gray-100 group-hover:bg-blue-100 p-1.5 rounded-lg transition-colors">
-              <Settings size={18} className="group-hover:text-blue-600 transition-colors" />
+        <div className="px-4 space-y-1 border-t border-hairline/25 pt-4 mt-4">
+          <button className="w-full flex items-center gap-3 px-4 py-2 rounded-none text-stone-brand hover:text-canvas hover:bg-soft-cloud/5 transition-all duration-150 group cursor-pointer">
+            <div className="p-1 rounded-none flex-shrink-0">
+              <Settings size={15} className="group-hover:text-canvas transition-colors" />
             </div>
-            <span className="text-sm">Settings</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Settings</span>
           </button>
           <button
             onClick={async () => {
               await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
               router.push('/login')
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:shadow-md transition-all duration-200 group"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-none text-sale hover:text-red-400 hover:bg-sale/10 transition-all duration-150 group cursor-pointer"
           >
-            <div className="bg-red-50 group-hover:bg-red-100 p-1.5 rounded-lg transition-colors">
-              <LogOut size={18} className="group-hover:scale-110 transition-transform" />
+            <div className="p-1 rounded-none flex-shrink-0">
+              <LogOut size={15} className="group-hover:scale-110 transition-transform" />
             </div>
-            <span className="text-sm font-medium">Sign Out</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Sign Out</span>
           </button>
         </div>
       </div>
@@ -408,34 +411,34 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className={`flex-1 transition-all duration-300 ${sidebarOpen && !isMobile ? 'lg:ml-64' : ''}`}>
         {/* Top Bar */}
-        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200/80 px-8 py-4 shadow-sm">
+        <div className="sticky top-0 z-40 bg-canvas border-b border-hairline px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Hamburger Menu Button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 hover:shadow-md group lg:hidden"
+                className="p-1.5 rounded-full border border-hairline hover:bg-soft-cloud transition-colors text-ink lg:hidden cursor-pointer"
               >
-                <Menu size={24} className="text-gray-600 group-hover:text-gray-900 transition-colors" />
+                <Menu size={16} />
               </button>
               
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold text-ink uppercase tracking-wider font-jakarta">
                 {navItems.find((item) => item.id === activeTab)?.label || 'Dashboard'}
               </h1>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button className="p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 hover:shadow-md group">
-                <Moon size={20} className="text-gray-600 group-hover:text-gray-900 transition-colors" />
+            <div className="flex items-center gap-2">
+              <button className="p-1.5 rounded-full border border-hairline hover:bg-soft-cloud transition-colors text-ink cursor-pointer">
+                <Moon size={15} />
               </button>
-              <button className="p-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 hover:shadow-md relative group">
-                <Bell size={20} className="text-gray-600 group-hover:text-gray-900 transition-colors" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse ring-2 ring-white"></span>
+              <button className="p-1.5 rounded-full border border-hairline hover:bg-soft-cloud transition-colors text-ink relative cursor-pointer">
+                <Bell size={15} />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-sale rounded-full"></span>
               </button>
-              <div className="flex items-center gap-3 pl-4 ml-2 border-l border-gray-200">
-                <span className="text-sm font-semibold text-gray-700">Admin</span>
-                <div className="w-10 h-10 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center shadow-lg ring-2 ring-gray-200 hover:ring-orange-300 transition-all duration-200 cursor-pointer hover:scale-105">
-                  <User size={20} className="text-white" />
+              <div className="flex items-center gap-2 pl-3 ml-1 border-l border-hairline">
+                <span className="text-xs font-bold text-ink hidden sm:block">Admin</span>
+                <div className="w-8 h-8 bg-ink rounded-full flex items-center justify-center text-canvas font-bold text-xs cursor-pointer hover:bg-charcoal transition-colors">
+                  A
                 </div>
               </div>
             </div>
@@ -445,8 +448,8 @@ export default function AdminDashboard() {
         {/* Content Area */}
         <div className="p-8">
           {error && (
-            <div className="mb-6 rounded-xl bg-red-50 border border-red-200 p-4">
-              <p className="text-sm text-red-800 font-semibold">⚠️ {error}</p>
+            <div className="mb-6 rounded-none bg-soft-cloud border border-hairline p-4">
+              <p className="text-sm text-sale font-semibold">⚠️ {error}</p>
             </div>
           )}
 
@@ -459,14 +462,14 @@ export default function AdminDashboard() {
                 {productsLoading ? (
                   <DashboardCardSkeleton />
                 ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                  <div className="bg-soft-cloud border border-hairline p-6 rounded-none">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-4xl font-bold text-gray-900">{products?.length || 0}</p>
-                        <p className="text-sm text-gray-500 mt-1">Total Menus</p>
+                        <p className="text-3xl font-bold text-ink">{products?.length || 0}</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-mute mt-1">Total Menus</p>
                       </div>
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Package size={20} className="text-gray-900" />
+                      <div className="w-9 h-9 bg-canvas border border-hairline rounded-none flex items-center justify-center">
+                        <Package size={16} className="text-ink" />
                       </div>
                     </div>
                   </div>
@@ -476,14 +479,14 @@ export default function AdminDashboard() {
                 {todayLoading ? (
                   <DashboardCardSkeleton />
                 ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                  <div className="bg-soft-cloud border border-hairline p-6 rounded-none">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-4xl font-bold text-gray-900">{todayOrders || 0}</p>
-                        <p className="text-sm text-gray-500 mt-1">Total Orders Today</p>
+                        <p className="text-3xl font-bold text-ink">{todayOrders || 0}</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-mute mt-1">Total Orders Today</p>
                       </div>
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <ShoppingCart size={20} className="text-gray-900" />
+                      <div className="w-9 h-9 bg-canvas border border-hairline rounded-none flex items-center justify-center">
+                        <ShoppingCart size={16} className="text-ink" />
                       </div>
                     </div>
                   </div>
@@ -493,14 +496,14 @@ export default function AdminDashboard() {
                 {todayLoading ? (
                   <DashboardCardSkeleton />
                 ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                  <div className="bg-soft-cloud border border-hairline p-6 rounded-none">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-4xl font-bold text-gray-900">{todayProductsSold}</p>
-                        <p className="text-sm text-gray-500 mt-1">Total Products Sold Today</p>
+                        <p className="text-3xl font-bold text-ink">{todayProductsSold}</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-mute mt-1">Total Products Sold Today</p>
                       </div>
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Package size={20} className="text-gray-900" />
+                      <div className="w-9 h-9 bg-canvas border border-hairline rounded-none flex items-center justify-center">
+                        <Package size={16} className="text-ink" />
                       </div>
                     </div>
                   </div>
@@ -510,16 +513,16 @@ export default function AdminDashboard() {
                 {todayLoading ? (
                   <DashboardCardSkeleton />
                 ) : (
-                  <div className="bg-white rounded-2xl p-6 border border-gray-200">
+                  <div className="bg-soft-cloud border border-hairline p-6 rounded-none">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-4xl font-bold text-gray-900">
+                        <p className="text-2xl font-bold text-ink">
                           Rp {(todayRevenue || 0).toLocaleString('id-ID')}
                         </p>
-                        <p className="text-sm text-gray-500 mt-1">Revenue Today</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-mute mt-1">Revenue Today</p>
                       </div>
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <DollarSign size={20} className="text-gray-900" />
+                      <div className="w-9 h-9 bg-canvas border border-hairline rounded-none flex items-center justify-center">
+                        <DollarSign size={16} className="text-ink" />
                       </div>
                     </div>
                   </div>
@@ -530,14 +533,14 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <div className="flex items-center justify-end mb-4">
-                    <div className="flex gap-1 bg-gray-50 rounded-xl p-1 border border-gray-200">
+                    <div className="flex gap-1 bg-soft-cloud rounded-full p-1 border border-hairline">
                       <button
                         type="button"
                         onClick={() => setRevenuePeriod('today')}
-                        className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                        className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-150 ${
                           revenuePeriod === 'today'
-                            ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-white'
+                            ? 'bg-ink text-canvas'
+                            : 'text-ink hover:bg-canvas/50'
                         }`}
                       >
                         Day
@@ -545,10 +548,10 @@ export default function AdminDashboard() {
                       <button
                         type="button"
                         onClick={() => setRevenuePeriod('weekly')}
-                        className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                        className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-150 ${
                           revenuePeriod === 'weekly'
-                            ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-white'
+                            ? 'bg-ink text-canvas'
+                            : 'text-ink hover:bg-canvas/50'
                         }`}
                       >
                         Week
@@ -556,10 +559,10 @@ export default function AdminDashboard() {
                       <button
                         type="button"
                         onClick={() => setRevenuePeriod('monthly')}
-                        className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                        className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-150 ${
                           revenuePeriod === 'monthly'
-                            ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-white'
+                            ? 'bg-ink text-canvas'
+                            : 'text-ink hover:bg-canvas/50'
                         }`}
                       >
                         Month
@@ -568,7 +571,7 @@ export default function AdminDashboard() {
                   </div>
 
                   {statsLoading ? (
-                    <div className="h-[360px] animate-pulse rounded-xl bg-gray-100" />
+                    <div className="h-[360px] animate-pulse rounded-none bg-soft-cloud border border-hairline" />
                   ) : (
                     <RevenueBarChart
                       data={chartData}
@@ -587,12 +590,12 @@ export default function AdminDashboard() {
               </div>
 
               {/* Order List Preview */}
-              <div className="bg-white rounded-2xl p-6 border border-gray-200">
+              <div className="bg-canvas border border-hairline p-6 rounded-none">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-900">Orders Hari Ini</h3>
+                  <h3 className="text-sm font-bold text-ink uppercase tracking-wider font-jakarta">Orders Hari Ini</h3>
                   <button
                     onClick={() => setActiveTab('orders')}
-                    className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+                    className="text-xs font-bold text-ink hover:underline uppercase tracking-wider"
                   >
                     View All →
                   </button>
@@ -603,74 +606,74 @@ export default function AdminDashboard() {
                 ) : recentOrders && recentOrders.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-soft-cloud border-b border-hairline">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          <th className="px-4 py-3 text-left text-xs font-bold uppercase text-ink">
                             No
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          <th className="px-4 py-3 text-left text-xs font-bold uppercase text-ink">
                             ID #
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          <th className="px-4 py-3 text-left text-xs font-bold uppercase text-ink">
                             Date
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          <th className="px-4 py-3 text-left text-xs font-bold uppercase text-ink">
                             Customer Name
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          <th className="px-4 py-3 text-left text-xs font-bold uppercase text-ink">
                             Type
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          <th className="px-4 py-3 text-left text-xs font-bold uppercase text-ink">
                             Amount
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                          <th className="px-4 py-3 text-left text-xs font-bold uppercase text-ink">
                             Status Order
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-hairline">
                         {recentOrders.map((order: any, index: number) => (
                           <tr
                             key={order.id}
                             onClick={() => setSelectedOrder(order)}
-                            className="hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="hover:bg-soft-cloud/40 cursor-pointer transition-colors"
                           >
-                            <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-xs text-charcoal">
                               {index + 1}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-4 font-mono text-sm font-medium text-gray-900">
+                            <td className="whitespace-nowrap px-4 py-4 font-mono text-xs font-bold text-ink">
                               #{order.orderNumber}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-xs text-charcoal">
                               {new Date(order.createdAt).toLocaleDateString('id-ID', {
                                 day: 'numeric',
                                 month: 'short',
                                 year: 'numeric'
                               })}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-900">
+                            <td className="whitespace-nowrap px-4 py-4 text-xs font-semibold text-ink">
                               {order.customerName || order.user?.name || 'Guest'}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-600">
+                            <td className="whitespace-nowrap px-4 py-4 text-xs text-charcoal">
                               {order.orderType === 'DINE_IN'
                                 ? `🍽️ Dine-In`
                                 : '🥡 Takeaway'}
                             </td>
-                            <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-gray-900">
+                            <td className="whitespace-nowrap px-4 py-4 text-xs font-bold text-ink">
                               Rp {order.totalAmount.toLocaleString('id-ID')}
                             </td>
                             <td className="whitespace-nowrap px-4 py-4">
-                              <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                order.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-800' :
-                                  order.status === 'READY' ? 'bg-green-100 text-green-800' :
-                                    order.status === 'COMPLETED' ? 'bg-gray-100 text-gray-800' :
-                                      'bg-gray-100 text-gray-800'
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border ${order.status === 'PENDING' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                                order.status === 'CONFIRMED' ? 'bg-blue-50 text-blue-800 border-blue-200' :
+                                  order.status === 'READY' ? 'bg-green-50 text-green-800 border-green-200' :
+                                    order.status === 'COMPLETED' ? 'bg-soft-cloud text-ink border-hairline' :
+                                      'bg-soft-cloud text-ink border-hairline'
                                 }`}>
-                                <span className={`w-2 h-2 rounded-full ${order.status === 'PENDING' ? 'bg-yellow-600' :
+                                <span className={`w-1.5 h-1.5 rounded-full ${order.status === 'PENDING' ? 'bg-amber-600' :
                                   order.status === 'CONFIRMED' ? 'bg-blue-600' :
                                     order.status === 'READY' ? 'bg-green-600' :
-                                      order.status === 'COMPLETED' ? 'bg-gray-600' :
-                                        'bg-gray-600'
+                                      order.status === 'COMPLETED' ? 'bg-ink' :
+                                        'bg-ink'
                                   }`}></span>
                                 {order.status}
                               </span>
@@ -681,9 +684,9 @@ export default function AdminDashboard() {
                     </table>
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-400">
+                  <div className="text-center py-12 text-mute">
                     <ShoppingCart size={48} className="mx-auto mb-4 opacity-20" />
-                    <p>No recent orders</p>
+                    <p className="text-sm font-semibold uppercase tracking-wider">No recent orders</p>
                   </div>
                 )}
               </div>
@@ -694,7 +697,7 @@ export default function AdminDashboard() {
           {activeTab === 'products' && (
             <div>
               <div className="mb-6 flex justify-between">
-                <h2 className="text-2xl font-bold">Products Management</h2>
+                <h2 className="text-sm font-bold text-ink uppercase tracking-wider font-jakarta">Products Management</h2>
                 <button
                   onClick={() => {
                     setEditingProduct(null)
@@ -708,16 +711,16 @@ export default function AdminDashboard() {
                     })
                     setShowProductForm(true)
                   }}
-                  className="flex items-center gap-2 rounded-xl bg-orange-600 px-4 py-2 text-white hover:bg-orange-700"
+                  className="flex items-center gap-2 rounded-full bg-ink px-5 py-2 text-canvas hover:bg-charcoal text-xs font-semibold uppercase tracking-wider transition-all duration-150"
                 >
-                  <Plus size={20} />
+                  <Plus size={16} />
                   Add Product
                 </button>
               </div>
 
               {showProductForm && (
-                <div className="mb-6 rounded-2xl bg-white p-6 border border-gray-200">
-                  <h3 className="mb-4 text-xl font-semibold">
+                <div className="mb-6 bg-soft-cloud p-6 border border-hairline rounded-none">
+                  <h3 className="mb-4 text-sm font-bold text-ink uppercase tracking-wider font-jakarta">
                     {editingProduct ? 'Edit Product' : 'Add New Product'}
                   </h3>
                   <form
@@ -725,7 +728,7 @@ export default function AdminDashboard() {
                     className="grid gap-4 md:grid-cols-2"
                   >
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                         Name
                       </label>
                       <input
@@ -735,11 +738,11 @@ export default function AdminDashboard() {
                           setFormData({ ...formData, name: e.target.value })
                         }
                         required
-                        className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                        className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                         Price
                       </label>
                       <input
@@ -750,11 +753,11 @@ export default function AdminDashboard() {
                           setFormData({ ...formData, price: e.target.value })
                         }
                         required
-                        className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                        className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                         Stock
                       </label>
                       <input
@@ -764,11 +767,11 @@ export default function AdminDashboard() {
                           setFormData({ ...formData, stock: e.target.value })
                         }
                         required
-                        className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                        className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                         Category
                       </label>
                       <select
@@ -776,7 +779,7 @@ export default function AdminDashboard() {
                         onChange={(e) =>
                           setFormData({ ...formData, category: e.target.value })
                         }
-                        className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                        className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                       >
                         <option value="">Pilih Kategori</option>
                         <option value="MAKANAN">Makanan</option>
@@ -784,7 +787,7 @@ export default function AdminDashboard() {
                       </select>
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                         Description
                       </label>
                       <textarea
@@ -792,12 +795,12 @@ export default function AdminDashboard() {
                         onChange={(e) =>
                           setFormData({ ...formData, description: e.target.value })
                         }
-                        className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                        className="w-full bg-canvas text-ink border border-hairline rounded-2xl px-4 py-2 focus:border-ink focus:outline-none text-sm"
                         rows={3}
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                         Image URL
                       </label>
                       <input
@@ -806,13 +809,13 @@ export default function AdminDashboard() {
                         onChange={(e) =>
                           setFormData({ ...formData, image: e.target.value })
                         }
-                        className="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                        className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                       />
                     </div>
                     <div className="md:col-span-2 flex gap-2">
                       <button
                         type="submit"
-                        className="rounded-xl bg-orange-600 px-6 py-2 text-white hover:bg-orange-700"
+                        className="rounded-full bg-ink px-6 py-2.5 text-canvas hover:bg-charcoal text-xs font-semibold uppercase tracking-wider"
                       >
                         {editingProduct ? 'Update' : 'Create'}
                       </button>
@@ -822,7 +825,7 @@ export default function AdminDashboard() {
                           setShowProductForm(false)
                           setEditingProduct(null)
                         }}
-                        className="rounded-xl border border-gray-300 px-6 py-2 hover:bg-gray-50"
+                        className="rounded-full border border-hairline px-6 py-2.5 text-ink hover:bg-soft-cloud text-xs font-semibold uppercase tracking-wider"
                       >
                         Cancel
                       </button>
@@ -834,54 +837,54 @@ export default function AdminDashboard() {
               {productsLoading ? (
                 <TableSkeleton rows={10} />
               ) : (
-                <div className="overflow-x-auto rounded-2xl bg-white border border-gray-200">
+                <div className="overflow-x-auto rounded-none bg-canvas border border-hairline">
                   <table className="w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-soft-cloud border-b border-hairline">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                           Name
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                           Category
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                           Price
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                           Stock
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                           Status
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                        <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-hairline">
                       {products && products.map((product: any) => (
-                        <tr key={product.id} className="hover:bg-gray-50">
-                          <td className="whitespace-nowrap px-6 py-4 font-medium">
+                        <tr key={product.id} className="hover:bg-soft-cloud/40 transition-colors">
+                          <td className="whitespace-nowrap px-6 py-4 font-semibold text-xs text-ink">
                             {product.name}
                           </td>
                           <td className="whitespace-nowrap px-6 py-4">
                             {product.category ? (
-                              <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-800">
+                              <span className="border border-hairline bg-soft-cloud text-ink rounded-full px-2.5 py-0.5 text-[10px] font-bold">
                                 {product.category}
                               </span>
                             ) : (
-                              <span className="text-gray-400 text-xs">-</span>
+                              <span className="text-mute text-xs">-</span>
                             )}
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4">
+                          <td className="whitespace-nowrap px-6 py-4 text-xs text-charcoal">
                             Rp {(product.price || 0).toLocaleString('id-ID')}
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4">{product.stock}</td>
+                          <td className="whitespace-nowrap px-6 py-4 text-xs text-charcoal">{product.stock}</td>
                           <td className="whitespace-nowrap px-6 py-4">
                             <span
-                              className={`rounded-full px-3 py-1 text-xs font-semibold ${product.isActive
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
+                              className={`border rounded-full px-2.5 py-0.5 text-[10px] font-bold ${product.isActive
+                                ? 'border-green-200 bg-green-50 text-green-800'
+                                : 'border-red-200 bg-red-50 text-red-800'
                                 }`}
                             >
                               {product.isActive ? 'Active' : 'Inactive'}
@@ -891,15 +894,15 @@ export default function AdminDashboard() {
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleEditProduct(product)}
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-ink hover:text-charcoal p-1"
                               >
-                                <Edit size={18} />
+                                <Edit size={16} />
                               </button>
                               <button
                                 onClick={() => handleDeleteProduct(product.id)}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-sale hover:text-sale-deep p-1"
                               >
-                                <Trash2 size={18} />
+                                <Trash2 size={16} />
                               </button>
                             </div>
                           </td>

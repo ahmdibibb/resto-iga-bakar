@@ -63,22 +63,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-background flex min-h-screen items-center justify-center px-4">
-      <div className="relative z-10 w-full max-w-md rounded-lg bg-white/95 backdrop-blur-sm p-8 shadow-2xl">
+    <div className="bg-canvas flex min-h-screen items-center justify-center px-4 font-inter text-ink">
+      <div className="relative w-full max-w-md rounded-none bg-soft-cloud border border-hairline p-8 shadow-none">
         <div className="mb-6 text-center">
-          <h1 className="text-3xl font-bold text-orange-600">Resto Iga Bakar</h1>
-          <p className="mt-2 text-gray-600">Masuk ke akun Anda</p>
+          <h1 className="text-3xl font-bold font-jakarta text-ink uppercase tracking-tight">Resto Iga Bakar</h1>
+          <p className="mt-2 text-sm text-charcoal font-medium">Masuk ke akun Anda</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+            <div className="rounded-none bg-sale/10 border border-sale/20 p-3 text-sm text-sale font-semibold">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-semibold text-charcoal mb-1 font-jakarta">
               Email
             </label>
             <input
@@ -87,12 +87,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="nama@email.com"
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition-colors"
+              className="block w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-semibold text-charcoal mb-1 font-jakarta">
               Password
             </label>
             <div className="relative">
@@ -102,12 +102,12 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Masukkan password"
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 pr-10 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition-colors"
+                className="block w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-2.5 pr-10 focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-charcoal hover:text-ink transition-colors"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -118,18 +118,13 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             suppressHydrationWarning
-            className="w-full rounded-md bg-orange-600 px-4 py-2.5 font-medium text-white hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-6"
+            className="w-full rounded-full bg-ink px-4 py-3 font-semibold text-canvas hover:bg-ink/90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
             {loading ? 'Memproses...' : 'Masuk'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Belum punya akun?{' '}
-          <Link href="/register" className="font-medium text-orange-600 hover:text-orange-500">
-            Daftar di sini
-          </Link>
-        </p>
+
       </div>
     </div>
   )

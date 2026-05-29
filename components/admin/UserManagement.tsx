@@ -21,7 +21,7 @@ export default function UserManagement() {
         email: '',
         name: '',
         password: '',
-        role: 'USER',
+        role: 'KASIR',
     })
 
     useEffect(() => {
@@ -70,7 +70,7 @@ export default function UserManagement() {
 
             setShowForm(false)
             setEditingUser(null)
-            setFormData({ email: '', name: '', password: '', role: 'USER' })
+            setFormData({ email: '', name: '', password: '', role: 'KASIR' })
             fetchUsers()
         } catch (error) {
             console.error('Error saving user:', error)
@@ -115,27 +115,26 @@ export default function UserManagement() {
     const getRoleIcon = (role: string) => {
         switch (role) {
             case 'ADMIN':
-                return <Shield size={16} className="text-purple-600" />
+                return <Shield size={12} className="text-purple-800" />
             case 'KASIR':
-                return <ChefHat size={16} className="text-blue-600" />
+                return <ChefHat size={12} className="text-blue-800" />
             default:
-                return <UserIcon size={16} className="text-gray-600" />
+                return <UserIcon size={12} className="text-ink" />
         }
     }
 
     const getRoleBadge = (role: string) => {
         const colors = {
-            ADMIN: 'bg-purple-100 text-purple-800',
-            KASIR: 'bg-blue-100 text-blue-800',
-            USER: 'bg-gray-100 text-gray-800',
+            ADMIN: 'border border-purple-200 bg-purple-50 text-purple-800',
+            KASIR: 'border border-blue-200 bg-blue-50 text-blue-800',
         }
-        return colors[role as keyof typeof colors] || colors.USER
+        return colors[role as keyof typeof colors] || 'border border-hairline bg-soft-cloud text-ink'
     }
 
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-600 border-t-transparent"></div>
+                <div className="h-8 w-8 animate-spin rounded-full border border-ink border-t-transparent"></div>
             </div>
         )
     }
@@ -144,43 +143,43 @@ export default function UserManagement() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Users className="text-orange-600" size={28} />
-                    <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
+                    <Users className="text-ink" size={20} />
+                    <h2 className="text-sm font-bold text-ink uppercase tracking-wider font-jakarta">User Management</h2>
                 </div>
                 <button
                     onClick={() => {
                         setEditingUser(null)
-                        setFormData({ email: '', name: '', password: '', role: 'USER' })
+                        setFormData({ email: '', name: '', password: '', role: 'KASIR' })
                         setShowForm(true)
                     }}
-                    className="flex items-center gap-2 rounded-xl bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 transition-all"
+                    className="flex items-center gap-2 rounded-full bg-ink px-5 py-2 text-canvas hover:bg-charcoal text-xs font-semibold uppercase tracking-wider transition-all duration-150 cursor-pointer"
                 >
-                    <Plus size={20} />
+                    <Plus size={16} />
                     Add User
                 </button>
             </div>
 
             {error && (
-                <div className="rounded-xl bg-red-50 border border-red-200 p-4">
-                    <p className="text-sm text-red-600">{error}</p>
+                <div className="rounded-none bg-soft-cloud border border-hairline p-4">
+                    <p className="text-sm text-sale font-semibold">{error}</p>
                 </div>
             )}
 
             {/* Info about OWNER accounts */}
-            <div className="rounded-xl bg-blue-50 border border-blue-200 p-4">
-                <p className="text-sm text-blue-800">
+            <div className="rounded-none bg-soft-cloud border border-hairline p-4">
+                <p className="text-xs text-ink">
                     <strong>Note:</strong> OWNER accounts are hidden from this view and cannot be created or modified by ADMIN users. Only OWNER users can manage OWNER accounts.
                 </p>
             </div>
 
             {showForm && (
-                <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
-                    <h3 className="mb-4 text-xl font-semibold">
+                <div className="bg-soft-cloud p-6 border border-hairline rounded-none">
+                    <h3 className="mb-4 text-sm font-bold text-ink uppercase tracking-wider font-jakarta">
                         {editingUser ? 'Edit User' : 'Add New User'}
                     </h3>
                     <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                                 Email
                             </label>
                             <input
@@ -188,11 +187,11 @@ export default function UserManagement() {
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 required
-                                className="w-full rounded-xl border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                                className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                                 Name
                             </label>
                             <input
@@ -200,11 +199,11 @@ export default function UserManagement() {
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
-                                className="w-full rounded-xl border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                                className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                                 Password {editingUser && '(leave blank to keep current)'}
                             </label>
                             <input
@@ -212,29 +211,27 @@ export default function UserManagement() {
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 required={!editingUser}
-                                className="w-full rounded-xl border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                                className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
                                 Role
                             </label>
                             <select
                                 value={formData.role}
                                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                                className="w-full rounded-xl border-2 border-gray-300 px-4 py-2 focus:border-orange-500 focus:outline-none"
+                                className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm cursor-pointer"
                                 title="ADMIN users cannot create OWNER accounts"
                             >
-                                <option value="USER">User</option>
                                 <option value="KASIR">Kasir</option>
                                 <option value="ADMIN">Admin</option>
-                                {/* OWNER option removed - only OWNER users can create OWNER accounts */}
                             </select>
                         </div>
                         <div className="md:col-span-2 flex gap-2">
                             <button
                                 type="submit"
-                                className="rounded-xl bg-orange-600 px-6 py-2 text-white hover:bg-orange-700"
+                                className="rounded-full bg-ink px-6 py-2.5 text-canvas hover:bg-charcoal text-xs font-semibold uppercase tracking-wider cursor-pointer"
                             >
                                 {editingUser ? 'Update' : 'Create'}
                             </button>
@@ -245,8 +242,8 @@ export default function UserManagement() {
                                     setEditingUser(null)
                                     setError('')
                                 }}
-                                className="rounded-xl border-2 border-gray-300 px-6 py-2 hover:bg-gray-50"
-                            >
+                                className="rounded-full border border-hairline px-6 py-2.5 text-ink hover:bg-soft-cloud text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                              >
                                 Cancel
                             </button>
                         </div>
@@ -254,59 +251,59 @@ export default function UserManagement() {
                 </div>
             )}
 
-            <div className="overflow-x-auto rounded-2xl bg-white shadow-lg">
+            <div className="overflow-x-auto rounded-none bg-canvas border border-hairline">
                 <table className="w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-soft-cloud border-b border-hairline">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                            <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                                 Name
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                            <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                                 Email
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                            <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                                 Role
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                            <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                                 Created
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                            <th className="px-6 py-3 text-left text-xs font-bold uppercase text-ink">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {users.length > 0 ? (
-                            users.map((user) => (
-                                <tr key={user.id} className="hover:bg-gray-50">
-                                    <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900">
+                    <tbody className="divide-y divide-hairline">
+                        {users.filter(u => u.role === 'ADMIN' || u.role === 'KASIR').length > 0 ? (
+                            users.filter(u => u.role === 'ADMIN' || u.role === 'KASIR').map((user) => (
+                                <tr key={user.id} className="hover:bg-soft-cloud/40 transition-colors">
+                                    <td className="whitespace-nowrap px-6 py-4 font-semibold text-xs text-ink">
                                         {user.name}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-gray-600">
+                                    <td className="whitespace-nowrap px-6 py-4 text-xs text-charcoal">
                                         {user.email}
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4">
-                                        <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${getRoleBadge(user.role)}`}>
+                                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${getRoleBadge(user.role)}`}>
                                             {getRoleIcon(user.role)}
                                             {user.role}
                                         </span>
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                                    <td className="whitespace-nowrap px-6 py-4 text-xs text-charcoal">
                                         {new Date(user.createdAt).toLocaleDateString('id-ID')}
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4">
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => handleEdit(user)}
-                                                className="text-blue-600 hover:text-blue-800"
+                                                className="text-ink hover:text-charcoal p-1"
                                             >
-                                                <Edit size={18} />
+                                                <Edit size={16} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(user.id)}
-                                                className="text-red-600 hover:text-red-800"
+                                                className="text-sale hover:text-sale-deep p-1"
                                             >
-                                                <Trash2 size={18} />
+                                                <Trash2 size={16} />
                                             </button>
                                         </div>
                                     </td>
@@ -314,7 +311,7 @@ export default function UserManagement() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                <td colSpan={5} className="px-6 py-12 text-center text-mute text-xs font-semibold uppercase tracking-wider">
                                     No users found. Click "Add User" to create one.
                                 </td>
                             </tr>

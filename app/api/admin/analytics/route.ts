@@ -136,7 +136,6 @@ export async function GET(request: NextRequest) {
         const [
             totalOrders,
             totalRevenue,
-            totalCustomers,
             recentOrders,
         ] = await Promise.all([
             prisma.order.count({
@@ -151,12 +150,6 @@ export async function GET(request: NextRequest) {
                     status: { not: 'CANCELLED' },
                 },
                 _sum: { totalAmount: true },
-            }),
-            prisma.user.count({
-                where: {
-                    role: 'USER',
-                    createdAt: { gte: startDate },
-                },
             }),
             prisma.order.findMany({
                 where: {
@@ -173,6 +166,19 @@ export async function GET(request: NextRequest) {
                 },
             }),
         ])
+
+        const ordersForCustCount = await prisma.order.findMany({
+            where: {
+                createdAt: { gte: startDate },
+                status: { not: 'CANCELLED' },
+            },
+            select: {
+                customerName: true,
+            },
+        })
+        const totalCustomers = new Set(
+            ordersForCustCount.map((o) => o.customerName).filter(Boolean)
+        ).size
 
         const averageOrderValue = totalOrders > 0
             ? (totalRevenue._sum.totalAmount?.toNumber() || 0) / totalOrders

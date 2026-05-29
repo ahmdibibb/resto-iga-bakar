@@ -21,8 +21,14 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams
         const role = searchParams.get('role')
 
-        const where: any = {}
-        if (role) where.role = role
+        const where: any = {
+            role: {
+                in: ['ADMIN', 'KASIR', 'OWNER']
+            }
+        }
+        if (role) {
+            where.role = role
+        }
 
         const users = await prisma.user.findMany({
             where,
@@ -76,7 +82,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: ownerCheck.error }, { status: 403 })
         }
 
-        if (!['USER', 'ADMIN', 'KASIR'].includes(role)) {
+        if (!['ADMIN', 'KASIR'].includes(role)) {
             throw new OrderValidationError('Invalid role')
         }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle, Clock, Banknote, QrCode, History, Inbox, Printer } from 'lucide-react'
 import Navbar from '@/components/navbar/Navbar'
@@ -55,18 +55,6 @@ export default function KasirPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<ErrorState | null>(null)
 
-  useEffect(() => {
-    fetchIncomingOrders()
-    fetchHistoryOrders()
-    const interval = setInterval(() => {
-      fetchIncomingOrders()
-      if (activeTab === 'history') {
-        fetchHistoryOrders()
-      }
-    }, 5000) // Refresh every 5 seconds
-    return () => clearInterval(interval)
-  }, [historyFilter, activeTab])
-
   const fetchIncomingOrders = async () => {
     try {
       const res = await fetch('/api/kasir/orders')
@@ -110,6 +98,39 @@ export default function KasirPage() {
       setHistoryOrders([])
     }
   }
+
+  // Keep references to fetch functions to prevent stale closures in SSE effect
+  const fetchersRef = useRef({ fetchIncomingOrders, fetchHistoryOrders })
+  useEffect(() => {
+    fetchersRef.current = { fetchIncomingOrders, fetchHistoryOrders }
+  })
+
+  // Load/refresh when tab or history filter changes
+  useEffect(() => {
+    fetchIncomingOrders()
+    fetchHistoryOrders()
+  }, [historyFilter, activeTab])
+
+  // Establish SSE connection for real-time updates
+  useEffect(() => {
+    const eventSource = new EventSource('/api/orders/stream')
+
+    const handleUpdate = () => {
+      fetchersRef.current.fetchIncomingOrders()
+      fetchersRef.current.fetchHistoryOrders()
+    }
+
+    eventSource.addEventListener('orderUpdate', handleUpdate)
+    eventSource.addEventListener('orderCreate', handleUpdate)
+
+    eventSource.onerror = (err) => {
+      console.error('SSE connection error:', err)
+    }
+
+    return () => {
+      eventSource.close()
+    }
+  }, [])
 
   const confirmCashPayment = async (orderId: string) => {
     try {
@@ -267,7 +288,7 @@ export default function KasirPage() {
   const getPaymentMethodBadge = (method: string | null) => {
     if (method === 'QRIS') {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">
+        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 border border-success/20 px-3 py-1 text-xs font-semibold text-success">
           <QrCode size={14} />
           QRIS
         </span>
@@ -275,7 +296,7 @@ export default function KasirPage() {
     }
     if (method === 'CASH') {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-800">
+        <span className="inline-flex items-center gap-1 rounded-full bg-soft-cloud border border-hairline px-3 py-1 text-xs font-semibold text-ink">
           <Banknote size={14} />
           CASH
         </span>
@@ -287,12 +308,12 @@ export default function KasirPage() {
   const renderOrderCard = (order: Order, showPrintOnly: boolean = false) => (
     <div
       key={order.id}
-      className="rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg border border-gray-100"
+      className="rounded-none bg-canvas p-6 border border-hairline shadow-none transition-colors hover:bg-soft-cloud/20"
     >
-      <div className="mb-4 flex items-center justify-between border-b pb-3">
+      <div className="mb-4 flex items-center justify-between border-b border-hairline pb-3">
         <div>
-          <p className="text-sm font-bold text-gray-900">#{order.orderNumber}</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-sm font-bold font-jakarta text-ink uppercase tracking-tight">#{order.orderNumber}</p>
+          <p className="text-xs text-charcoal font-medium">
             {new Date(order.createdAt).toLocaleString('id-ID')}
           </p>
         </div>
@@ -300,24 +321,24 @@ export default function KasirPage() {
       </div>
 
       <div className="mb-4">
-        <p className="mb-2 text-sm font-semibold text-gray-700">
+        <p className="mb-2 text-sm font-bold text-ink">
           Customer: {order.customerName || order.user?.name || 'Guest'}
         </p>
         
         {order.table && (
-          <p className="mb-1 text-sm text-gray-600">🍽️ {order.table.name}</p>
+          <p className="mb-1 text-sm text-charcoal font-medium">🍽️ {order.table.name}</p>
         )}
         {order.orderType === 'DINE_IN' && order.tableNumber && !order.table && (
-          <p className="mb-1 text-sm text-gray-600">🍽️ Meja #{order.tableNumber}</p>
+          <p className="mb-1 text-sm text-charcoal font-medium">🍽️ Meja #{order.tableNumber}</p>
         )}
         {order.orderType === 'TAKEAWAY' && (
-          <p className="mb-1 text-sm text-gray-600">🥡 Takeaway</p>
+          <p className="mb-1 text-sm text-charcoal font-medium">🥡 Takeaway</p>
         )}
         
         <div className="mt-3 space-y-2">
           {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
-              <span className="font-medium text-gray-900">
+            <div key={item.id} className="flex justify-between text-sm bg-soft-cloud rounded-none border border-hairline px-3 py-2">
+              <span className="font-semibold text-ink">
                 {item.quantity}x {item.product.name}
               </span>
             </div>
@@ -325,9 +346,9 @@ export default function KasirPage() {
         </div>
         
         {order.notes && (
-          <div className="mt-3 rounded-lg bg-yellow-50 border border-yellow-200 p-3">
-            <p className="text-xs font-semibold text-yellow-800">📝 Catatan:</p>
-            <p className="text-xs text-yellow-900 mt-1">{order.notes}</p>
+          <div className="mt-3 rounded-none bg-soft-cloud border border-hairline p-3">
+            <p className="text-xs font-bold text-ink uppercase tracking-wider">📝 Catatan:</p>
+            <p className="text-xs text-charcoal mt-1">{order.notes}</p>
           </div>
         )}
       </div>
@@ -339,7 +360,7 @@ export default function KasirPage() {
             {order.payment_method === 'CASH' && order.payment_status === 'UNPAID' && (
               <button
                 onClick={() => confirmCashPayment(order.id)}
-                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-green-600 px-4 py-3 text-white font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-md"
+                className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
               >
                 <Banknote size={18} />
                 Konfirmasi Pembayaran Cash
@@ -349,12 +370,12 @@ export default function KasirPage() {
             {/* CASH: After payment confirmed, show print button */}
             {order.payment_method === 'CASH' && order.payment_status === 'PAID' && (
               <>
-                <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-center">
-                  <p className="text-sm font-bold text-green-800">✓ Pembayaran Cash Lunas</p>
+                <div className="rounded-none bg-success/10 border border-success/20 px-4 py-2 text-center">
+                  <p className="text-sm font-bold text-success">✓ Pembayaran Cash Lunas</p>
                 </div>
                 <button
                   onClick={() => printReceipt(order)}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-3 text-white font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-md"
+                  className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
                 >
                   <Printer size={18} />
                   Print Struk Kitchen
@@ -365,13 +386,13 @@ export default function KasirPage() {
             {/* QRIS: Show print button (payment auto-confirmed) */}
             {order.payment_method === 'QRIS' && order.payment_status === 'PAID' && (
               <>
-                <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-center">
-                  <p className="text-sm font-bold text-green-800">✓ Pembayaran QRIS Lunas</p>
-                  <p className="text-xs text-green-600">Auto-confirmed</p>
+                <div className="rounded-none bg-success/10 border border-success/20 px-4 py-2 text-center">
+                  <p className="text-sm font-bold text-success">✓ Pembayaran QRIS Lunas</p>
+                  <p className="text-xs text-success font-medium">Auto-confirmed</p>
                 </div>
                 <button
                   onClick={() => printReceipt(order)}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-3 text-white font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-md"
+                  className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
                 >
                   <Printer size={18} />
                   Print Struk Kitchen
@@ -385,7 +406,7 @@ export default function KasirPage() {
         {showPrintOnly && (
           <button
             onClick={() => printReceipt(order)}
-            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-3 text-white font-semibold hover:from-purple-600 hover:to-purple-700 transition-all shadow-md"
+            className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
           >
             <Printer size={18} />
             Print Ulang Struk
@@ -400,34 +421,34 @@ export default function KasirPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas font-inter text-ink">
       <Navbar title="Kasir Dashboard" />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Tab Navigation */}
-        <div className="mb-6 flex gap-2 border-b border-gray-200">
+        <div className="mb-6 flex gap-2 border-b border-hairline">
           <button
             onClick={() => setActiveTab('incoming')}
-            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all ${
+            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all font-jakarta uppercase tracking-wider text-xs ${
               activeTab === 'incoming'
-                ? 'border-b-2 border-orange-600 text-orange-600'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'border-b-2 border-ink text-ink font-bold'
+                : 'text-charcoal hover:text-ink'
             }`}
           >
             <Inbox size={20} />
             Pesanan Masuk
             {incomingOrders.length > 0 && (
-              <span className="rounded-full bg-orange-600 px-2 py-0.5 text-xs text-white">
+              <span className="rounded-full bg-ink px-2 py-0.5 text-xs text-canvas ml-1 font-bold">
                 {incomingOrders.length}
               </span>
             )}
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all ${
+            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all font-jakarta uppercase tracking-wider text-xs ${
               activeTab === 'history'
-                ? 'border-b-2 border-orange-600 text-orange-600'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'border-b-2 border-ink text-ink font-bold'
+                : 'text-charcoal hover:text-ink'
             }`}
           >
             <History size={20} />
@@ -441,17 +462,17 @@ export default function KasirPage() {
         {activeTab === 'incoming' && (
           <>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Pesanan Masuk</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-2xl font-bold font-jakarta uppercase tracking-tight text-ink">Pesanan Masuk</h2>
+              <p className="text-sm text-charcoal mt-1">
                 Konfirmasi pembayaran cash dan print struk pesanan
               </p>
             </div>
 
             {incomingOrders.length === 0 ? (
-              <div className="rounded-xl bg-white p-12 text-center shadow-md">
-                <Clock size={48} className="mx-auto text-gray-400" />
-                <p className="mt-4 text-lg font-semibold text-gray-600">Tidak ada pesanan masuk</p>
-                <p className="text-sm text-gray-500 mt-2">Pesanan baru akan muncul di sini</p>
+              <div className="rounded-none bg-soft-cloud p-12 text-center border border-hairline shadow-none">
+                <Clock size={48} className="mx-auto text-charcoal" />
+                <p className="mt-4 text-lg font-bold font-jakarta uppercase tracking-tight text-ink">Tidak ada pesanan masuk</p>
+                <p className="text-sm text-charcoal mt-2">Pesanan baru akan muncul di sini</p>
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -466,28 +487,28 @@ export default function KasirPage() {
           <>
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">History Pesanan</h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <h2 className="text-2xl font-bold font-jakarta uppercase tracking-tight text-ink">History Pesanan</h2>
+                <p className="text-sm text-charcoal mt-1">
                   Pesanan yang sudah dikonfirmasi kasir
                 </p>
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setHistoryFilter('today')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-full font-semibold transition-all text-sm border ${
                     historyFilter === 'today'
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      ? 'bg-ink text-canvas border-ink'
+                      : 'bg-canvas text-ink border-hairline hover:bg-soft-cloud'
                   }`}
                 >
                   Hari Ini
                 </button>
                 <button
                   onClick={() => setHistoryFilter('week')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-full font-semibold transition-all text-sm border ${
                     historyFilter === 'week'
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      ? 'bg-ink text-canvas border-ink'
+                      : 'bg-canvas text-ink border-hairline hover:bg-soft-cloud'
                   }`}
                 >
                   Minggu Ini
@@ -496,10 +517,10 @@ export default function KasirPage() {
             </div>
 
             {historyOrders.length === 0 ? (
-              <div className="rounded-xl bg-white p-12 text-center shadow-md">
-                <History size={48} className="mx-auto text-gray-400" />
-                <p className="mt-4 text-lg font-semibold text-gray-600">Tidak ada history pesanan</p>
-                <p className="text-sm text-gray-500 mt-2">
+              <div className="rounded-none bg-soft-cloud p-12 text-center border border-hairline shadow-none">
+                <History size={48} className="mx-auto text-charcoal" />
+                <p className="mt-4 text-lg font-bold font-jakarta uppercase tracking-tight text-ink">Tidak ada history pesanan</p>
+                <p className="text-sm text-charcoal mt-2">
                   {historyFilter === 'today' ? 'Belum ada pesanan hari ini' : 'Belum ada pesanan minggu ini'}
                 </p>
               </div>

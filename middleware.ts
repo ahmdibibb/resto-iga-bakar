@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
   );
 
   // Other public routes
-  const publicRoutes = ["/login", "/register", "/"];
+  const publicRoutes = ["/login", "/"];
   const isPublicRoute = publicRoutes.some((route) =>
     pathname === route || (route !== "/" && pathname.startsWith(route))
   );
@@ -32,7 +32,6 @@ export async function middleware(request: NextRequest) {
   const publicApiRoutes = [
     "/api/auth/login",
     "/api/auth/logout",
-    "/api/auth/register",
     "/api/products",     // Product listing is public
     "/api/orders",       // Guest can create & view orders
     "/api/payments",     // Guest can make payments

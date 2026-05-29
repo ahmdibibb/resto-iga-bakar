@@ -13,7 +13,6 @@ datasource db {
 enum UserRole {
   OWNER
   ADMIN
-  USER
   KASIR
 }
 
@@ -65,7 +64,7 @@ model User {
   email     String   @unique
   name      String
   password  String
-  role      UserRole @default(USER)
+  role      UserRole @default(KASIR)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]

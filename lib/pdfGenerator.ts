@@ -60,10 +60,10 @@ export async function generatePDF(
     }
 
     // Header
-    doc.setFillColor(249, 115, 22) // Orange
+    doc.setFillColor(21, 17, 15) // Smoked Black
     doc.rect(0, 0, pageWidth, 40, 'F')
     
-    doc.setTextColor(255, 255, 255)
+    doc.setTextColor(252, 250, 247) // Clay Parchment
     doc.setFontSize(24)
     doc.setFont('helvetica', 'bold')
     doc.text('RESTO IGA BAKAR', pageWidth / 2, 15, { align: 'center' })
@@ -83,7 +83,7 @@ export async function generatePDF(
     yPosition = 50
 
     // Summary Section
-    doc.setTextColor(0, 0, 0)
+    doc.setTextColor(21, 17, 15) // Smoked Black
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.text('Ringkasan', 14, yPosition)
@@ -105,17 +105,17 @@ export async function generatePDF(
       const y = yPosition + Math.floor(index / 2) * 25
       
       // Box
-      doc.setFillColor(249, 250, 251)
-      doc.setDrawColor(229, 231, 235)
-      doc.roundedRect(x, y, 85, 20, 3, 3, 'FD')
+      doc.setFillColor(243, 239, 233) // Warm Stone
+      doc.setDrawColor(210, 201, 191) // Ember Divider
+      doc.roundedRect(x, y, 85, 20, 0, 0, 'FD')
       
       // Label
-      doc.setTextColor(107, 114, 128)
+      doc.setTextColor(92, 85, 81) // Ash
       doc.setFontSize(9)
       doc.text(item.label, x + 5, y + 8)
       
       // Value
-      doc.setTextColor(249, 115, 22)
+      doc.setTextColor(21, 17, 15) // Smoked Black
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.text(item.value, x + 5, y + 16)
@@ -127,7 +127,7 @@ export async function generatePDF(
     // Top Products Section
     checkPageBreak(60)
     
-    doc.setTextColor(0, 0, 0)
+    doc.setTextColor(21, 17, 15) // Smoked Black
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.text('Top 5 Produk Terlaris', 14, yPosition)
@@ -143,16 +143,21 @@ export async function generatePDF(
       ]),
       theme: 'grid',
       headStyles: {
-        fillColor: [249, 115, 22],
-        textColor: [255, 255, 255],
+        fillColor: [21, 17, 15], // Smoked Black
+        textColor: [252, 250, 247], // Clay Parchment
         fontStyle: 'bold',
-        fontSize: 10
+        fontSize: 10,
+        lineColor: [210, 201, 191],
+        lineWidth: 0.1
       },
       bodyStyles: {
-        fontSize: 9
+        fontSize: 9,
+        textColor: [21, 17, 15],
+        lineColor: [210, 201, 191],
+        lineWidth: 0.1
       },
       alternateRowStyles: {
-        fillColor: [249, 250, 251]
+        fillColor: [243, 239, 233] // Warm Stone
       },
       columnStyles: {
         0: { cellWidth: 100 },
@@ -168,17 +173,17 @@ export async function generatePDF(
     yPosition = 20
 
     // Header for transactions page
-    doc.setFillColor(249, 115, 22)
+    doc.setFillColor(21, 17, 15) // Smoked Black
     doc.rect(0, 0, pageWidth, 30, 'F')
     
-    doc.setTextColor(255, 255, 255)
+    doc.setTextColor(252, 250, 247) // Clay Parchment
     doc.setFontSize(18)
     doc.setFont('helvetica', 'bold')
     doc.text('Detail Transaksi', pageWidth / 2, 20, { align: 'center' })
 
     yPosition = 40
 
-    doc.setTextColor(0, 0, 0)
+    doc.setTextColor(21, 17, 15) // Smoked Black
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.text('Daftar Transaksi', 14, yPosition)
@@ -197,16 +202,21 @@ export async function generatePDF(
       ]),
       theme: 'grid',
       headStyles: {
-        fillColor: [249, 115, 22],
-        textColor: [255, 255, 255],
+        fillColor: [21, 17, 15], // Smoked Black
+        textColor: [252, 250, 247], // Clay Parchment
         fontStyle: 'bold',
-        fontSize: 9
+        fontSize: 9,
+        lineColor: [210, 201, 191],
+        lineWidth: 0.1
       },
       bodyStyles: {
-        fontSize: 8
+        fontSize: 8,
+        textColor: [21, 17, 15],
+        lineColor: [210, 201, 191],
+        lineWidth: 0.1
       },
       alternateRowStyles: {
-        fillColor: [249, 250, 251]
+        fillColor: [243, 239, 233] // Warm Stone
       },
       columnStyles: {
         0: { cellWidth: 30 },

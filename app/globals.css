@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -5,6 +6,19 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-ink: #15110F;
+  --color-canvas: #FCFAF7;
+  --color-soft-cloud: #F3EFE9;
+  --color-sale: #C0392B;
+  --color-hairline: #D2C9BF;
+  --color-hairline-soft: #EBE5DC;
+  --color-stone-brand: #A89E95;
+  --color-ash: #5C5551;
+  --color-charcoal: #3B3532;
+  --color-mute: #8A8077;
+  --font-bebas: 'Bebas Neue', sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-inter: 'Inter', sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -49,15 +63,15 @@
 }
 
 body {
-  background: #f9fafb;
-  color: #111827;
+  background: #FCFAF7;
+  color: #15110F;
 }
 
 /* Force light mode for better readability */
 @media (prefers-color-scheme: dark) {
   body {
-    background: #f9fafb;
-    color: #111827;
+    background: #FCFAF7;
+    color: #15110F;
   }
 }
 

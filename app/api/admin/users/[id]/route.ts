@@ -110,7 +110,7 @@ export async function PUT(
         }
 
         // Validate role if provided
-        if (role && !['USER', 'ADMIN', 'KASIR'].includes(role)) {
+        if (role && !['ADMIN', 'KASIR'].includes(role)) {
             throw new OrderValidationError('Invalid role')
         }
 
