@@ -1,50 +1,28 @@
 'use client'
 
+/**
+ * KasirPage — Halaman utama dashboard Kasir
+ * 
+ * Halaman ini mengelola:
+ * - Tab "Pesanan Masuk": order yang perlu dikonfirmasi/dicetak
+ * - Tab "History Pesanan": riwayat order yang sudah selesai
+ * - Real-time updates via SSE (Server-Sent Events)
+ * 
+ * Komponen UI dan utility telah diekstrak ke:
+ * - @/components/kasir/OrderCard      → Kartu pesanan
+ * - @/components/kasir/ReceiptPrinter  → Cetak struk
+ * - @/components/kasir/types           → Tipe data shared
+ */
+
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, Clock, Banknote, QrCode, History, Inbox, Printer } from 'lucide-react'
+import { Clock, History, Inbox } from 'lucide-react'
 import Navbar from '@/components/navbar/Navbar'
 import Loading from '@/components/Loading'
 import ErrorAlert from '@/components/ErrorAlert'
-
-interface OrderItem {
-  id: string
-  quantity: number
-  price: number
-  product: {
-    id: string
-    name: string
-  }
-}
-
-interface Order {
-  id: string
-  orderNumber: string
-  status: string
-  payment_status: string
-  payment_method: string | null
-  orderType: string
-  tableNumber: string | null
-  customerName: string | null
-  notes: string | null
-  createdAt: string
-  items: OrderItem[]
-  table: {
-    name: string
-  } | null
-  user: {
-    name: string
-  } | null
-}
-
-interface ErrorState {
-  message: string
-  field?: string
-  type: 'validation' | 'network' | 'server'
-}
-
-type TabType = 'incoming' | 'history'
-type HistoryFilter = 'today' | 'week'
+import OrderCard from '@/components/kasir/OrderCard'
+import { printReceipt } from '@/components/kasir/ReceiptPrinter'
+import type { Order, ErrorState, TabType, HistoryFilter } from '@/components/kasir/types'
 
 export default function KasirPage() {
   const router = useRouter()
@@ -111,7 +89,7 @@ export default function KasirPage() {
     fetchHistoryOrders()
   }, [historyFilter, activeTab])
 
-  // Establish SSE connection for real-time updates
+  // Establish SSE connection and fallback polling for real-time updates
   useEffect(() => {
     const eventSource = new EventSource('/api/orders/stream')
 
@@ -124,11 +102,19 @@ export default function KasirPage() {
     eventSource.addEventListener('orderCreate', handleUpdate)
 
     eventSource.onerror = (err) => {
-      console.error('SSE connection error:', err)
+      console.warn('SSE connection error:', err)
     }
+
+    // Fallback/Main Polling: Fetch orders every 4 seconds to guarantee real-time updates
+    // across process isolation, serverless environments, or SSE disconnects.
+    const pollInterval = setInterval(() => {
+      fetchersRef.current.fetchIncomingOrders()
+      fetchersRef.current.fetchHistoryOrders()
+    }, 4000)
 
     return () => {
       eventSource.close()
+      clearInterval(pollInterval)
     }
   }, [])
 
@@ -157,264 +143,12 @@ export default function KasirPage() {
     }
   }
 
-  const printReceipt = async (order: Order) => {
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      alert('Please allow popups to print receipt')
-      return
-    }
-
-    const receiptHTML = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Struk Pesanan - ${order.orderNumber}</title>
-        <style>
-          body {
-            font-family: 'Courier New', monospace;
-            width: 80mm;
-            margin: 0 auto;
-            padding: 10px;
-          }
-          .header {
-            text-align: center;
-            border-bottom: 2px dashed #000;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-          }
-          .title {
-            font-size: 18px;
-            font-weight: bold;
-          }
-          .order-info {
-            margin: 10px 0;
-            font-size: 12px;
-          }
-          .items {
-            border-top: 1px dashed #000;
-            border-bottom: 1px dashed #000;
-            padding: 10px 0;
-            margin: 10px 0;
-          }
-          .item {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-            font-size: 12px;
-          }
-          .notes {
-            margin: 10px 0;
-            padding: 5px;
-            background: #f0f0f0;
-            font-size: 11px;
-          }
-          .footer {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 11px;
-          }
-          @media print {
-            body { width: 80mm; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <div class="title">RESTO IGA BAKAR</div>
-          <div>Struk Pesanan Kitchen</div>
-        </div>
-        
-        <div class="order-info">
-          <div><strong>No. Pesanan:</strong> ${order.orderNumber}</div>
-          <div><strong>Tanggal:</strong> ${new Date(order.createdAt).toLocaleString('id-ID')}</div>
-          <div><strong>Customer:</strong> ${order.customerName || order.user?.name || 'Guest'}</div>
-          ${order.table ? `<div><strong>Meja:</strong> ${order.table.name}</div>` : ''}
-          ${order.orderType === 'TAKEAWAY' ? '<div><strong>Tipe:</strong> Takeaway</div>' : ''}
-          <div><strong>Pembayaran:</strong> ${order.payment_method || 'N/A'}</div>
-        </div>
-        
-        <div class="items">
-          <div style="font-weight: bold; margin-bottom: 5px;">PESANAN:</div>
-          ${order.items.map(item => `
-            <div class="item">
-              <span>${item.quantity}x ${item.product.name}</span>
-            </div>
-          `).join('')}
-        </div>
-        
-        ${order.notes ? `
-          <div class="notes">
-            <strong>Catatan:</strong><br/>
-            ${order.notes}
-          </div>
-        ` : ''}
-        
-        <div class="footer">
-          <div>Terima kasih!</div>
-          <div style="margin-top: 10px;">---</div>
-        </div>
-        
-        <script>
-          window.onload = function() {
-            window.print();
-            window.onafterprint = function() {
-              window.close();
-            }
-          }
-        </script>
-      </body>
-      </html>
-    `
-
-    printWindow.document.write(receiptHTML)
-    printWindow.document.close()
-
-    // Mark order as printed after print dialog
-    try {
-      const res = await fetch(`/api/orders/${order.id}/print`, {
-        method: 'PATCH',
-      })
-
-      if (res.ok) {
-        // Refresh orders to move to history
-        fetchIncomingOrders()
-        fetchHistoryOrders()
-      }
-    } catch (error) {
-      console.error('Error marking order as printed:', error)
-    }
+  const handlePrintReceipt = (order: Order) => {
+    printReceipt(order, () => {
+      fetchIncomingOrders()
+      fetchHistoryOrders()
+    })
   }
-
-  const getPaymentMethodBadge = (method: string | null) => {
-    if (method === 'QRIS') {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 border border-success/20 px-3 py-1 text-xs font-semibold text-success">
-          <QrCode size={14} />
-          QRIS
-        </span>
-      )
-    }
-    if (method === 'CASH') {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-soft-cloud border border-hairline px-3 py-1 text-xs font-semibold text-ink">
-          <Banknote size={14} />
-          CASH
-        </span>
-      )
-    }
-    return null
-  }
-
-  const renderOrderCard = (order: Order, showPrintOnly: boolean = false) => (
-    <div
-      key={order.id}
-      className="rounded-none bg-canvas p-6 border border-hairline shadow-none transition-colors hover:bg-soft-cloud/20"
-    >
-      <div className="mb-4 flex items-center justify-between border-b border-hairline pb-3">
-        <div>
-          <p className="text-sm font-bold font-jakarta text-ink uppercase tracking-tight">#{order.orderNumber}</p>
-          <p className="text-xs text-charcoal font-medium">
-            {new Date(order.createdAt).toLocaleString('id-ID')}
-          </p>
-        </div>
-        {getPaymentMethodBadge(order.payment_method)}
-      </div>
-
-      <div className="mb-4">
-        <p className="mb-2 text-sm font-bold text-ink">
-          Customer: {order.customerName || order.user?.name || 'Guest'}
-        </p>
-        
-        {order.table && (
-          <p className="mb-1 text-sm text-charcoal font-medium">🍽️ {order.table.name}</p>
-        )}
-        {order.orderType === 'DINE_IN' && order.tableNumber && !order.table && (
-          <p className="mb-1 text-sm text-charcoal font-medium">🍽️ Meja #{order.tableNumber}</p>
-        )}
-        {order.orderType === 'TAKEAWAY' && (
-          <p className="mb-1 text-sm text-charcoal font-medium">🥡 Takeaway</p>
-        )}
-        
-        <div className="mt-3 space-y-2">
-          {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm bg-soft-cloud rounded-none border border-hairline px-3 py-2">
-              <span className="font-semibold text-ink">
-                {item.quantity}x {item.product.name}
-              </span>
-            </div>
-          ))}
-        </div>
-        
-        {order.notes && (
-          <div className="mt-3 rounded-none bg-soft-cloud border border-hairline p-3">
-            <p className="text-xs font-bold text-ink uppercase tracking-wider">📝 Catatan:</p>
-            <p className="text-xs text-charcoal mt-1">{order.notes}</p>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        {!showPrintOnly && (
-          <>
-            {/* CASH: Show payment confirmation button */}
-            {order.payment_method === 'CASH' && order.payment_status === 'UNPAID' && (
-              <button
-                onClick={() => confirmCashPayment(order.id)}
-                className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
-              >
-                <Banknote size={18} />
-                Konfirmasi Pembayaran Cash
-              </button>
-            )}
-
-            {/* CASH: After payment confirmed, show print button */}
-            {order.payment_method === 'CASH' && order.payment_status === 'PAID' && (
-              <>
-                <div className="rounded-none bg-success/10 border border-success/20 px-4 py-2 text-center">
-                  <p className="text-sm font-bold text-success">✓ Pembayaran Cash Lunas</p>
-                </div>
-                <button
-                  onClick={() => printReceipt(order)}
-                  className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
-                >
-                  <Printer size={18} />
-                  Print Struk Kitchen
-                </button>
-              </>
-            )}
-
-            {/* QRIS: Show print button (payment auto-confirmed) */}
-            {order.payment_method === 'QRIS' && order.payment_status === 'PAID' && (
-              <>
-                <div className="rounded-none bg-success/10 border border-success/20 px-4 py-2 text-center">
-                  <p className="text-sm font-bold text-success">✓ Pembayaran QRIS Lunas</p>
-                  <p className="text-xs text-success font-medium">Auto-confirmed</p>
-                </div>
-                <button
-                  onClick={() => printReceipt(order)}
-                  className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
-                >
-                  <Printer size={18} />
-                  Print Struk Kitchen
-                </button>
-              </>
-            )}
-          </>
-        )}
-
-        {/* History view: Only show print button */}
-        {showPrintOnly && (
-          <button
-            onClick={() => printReceipt(order)}
-            className="flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
-          >
-            <Printer size={18} />
-            Print Ulang Struk
-          </button>
-        )}
-      </div>
-    </div>
-  )
 
   if (loading) {
     return <Loading />
@@ -476,7 +210,15 @@ export default function KasirPage() {
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {incomingOrders.map((order) => renderOrderCard(order, false))}
+                {incomingOrders.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    showPrintOnly={false}
+                    onConfirmCashPayment={confirmCashPayment}
+                    onPrintReceipt={handlePrintReceipt}
+                  />
+                ))}
               </div>
             )}
           </>
@@ -526,7 +268,15 @@ export default function KasirPage() {
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {historyOrders.map((order) => renderOrderCard(order, true))}
+                {historyOrders.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    showPrintOnly={true}
+                    onConfirmCashPayment={confirmCashPayment}
+                    onPrintReceipt={handlePrintReceipt}
+                  />
+                ))}
               </div>
             )}
           </>

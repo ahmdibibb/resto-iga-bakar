@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { ArrowLeft, Download, Printer, QrCode, UtensilsCrossed, ShoppingBag, RefreshCw } from 'lucide-react'
-import Link from 'next/link'
+import { Download, Printer, QrCode, UtensilsCrossed, ShoppingBag, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
+import AdminShell from '@/components/admin/AdminShell'
 
 interface Table {
   id: string
@@ -121,38 +121,25 @@ export default function QRGeneratorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas font-inter text-ink">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-canvas border-b border-hairline">
-        <div className="mx-auto max-w-7xl px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 text-charcoal hover:text-ink transition-colors"
-              >
-                <ArrowLeft size={20} />
-                <span className="font-medium">Kembali</span>
-              </Link>
-              <h1 className="text-2xl font-bold font-jakarta text-ink uppercase tracking-tight">
-                QR Code Generator
-              </h1>
-            </div>
-            <button
-              onClick={fetchTables}
-              disabled={loading}
-              className="flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all disabled:opacity-50"
-            >
-              <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
-              Refresh
-            </button>
-          </div>
-        </div>
+    <AdminShell activeTab="qr" title="QR Code Generator">
+      {/* Header Actions */}
+      <div className="flex justify-between items-center mb-6">
+        <p className="text-sm text-charcoal font-medium">
+          Kelola dan cetak QR Code untuk setiap meja di restoran.
+        </p>
+        <button
+          onClick={fetchTables}
+          disabled={loading}
+          className="flex items-center gap-2 rounded-full bg-ink px-5 py-2 text-canvas text-xs font-semibold hover:bg-charcoal active:scale-95 transition-all disabled:opacity-50"
+        >
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          Refresh
+        </button>
       </div>
 
       {/* Loading State */}
       {loading && (
-        <div className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <div className="py-12 text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-ink border-t-transparent"></div>
           <p className="mt-4 text-charcoal font-medium">Memuat data meja...</p>
         </div>
@@ -160,7 +147,7 @@ export default function QRGeneratorPage() {
 
       {/* Tables List */}
       {!loading && tables.length === 0 && (
-        <div className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <div className="py-12 text-center bg-soft-cloud border border-hairline">
           <QrCode size={64} className="mx-auto text-charcoal mb-4" />
           <p className="text-ink text-lg font-bold font-jakarta uppercase tracking-tight">Tidak ada meja yang tersedia.</p>
           <p className="text-charcoal text-sm mt-2">Silakan tambahkan meja terlebih dahulu.</p>
@@ -168,7 +155,7 @@ export default function QRGeneratorPage() {
       )}
 
       {!loading && tables.length > 0 && (
-        <div className="mx-auto max-w-7xl px-4 py-6">
+        <div>
           {/* TAKEAWAY QR Code Section */}
           {takeawayTable && (
             <div className="mb-8">
@@ -366,6 +353,6 @@ export default function QRGeneratorPage() {
           </div>
         </div>
       )}
-    </div>
+    </AdminShell>
   )
 }

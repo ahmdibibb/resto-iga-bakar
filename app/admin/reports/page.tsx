@@ -12,7 +12,7 @@ import {
   FileText,
   Loader2
 } from 'lucide-react'
-import Navbar from '@/components/navbar/Navbar'
+import AdminShell from '@/components/admin/AdminShell'
 import { RevenueBarChart } from '@/components/admin/RevenueBarChart'
 import { format, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns'
 
@@ -155,10 +155,7 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas font-inter text-ink">
-      <Navbar title="Laporan Penjualan" />
-
-      <div className="mx-auto max-w-7xl px-4 py-8">
+    <AdminShell activeTab="reports" title="Laporan Penjualan">
         {/* Header & Filters */}
         <div className="mb-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -412,7 +409,6 @@ export default function ReportsPage() {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </AdminShell>
   )
 }
