@@ -397,10 +397,10 @@ function MenuPageContent() {
             <div id="menu-grid" className="mb-8 flex items-end justify-between border-b border-hairline pb-4">
               <h2 className="text-xl font-bold text-ink lg:text-2xl font-jakarta uppercase tracking-tight">
                 {selectedCategory === 'ALL'
-                  ? 'Semua Menu'
+                  ? 'ALL MENU'
                   : selectedCategory === 'MAKANAN'
-                    ? 'Makanan'
-                    : 'Minuman'}
+                    ? 'FOOD'
+                    : 'DRINK'}
               </h2>
               <p className="text-xs uppercase tracking-wider text-ash font-jakarta">
                 {filteredProducts.length} pilihan
