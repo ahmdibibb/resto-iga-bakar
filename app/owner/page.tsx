@@ -8,6 +8,7 @@ import {
   Package,
   TrendingUp,
   AlertCircle,
+  AlertTriangle,
   RefreshCw,
   Eye,
   ArrowUpRight,
@@ -124,7 +125,7 @@ export default function OwnerDashboard() {
                 <AlertCircle size={18} className="text-canvas" />
               </div>
               <div className="flex-1 font-jakarta">
-                <h4 className="font-bold text-sale uppercase tracking-wider text-sm mb-1">⚠️ Peringatan Stok Tipis</h4>
+                <h4 className="font-bold text-sale uppercase tracking-wider text-sm mb-1 inline-flex items-center gap-1"><AlertTriangle size={14} /> Peringatan Stok Tipis</h4>
                 <p className="text-xs text-charcoal mb-3">{lowStockProducts.length} produk perlu restok segera</p>
                 <div className="space-y-2 font-inter">
                   {lowStockProducts.map((product: any) => (

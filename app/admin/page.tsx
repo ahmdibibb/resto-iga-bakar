@@ -30,6 +30,8 @@ import {
   Plus,
   Download,
   DollarSign,
+  UtensilsCrossed,
+  ShoppingBag,
 } from 'lucide-react'
 import AdminShell from '@/components/admin/AdminShell'
 import UserManagement from '@/components/admin/UserManagement'
@@ -435,9 +437,11 @@ export default function AdminDashboard() {
                           {order.customerName || order.user?.name || 'Guest'}
                         </td>
                         <td className="whitespace-nowrap px-4 py-4 text-xs text-charcoal">
-                          {order.orderType === 'DINE_IN'
-                            ? `🍽️ Dine-In`
-                            : '🥡 Takeaway'}
+                          <span className="inline-flex items-center gap-1">
+                            {order.orderType === 'DINE_IN'
+                              ? <><UtensilsCrossed size={12} /> Dine-In</>
+                              : <><ShoppingBag size={12} /> Takeaway</>}
+                          </span>
                         </td>
                         <td className="whitespace-nowrap px-4 py-4 text-xs font-bold text-ink">
                           Rp {order.totalAmount.toLocaleString('id-ID')}

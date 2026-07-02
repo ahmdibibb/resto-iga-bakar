@@ -51,6 +51,7 @@ export default function ProductForm({ editingProduct, onSubmit, onCancel }: Prod
     image: '',
     category: '',
   })
+  const [uploading, setUploading] = useState(false)
 
   // Populate form when editing an existing product
   useEffect(() => {
@@ -74,6 +75,35 @@ export default function ProductForm({ editingProduct, onSubmit, onCancel }: Prod
       })
     }
   }, [editingProduct])
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    const uploadData = new FormData()
+    uploadData.append('file', file)
+
+    try {
+      const res = await fetch('/api/products/upload', {
+        method: 'POST',
+        body: uploadData,
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal mengunggah gambar')
+      }
+
+      setFormData(prev => ({ ...prev, image: data.url }))
+    } catch (err: any) {
+      console.error('Image upload error:', err)
+      alert(err.message || 'Gagal mengunggah gambar. Silakan coba lagi.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -162,17 +192,29 @@ export default function ProductForm({ editingProduct, onSubmit, onCancel }: Prod
           />
         </div>
         <div className="md:col-span-2">
-          <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">
-            Image URL
+          <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
+            Gambar Produk
           </label>
-          <input
-            type="url"
-            value={formData.image}
-            onChange={(e) =>
-              setFormData({ ...formData, image: e.target.value })
-            }
-            className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
-          />
+          <div className="flex items-center gap-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="block w-full text-xs text-charcoal file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-ink file:text-canvas hover:file:bg-charcoal cursor-pointer"
+            />
+            {uploading && (
+              <span className="text-xs text-charcoal animate-pulse">Mengunggah...</span>
+            )}
+          </div>
+          {formData.image && (
+            <div className="mt-3 relative w-20 h-20 border border-hairline overflow-hidden bg-white">
+              <img
+                src={formData.image}
+                alt="Preview produk"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
         </div>
         <div className="md:col-span-2 flex gap-2">
           <button

@@ -44,16 +44,16 @@ export default function LoginPage() {
         return
       }
 
-      // Redirect based on role
+      // Redirect based on role - use full page navigation for cookie reliability
       const role = data.user.role
       if (role === 'ADMIN') {
-        router.push('/admin')
+        window.location.href = '/admin'
       } else if (role === 'KASIR') {
-        router.push('/kasir')
+        window.location.href = '/kasir'
       } else if (role === 'OWNER') {
-        router.push('/owner')
+        window.location.href = '/owner'
       } else {
-        router.push('/menu')
+        window.location.href = '/menu'
       }
     } catch (err) {
       setError('Terjadi kesalahan. Silakan coba lagi.')

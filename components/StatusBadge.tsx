@@ -1,4 +1,4 @@
-import { QrCode, Banknote } from 'lucide-react'
+import { QrCode, Banknote, Check, X, Clock } from 'lucide-react'
 
 // ─── Order Status ────────────────────────────────────────────────────────────
 
@@ -51,28 +51,28 @@ export function PaymentStatusBadge({ status }: PaymentStatusBadgeProps) {
   if (status === 'PAID') {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-        ✓ Lunas
+        <Check size={12} /> Lunas
       </span>
     )
   }
   if (status === 'UNPAID') {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">
-        ✗ Belum Bayar
+        <X size={12} /> Belum Bayar
       </span>
     )
   }
   if (status === 'PENDING') {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800">
-        ⏳ Pending
+        <Clock size={12} /> Pending
       </span>
     )
   }
   if (status === 'FAILED') {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
-        ✗ Gagal
+        <X size={12} /> Gagal
       </span>
     )
   }

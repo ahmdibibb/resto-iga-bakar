@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import Image from 'next/image'
 import {
   LayoutDashboard,
   Package,
@@ -124,19 +125,22 @@ export default function OwnerShell({
 
       {/* ─── Sidebar ─── */}
       <aside
-        className={`fixed left-0 top-0 h-full w-64 z-50 flex flex-col transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 bg-ink border-r border-hairline font-jakarta`}
+        className={`fixed left-0 top-0 h-full w-64 z-50 flex flex-col transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 bg-ink border-r border-hairline font-jakarta`}
       >
         {/* Logo */}
         <div className="px-5 pt-6 pb-5 flex items-center justify-between border-b border-hairline/25">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-soft-cloud rounded-none flex items-center justify-center flex-shrink-0">
-              <span className="text-sm">👔</span>
-            </div>
+            <Image
+              src="/logo-v3.png"
+              alt="Iga Bakar Ombenk"
+              width={40}
+              height={40}
+              className="object-contain w-10 h-10 flex-shrink-0"
+            />
             <div>
-              <p className="text-canvas font-bold text-sm leading-tight tracking-wider uppercase font-jakarta">Iga Bakar</p>
-              <p className="text-stone-brand text-[10px] uppercase font-semibold tracking-wider font-jakarta mt-0.5">Owner Portal</p>
+              <p className="text-canvas font-bold text-xs leading-tight tracking-wider uppercase">Iga Bakar Ombenk</p>
+              <p className="text-stone-brand text-[10px] uppercase font-semibold tracking-wider mt-0.5 font-jakarta">Owner Portal</p>
             </div>
           </div>
           {isMobile && (
@@ -178,11 +182,10 @@ export default function OwnerShell({
                   router.push(item.route)
                   if (isMobile) setSidebarOpen(false)
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-none transition-all duration-150 group relative cursor-pointer ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-none transition-all duration-150 group relative cursor-pointer ${isActive
                     ? 'bg-soft-cloud/15 text-canvas'
                     : 'text-stone-brand hover:text-canvas hover:bg-soft-cloud/5'
-                }`}
+                  }`}
               >
                 {isActive && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-canvas" />

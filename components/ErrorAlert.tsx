@@ -1,5 +1,6 @@
 'use client'
 
+import { AlertTriangle } from 'lucide-react'
 interface ErrorState {
   message: string
   field?: string
@@ -37,7 +38,7 @@ export default function ErrorAlert({ error, onDismiss }: ErrorAlertProps) {
     <div className={`rounded-xl border p-4 ${bgColor} animate-shake mb-4`}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <span className={`text-xl ${iconColor}`}>⚠️</span>
+          <AlertTriangle size={18} className={iconColor} />
           <div>
             <p className={`text-sm font-medium ${textColor}`}>
               {error.message}

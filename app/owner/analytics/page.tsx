@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TrendingUp, Package, DollarSign, Calendar, Users } from 'lucide-react'
+import { TrendingUp, Package, DollarSign, Calendar, Users, UtensilsCrossed, CupSoda } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import OwnerShell from '@/components/owner/OwnerShell'
@@ -364,7 +364,7 @@ export default function OwnerAnalyticsPage() {
             {/* Foods */}
             {foodProducts.length > 0 && (
               <div className="mb-6 font-inter">
-                <h4 className="text-xs font-bold text-mute uppercase tracking-widest mb-3">🍽️ Makanan</h4>
+                <h4 className="text-xs font-bold text-mute uppercase tracking-widest mb-3 inline-flex items-center gap-1"><UtensilsCrossed size={11} /> Makanan</h4>
                 <div className="space-y-2">
                   {foodProducts.slice(0, 5).map((item, index) => (
                     <div key={index} className="flex items-center justify-between bg-soft-cloud p-3.5 border border-hairline rounded-none">
@@ -384,7 +384,7 @@ export default function OwnerAnalyticsPage() {
             {/* Drinks */}
             {drinkProducts.length > 0 && (
               <div className="font-inter">
-                <h4 className="text-xs font-bold text-mute uppercase tracking-widest mb-3">🥤 Minuman</h4>
+                <h4 className="text-xs font-bold text-mute uppercase tracking-widest mb-3 inline-flex items-center gap-1"><CupSoda size={11} /> Minuman</h4>
                 <div className="space-y-2">
                   {drinkProducts.slice(0, 5).map((item, index) => (
                     <div key={index} className="flex items-center justify-between bg-soft-cloud p-3.5 border border-hairline rounded-none">

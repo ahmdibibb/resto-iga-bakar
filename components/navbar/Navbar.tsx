@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { LogOut, ShoppingCart, User } from 'lucide-react'
 
 interface CartItem {
@@ -40,9 +41,18 @@ export default function Navbar({
 
   return (
     <nav className={navClassName}>
-      <div className="mx-auto max-w-7xl px-4 py-4">
+      <div className="mx-auto max-w-7xl px-4 py-2">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h1 className="text-2xl font-bold font-jakarta text-ink uppercase tracking-tight">{title}</h1>
+          <div className="flex items-center">
+            <Image
+              src="/logo-v3.png"
+              alt="Iga Bakar"
+              width={110}
+              height={52}
+              className="object-contain h-13 w-auto"
+              priority
+            />
+          </div>
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-3">
 
 

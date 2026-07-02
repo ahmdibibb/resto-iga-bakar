@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ShoppingCart, Eye, Filter, X, Search, Calendar, CreditCard } from 'lucide-react'
+import { ShoppingCart, Eye, Filter, X, Search, Calendar, CreditCard, AlertTriangle } from 'lucide-react'
 import OwnerShell from '@/components/owner/OwnerShell'
 
 export default function OwnerOrdersPage() {
@@ -71,8 +71,9 @@ export default function OwnerOrdersPage() {
       <div className="space-y-5 font-inter text-ink">
 
         {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-none bg-canvas border border-sale">
-            <p className="text-sm text-sale font-semibold">⚠️ {error}</p>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-none bg-canvas border border-sale">
+            <AlertTriangle size={14} className="text-sale flex-shrink-0" />
+            <p className="text-sm text-sale font-semibold">{error}</p>
           </div>
         )}
 

@@ -10,7 +10,8 @@ import {
   Package, 
   DollarSign,
   FileText,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react'
 import OwnerShell from '@/components/owner/OwnerShell'
 import { RevenueBarChart } from '@/components/admin/RevenueBarChart'
@@ -263,8 +264,9 @@ export default function OwnerReportsPage() {
 
         {/* Error State */}
         {error && (
-          <div className="bg-canvas border border-sale p-4 rounded-none font-jakarta">
-            <p className="text-sale font-bold text-xs uppercase tracking-wide">⚠️ {error}</p>
+          <div className="bg-canvas border border-sale p-4 rounded-none font-jakarta flex items-center gap-2">
+            <AlertTriangle size={14} className="text-sale flex-shrink-0" />
+            <p className="text-sale font-bold text-xs uppercase tracking-wide">{error}</p>
           </div>
         )}
 

@@ -15,7 +15,6 @@ export async function middleware(request: NextRequest) {
     "/menu",
     "/checkout",
     "/payment",
-    "/receipt",
     "/cart",
   ];
   const isCustomerRoute = customerRoutes.some((route) =>
@@ -101,6 +100,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|ico|css|js|html)$).*)",
   ],
 };

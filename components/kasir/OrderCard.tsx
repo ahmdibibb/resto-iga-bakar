@@ -14,7 +14,7 @@
 
 'use client'
 
-import { Banknote, Printer } from 'lucide-react'
+import { Banknote, Printer, UtensilsCrossed, ShoppingBag, ClipboardList, Check } from 'lucide-react'
 import type { Order } from './types'
 import PaymentMethodBadge from './PaymentMethodBadge'
 
@@ -51,13 +51,13 @@ export default function OrderCard({
         </p>
         
         {order.table && (
-          <p className="mb-1 text-sm text-charcoal font-medium">🍽️ {order.table.name}</p>
+          <p className="mb-1 text-sm text-charcoal font-medium inline-flex items-center gap-1"><UtensilsCrossed size={14} /> {order.table.name}</p>
         )}
         {order.orderType === 'DINE_IN' && order.tableNumber && !order.table && (
-          <p className="mb-1 text-sm text-charcoal font-medium">🍽️ Meja #{order.tableNumber}</p>
+          <p className="mb-1 text-sm text-charcoal font-medium inline-flex items-center gap-1"><UtensilsCrossed size={14} /> Meja #{order.tableNumber}</p>
         )}
         {order.orderType === 'TAKEAWAY' && (
-          <p className="mb-1 text-sm text-charcoal font-medium">🥡 Takeaway</p>
+          <p className="mb-1 text-sm text-charcoal font-medium inline-flex items-center gap-1"><ShoppingBag size={14} /> Takeaway</p>
         )}
         
         <div className="mt-3 space-y-2">
@@ -72,7 +72,7 @@ export default function OrderCard({
         
         {order.notes && (
           <div className="mt-3 rounded-none bg-soft-cloud border border-hairline p-3">
-            <p className="text-xs font-bold text-ink uppercase tracking-wider">📝 Catatan:</p>
+            <p className="text-xs font-bold text-ink uppercase tracking-wider inline-flex items-center gap-1"><ClipboardList size={12} /> Catatan:</p>
             <p className="text-xs text-charcoal mt-1">{order.notes}</p>
           </div>
         )}
@@ -97,7 +97,7 @@ export default function OrderCard({
             {order.payment_method === 'CASH' && order.payment_status === 'PAID' && (
               <>
                 <div className="rounded-none bg-success/10 border border-success/20 px-4 py-2 text-center">
-                  <p className="text-sm font-bold text-success">✓ Pembayaran Cash Lunas</p>
+                  <p className="text-sm font-bold text-success inline-flex items-center gap-1"><Check size={14} /> Pembayaran Cash Lunas</p>
                 </div>
                 <button
                   onClick={() => onPrintReceipt(order)}
@@ -113,7 +113,7 @@ export default function OrderCard({
             {order.payment_method === 'QRIS' && order.payment_status === 'PAID' && (
               <>
                 <div className="rounded-none bg-success/10 border border-success/20 px-4 py-2 text-center">
-                  <p className="text-sm font-bold text-success">✓ Pembayaran QRIS Lunas</p>
+                  <p className="text-sm font-bold text-success inline-flex items-center gap-1"><Check size={14} /> Pembayaran QRIS Lunas</p>
                   <p className="text-xs text-success font-medium">Auto-confirmed</p>
                 </div>
                 <button

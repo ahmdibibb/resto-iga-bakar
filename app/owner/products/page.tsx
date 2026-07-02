@@ -47,8 +47,9 @@ export default function OwnerProductsPage() {
       <div className="space-y-5 font-inter text-ink">
 
         {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-none bg-canvas border border-sale">
-            <p className="text-sm text-sale font-semibold">⚠️ {error}</p>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-none bg-canvas border border-sale">
+            <AlertTriangle size={14} className="text-sale flex-shrink-0" />
+            <p className="text-sm text-sale font-semibold">{error}</p>
           </div>
         )}
 
@@ -75,7 +76,7 @@ export default function OwnerProductsPage() {
                 <AlertTriangle size={16} className="text-canvas" />
               </div>
               <div className="flex-1 font-jakarta">
-                <h4 className="font-bold text-sale uppercase tracking-wider text-xs mb-1">⚠️ Peringatan Stok Tipis</h4>
+                <h4 className="font-bold text-sale uppercase tracking-wider text-xs mb-1 inline-flex items-center gap-1"><AlertTriangle size={11} /> Peringatan Stok Tipis</h4>
                 <p className="text-xs text-charcoal mb-3">{lowStock.length} produk perlu segera direstok (stok &lt; 10)</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-inter">
                   {lowStock.map(product => (

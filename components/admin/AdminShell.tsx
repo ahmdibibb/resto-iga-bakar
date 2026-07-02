@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import {
   LayoutDashboard,
   Package,
@@ -68,7 +69,7 @@ export default function AdminShell({
         setSidebarOpen(true)
       }
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
@@ -137,17 +138,23 @@ export default function AdminShell({
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-full w-64 bg-ink border-r border-hairline flex flex-col py-6 z-50 transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 font-jakarta`}
+        className={`fixed left-0 top-0 h-full w-64 bg-ink border-r border-hairline flex flex-col py-6 z-50 transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 font-jakarta`}
       >
         {/* Logo */}
         <div className="px-6 mb-8 flex items-center justify-between border-b border-hairline/25 pb-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-soft-cloud rounded-none flex items-center justify-center">
-              <span className="text-sm">🔥</span>
+            <Image
+              src="/logo-v3.png"
+              alt="Iga Bakar Ombenk"
+              width={40}
+              height={40}
+              className="object-contain w-10 h-10 flex-shrink-0"
+            />
+            <div>
+              <p className="text-canvas font-bold text-xs leading-tight tracking-wider uppercase">Iga Bakar Ombenk</p>
+              <p className="text-stone-brand text-[10px] uppercase font-semibold tracking-wider mt-0.5">Admin Portal</p>
             </div>
-            <span className="text-sm font-bold uppercase tracking-wider text-canvas">Admin Portal</span>
           </div>
           {/* Close button for mobile */}
           {isMobile && (
@@ -171,11 +178,10 @@ export default function AdminShell({
                 <button
                   key={item.id}
                   onClick={() => handleItemClick(item)}
-                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-none transition-all duration-150 group cursor-pointer ${
-                    isActive
-                      ? 'bg-soft-cloud/15 text-canvas'
-                      : 'text-stone-brand hover:text-canvas hover:bg-soft-cloud/5'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-none transition-all duration-150 group cursor-pointer ${isActive
+                    ? 'bg-soft-cloud/15 text-canvas'
+                    : 'text-stone-brand hover:text-canvas hover:bg-soft-cloud/5'
+                    }`}
                 >
                   <div className="p-1 rounded-none flex-shrink-0">
                     <Icon size={15} className={isActive ? 'text-canvas' : 'text-stone-brand group-hover:text-canvas'} />
@@ -223,7 +229,7 @@ export default function AdminShell({
               >
                 <Menu size={16} />
               </button>
-              
+
               <h1 className="text-lg font-bold text-ink uppercase tracking-wider font-jakarta">
                 {displayTitle}
               </h1>

@@ -33,6 +33,8 @@ export default function QRGeneratorPage() {
   const [baseUrl, setBaseUrl] = useState(
     typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
   )
+  const [newTableName, setNewTableName] = useState('')
+  const [addingTable, setAddingTable] = useState(false)
 
   // Fetch all tables on page load
   useEffect(() => {
@@ -55,6 +57,36 @@ export default function QRGeneratorPage() {
       alert('Gagal memuat data meja. Silakan refresh halaman.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleAddTable = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newTableName.trim()) return
+
+    try {
+      setAddingTable(true)
+      const response = await fetch('/api/admin/tables', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: newTableName.trim() })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal menambahkan meja')
+      }
+
+      setNewTableName('')
+      await fetchTables() // reload
+    } catch (error: any) {
+      console.error('Error adding table:', error)
+      alert(error.message || 'Gagal menambahkan meja. Silakan coba lagi.')
+    } finally {
+      setAddingTable(false)
     }
   }
 
@@ -137,6 +169,35 @@ export default function QRGeneratorPage() {
         </button>
       </div>
 
+      {/* Tambah Meja Form */}
+      <div className="mb-8 p-6 bg-soft-cloud border border-hairline rounded-none">
+        <h3 className="text-sm font-bold font-jakarta uppercase tracking-wider text-ink mb-3">
+          Tambah Meja Baru
+        </h3>
+        <form onSubmit={handleAddTable} className="flex flex-wrap gap-3 items-end">
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
+              Nama Meja / Nomor Meja
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: 11, Meja VIP, dsb."
+              value={newTableName}
+              onChange={(e) => setNewTableName(e.target.value)}
+              required
+              className="w-full bg-canvas text-ink border border-hairline rounded-full px-4 py-2 focus:border-ink focus:outline-none text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={addingTable}
+            className="rounded-full bg-ink px-6 py-2.5 text-canvas hover:bg-charcoal text-xs font-semibold uppercase tracking-wider active:scale-95 transition-all disabled:opacity-50"
+          >
+            {addingTable ? 'Menambahkan...' : 'Tambah Meja'}
+          </button>
+        </form>
+      </div>
+
       {/* Loading State */}
       {loading && (
         <div className="py-12 text-center">
@@ -172,8 +233,8 @@ export default function QRGeneratorPage() {
               <div className="max-w-md">
                 {(() => {
                   const table = takeawayTable
-                  const hasQR = qrData[table.id]
-                  const qrUrl = hasQR ? qrData[table.id].table.qr_url : `${baseUrl}/menu?takeaway=true&token=${table.qr_token}`
+                  const hasQR = !!qrData[table.id] || !!table.qr_token
+                  const qrUrl = `${baseUrl}/menu?takeaway=true&token=${table.qr_token}`
 
                   return (
                     <div className="rounded-none bg-soft-cloud p-6 border border-hairline shadow-none">
@@ -265,8 +326,8 @@ export default function QRGeneratorPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {regularTables.map((table) => {
-              const hasQR = qrData[table.id]
-              const qrUrl = hasQR ? qrData[table.id].table.qr_url : `${baseUrl}/menu?table=${table.id}&token=${table.qr_token}`
+              const hasQR = !!qrData[table.id] || !!table.qr_token
+              const qrUrl = `${baseUrl}/menu?table=${table.id}&token=${table.qr_token}`
 
               return (
                 <div

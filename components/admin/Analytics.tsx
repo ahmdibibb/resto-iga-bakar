@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TrendingUp, Package, DollarSign, Calendar, Users } from 'lucide-react'
+import { TrendingUp, Package, DollarSign, Calendar, Users, UtensilsCrossed, CupSoda } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart'
 
@@ -370,7 +370,7 @@ export default function Analytics() {
                     {/* Foods */}
                     {foodProducts.length > 0 && (
                         <div className="mb-6">
-                            <h4 className="text-xs font-bold text-mute uppercase tracking-wider mb-3">🍽️ Foods</h4>
+                            <h4 className="text-xs font-bold text-mute uppercase tracking-wider mb-3 inline-flex items-center gap-1"><UtensilsCrossed size={11} /> Foods</h4>
                             <div className="space-y-2">
                                 {foodProducts.slice(0, 5).map((item, index) => (
                                     <div key={index} className="flex items-center justify-between bg-soft-cloud/40 p-4 border-b border-hairline last:border-b-0">
@@ -390,7 +390,7 @@ export default function Analytics() {
                     {/* Drinks */}
                     {drinkProducts.length > 0 && (
                         <div>
-                            <h4 className="text-xs font-bold text-mute uppercase tracking-wider mb-3">🥤 Drinks</h4>
+                            <h4 className="text-xs font-bold text-mute uppercase tracking-wider mb-3 inline-flex items-center gap-1"><CupSoda size={11} /> Drinks</h4>
                             <div className="space-y-2">
                                 {drinkProducts.slice(0, 5).map((item, index) => (
                                     <div key={index} className="flex items-center justify-between bg-soft-cloud/40 p-4 border-b border-hairline last:border-b-0">

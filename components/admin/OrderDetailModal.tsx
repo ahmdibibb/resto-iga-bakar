@@ -1,6 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { X, UtensilsCrossed, ShoppingBag } from 'lucide-react'
 
 interface OrderItem {
     id: string
@@ -83,8 +83,8 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <p className="text-[10px] font-bold text-mute uppercase tracking-wider mb-1">Order Type</p>
-                            <p className="font-semibold text-xs text-ink">
-                                {order.orderType === 'DINE_IN' ? '🍽️ Dine-In' : '🥡 Takeaway'}
+                            <p className="font-semibold text-xs text-ink inline-flex items-center gap-1">
+                                {order.orderType === 'DINE_IN' ? <><UtensilsCrossed size={12} /> Dine-In</> : <><ShoppingBag size={12} /> Takeaway</>}
                             </p>
                             {(order.table?.name || order.tableNumber) && (
                                 <p className="text-xs text-charcoal mt-0.5">Table {order.table?.name || order.tableNumber}</p>

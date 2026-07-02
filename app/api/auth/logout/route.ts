@@ -34,9 +34,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const isSecure = request.headers.get('x-forwarded-proto') === 'https' || process.env.NODE_ENV === 'production'
+
     const response = NextResponse.json({ message: 'Logged out successfully' })
     response.cookies.set('token', '', {
-      ...TOKEN_COOKIE_OPTIONS,
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: 'lax' as const,
+      path: '/',
       maxAge: 0,
     })
     return response

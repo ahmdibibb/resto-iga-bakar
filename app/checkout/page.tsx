@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Tag, UtensilsCrossed, ShoppingBag, User } from 'lucide-react'
+import { ArrowLeft, Tag, UtensilsCrossed, ShoppingBag, User, ShoppingCart } from 'lucide-react'
 import ErrorAlert from '@/components/ErrorAlert'
 
 interface CartItem {
@@ -198,7 +198,7 @@ export default function CheckoutPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-canvas font-inter text-ink">
         <div className="rounded-none bg-soft-cloud p-12 text-center border border-hairline shadow-none max-w-md w-full">
-          <div className="mb-4 text-6xl text-ink">🛒</div>
+          <div className="mb-4 flex items-center justify-center text-ink"><ShoppingCart size={64} strokeWidth={1} /></div>
           <p className="text-lg font-bold font-jakarta uppercase tracking-tight text-ink mb-4">Keranjang Anda Kosong</p>
           <Link
             href="/menu"

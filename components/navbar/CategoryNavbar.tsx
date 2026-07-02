@@ -11,7 +11,7 @@ interface CategoryNavbarProps {
 
 export default function CategoryNavbar({ selectedCategory, onCategoryChange }: CategoryNavbarProps) {
   return (
-    <div className="sticky top-[80px] z-40 bg-canvas border-b border-hairline font-jakarta">
+    <div className="sticky top-[64px] z-40 bg-canvas border-b border-hairline font-jakarta">
       <div className="mx-auto max-w-7xl px-4 py-4">
         <div className="flex items-center justify-center gap-3">
           <button

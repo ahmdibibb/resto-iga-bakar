@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ShoppingCart, Calendar } from 'lucide-react'
+import { ShoppingCart, Calendar, UtensilsCrossed, ShoppingBag } from 'lucide-react'
 import OrderDetailModal from './OrderDetailModal'
 import { OrderStatusBadge, PaymentMethodBadge, PaymentStatusBadge } from '@/components/StatusBadge'
 
@@ -238,7 +238,7 @@ export default function OrderList() {
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-xs text-charcoal">
                                         {order.table ? (
-                                            <span className="font-semibold text-ink">🍽️ {order.table.name}</span>
+                                            <span className="inline-flex items-center gap-1 font-semibold text-ink"><UtensilsCrossed size={12} /> {order.table.name}</span>
                                         ) : order.tableNumber ? (
                                             <span>Meja #{order.tableNumber}</span>
                                         ) : (
@@ -246,7 +246,7 @@ export default function OrderList() {
                                         )}
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-xs text-charcoal">
-                                        {order.orderType === 'DINE_IN' ? '🍽️ Dine-in' : '🥡 Takeaway'}
+                                        <span className="inline-flex items-center gap-1">{order.orderType === 'DINE_IN' ? <><UtensilsCrossed size={12} /> Dine-in</> : <><ShoppingBag size={12} /> Takeaway</>}</span>
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4">
                                         <div className="flex flex-col gap-1">

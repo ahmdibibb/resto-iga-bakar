@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Users, Shield, Search, UserCheck, Key } from 'lucide-react'
+import { Users, Shield, Search, UserCheck, Key, AlertTriangle } from 'lucide-react'
 import OwnerShell from '@/components/owner/OwnerShell'
 
 export default function OwnerUsersPage() {
@@ -69,8 +69,9 @@ export default function OwnerUsersPage() {
       <div className="space-y-5 font-inter text-ink">
 
         {error && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-none bg-canvas border border-sale">
-            <p className="text-sm text-sale font-semibold">⚠️ {error}</p>
+          <div className="flex items-center gap-2 px-4 py-3 rounded-none bg-canvas border border-sale">
+            <AlertTriangle size={14} className="text-sale flex-shrink-0" />
+            <p className="text-sm text-sale font-semibold">{error}</p>
           </div>
         )}
 
