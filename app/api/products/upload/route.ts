@@ -25,10 +25,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tidak ada file yang diunggah' }, { status: 400 })
     }
 
+    // Validate MIME type
+    const allowedMimeTypes = ['image/jpeg', 'image/png']
+    if (!allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Format file tidak didukung. Hanya diperbolehkan format JPG/JPEG dan PNG.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate extension
+    const ext = path.extname(file.name).toLowerCase()
+    const allowedExtensions = ['.png', '.jpg', '.jpeg']
+    if (!allowedExtensions.includes(ext)) {
+      return NextResponse.json(
+        { error: 'Ekstensi file tidak didukung. Hanya diperbolehkan ekstensi .png, .jpg, atau .jpeg.' },
+        { status: 400 }
+      )
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer())
     
     // Generate a unique filename
-    const ext = path.extname(file.name) || '.png'
     const filename = `product-${Date.now()}${ext}`
     
     // Ensure public/uploads directory exists

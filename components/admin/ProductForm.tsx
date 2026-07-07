@@ -80,6 +80,17 @@ export default function ProductForm({ editingProduct, onSubmit, onCancel }: Prod
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Client-side format validation
+    const allowedTypes = ['image/jpeg', 'image/png']
+    const fileExt = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
+    const allowedExts = ['.jpg', '.jpeg', '.png']
+    
+    if (!allowedTypes.includes(file.type) && !allowedExts.includes(fileExt)) {
+      alert('Format file tidak didukung. Harap pilih gambar dengan format PNG atau JPG/JPEG.')
+      e.target.value = '' // Reset file input
+      return
+    }
+
     setUploading(true)
     const uploadData = new FormData()
     uploadData.append('file', file)
@@ -100,6 +111,7 @@ export default function ProductForm({ editingProduct, onSubmit, onCancel }: Prod
     } catch (err: any) {
       console.error('Image upload error:', err)
       alert(err.message || 'Gagal mengunggah gambar. Silakan coba lagi.')
+      e.target.value = '' // Reset file input on error
     } finally {
       setUploading(false)
     }
@@ -195,16 +207,19 @@ export default function ProductForm({ editingProduct, onSubmit, onCancel }: Prod
           <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
             Gambar Produk
           </label>
-          <div className="flex items-center gap-4">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="block w-full text-xs text-charcoal file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-ink file:text-canvas hover:file:bg-charcoal cursor-pointer"
-            />
-            {uploading && (
-              <span className="text-xs text-charcoal animate-pulse">Mengunggah...</span>
-            )}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-4">
+              <input
+                type="file"
+                accept=".png, .jpg, .jpeg, image/png, image/jpeg"
+                onChange={handleImageUpload}
+                className="block w-full text-xs text-charcoal file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-ink file:text-canvas hover:file:bg-charcoal cursor-pointer"
+              />
+              {uploading && (
+                <span className="text-xs text-charcoal animate-pulse">Mengunggah...</span>
+              )}
+            </div>
+            <p className="text-[10px] text-mute font-medium">Format yang didukung: **PNG, JPG, JPEG**</p>
           </div>
           {formData.image && (
             <div className="mt-3 relative w-20 h-20 border border-hairline overflow-hidden bg-white">

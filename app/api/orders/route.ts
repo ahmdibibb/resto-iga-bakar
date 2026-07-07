@@ -119,15 +119,9 @@ export async function POST(request: NextRequest) {
       payment_method
     } = body
 
-    // Try to get authenticated user (optional)
-    let userId: string | null = null
-    const token = request.cookies.get('token')?.value
-    if (token) {
-      const user = await getCurrentUser(token)
-      if (user) {
-        userId = user.id
-      }
-    }
+    // Orders created via checkout are guest orders.
+    // We do not associate them with logged-in staff accounts (ADMIN, KASIR, OWNER).
+    const userId: string | null = null
 
     // Validation: items
     if (!items || !Array.isArray(items) || items.length === 0) {
