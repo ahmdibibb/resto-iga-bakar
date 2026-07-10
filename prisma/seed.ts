@@ -144,6 +144,16 @@ async function main() {
         skipDuplicates: true,
     })
 
+    console.log('Creating default system settings...')
+    await prisma.systemSetting.createMany({
+        data: [
+            { key: 'restaurant_name', value: 'Iga Bakar Ombenk' },
+            { key: 'logo_url', value: '/logo-v3.png' },
+            { key: 'background_url', value: '/restaurant-bg.jpg' },
+        ],
+        skipDuplicates: true,
+    })
+
     console.log('✅ Seed completed successfully!')
     console.log('\n📝 Default credentials:')
     console.log('Owner: owner@resto.com / owner123')

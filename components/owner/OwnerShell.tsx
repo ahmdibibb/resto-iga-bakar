@@ -18,6 +18,7 @@ import {
   RefreshCw,
   X,
   ChevronRight,
+  Settings,
 } from 'lucide-react'
 import Loading from '@/components/Loading'
 
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { id: 'products', label: 'Products', icon: Package, route: '/owner/products', badge: 'View' },
   { id: 'orders', label: 'Orders', icon: ShoppingCart, route: '/owner/orders' },
   { id: 'users', label: 'Users', icon: UsersIcon, route: '/owner/users', badge: 'View' },
+  { id: 'settings', label: 'Settings', icon: Settings, route: '/owner/settings' },
 ]
 
 interface OwnerShellProps {
@@ -62,6 +64,18 @@ export default function OwnerShell({
   const [userName, setUserName] = useState('Owner')
   const [userInitial, setUserInitial] = useState('O')
   const [notifOpen, setNotifOpen] = useState(false)
+  const [logoUrl, setLogoUrl] = useState('/logo-v3.png')
+  const [restaurantName, setRestaurantName] = useState('Iga Bakar Ombenk')
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.logo_url) setLogoUrl(data.logo_url)
+        if (data.restaurant_name) setRestaurantName(data.restaurant_name)
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -132,14 +146,14 @@ export default function OwnerShell({
         <div className="px-5 pt-6 pb-5 flex items-center justify-between border-b border-hairline/25">
           <div className="flex items-center gap-3">
             <Image
-              src="/logo-v3.png"
-              alt="Iga Bakar Ombenk"
+              src={logoUrl}
+              alt={restaurantName}
               width={40}
               height={40}
               className="object-contain w-10 h-10 flex-shrink-0"
             />
             <div>
-              <p className="text-canvas font-bold text-xs leading-tight tracking-wider uppercase">Iga Bakar Ombenk</p>
+              <p className="text-canvas font-bold text-xs leading-tight tracking-wider uppercase">{restaurantName}</p>
               <p className="text-stone-brand text-[10px] uppercase font-semibold tracking-wider mt-0.5 font-jakarta">Owner Portal</p>
             </div>
           </div>

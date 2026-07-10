@@ -1,6 +1,6 @@
 'use client'
 
-import { X, UtensilsCrossed, ShoppingBag } from 'lucide-react'
+import { X, UtensilsCrossed, ShoppingBag, Clock, Phone } from 'lucide-react'
 
 interface OrderItem {
     id: string
@@ -20,6 +20,9 @@ interface Order {
     status: string
     orderType: string
     customerName?: string | null
+    customerPhone?: string | null
+    channel?: string
+    pickupTime?: string | null
     tableNumber?: string | null
     table?: {
         id: string
@@ -76,8 +79,39 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
                         <div className="space-y-1">
                             <p className="text-ink font-semibold text-sm">{order.customerName || order.user?.name || 'Guest'}</p>
                             {order.user?.email && <p className="text-xs text-charcoal">{order.user.email}</p>}
+                            {order.customerPhone && (
+                                <p className="text-xs text-charcoal flex items-center gap-1">
+                                    <Phone size={11} /> {order.customerPhone}
+                                </p>
+                            )}
                         </div>
                     </div>
+
+                    {/* PRE-ORDER Info block */}
+                    {order.channel === 'PREORDER' && (
+                        <div className="border-2 border-ink bg-soft-cloud p-4 rounded-none">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="bg-ink px-2 py-0.5 text-[10px] font-bold text-canvas uppercase tracking-wider">
+                                    PRE-ORDER
+                                </span>
+                            </div>
+                            {order.pickupTime && (
+                                <div className="flex items-center gap-2">
+                                    <Clock size={14} className="text-ink" />
+                                    <div>
+                                        <p className="text-[10px] font-bold text-mute uppercase tracking-wider">Jam Pengambilan</p>
+                                        <p className="text-sm font-bold text-ink">
+                                            {new Date(order.pickupTime).toLocaleTimeString('id-ID', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                timeZone: 'Asia/Jakarta'
+                                            })} WIB
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Order Info */}
                     <div className="grid grid-cols-2 gap-4">

@@ -43,6 +43,7 @@ function MenuPageContent() {
   const tableIdFromQR = searchParams.get('table')
   const tokenFromQR = searchParams.get('token')
   const isTakeawayFromQR = searchParams.get('takeaway') === 'true'
+  const isPreorderMode = searchParams.get('mode') === 'preorder'
 
   useEffect(() => {
     const initializePage = async () => {
@@ -56,8 +57,18 @@ function MenuPageContent() {
       console.log('=== MENU PAGE INIT ===')
       console.log('URL params:', { tableIdFromQR, tokenFromQR, isTakeawayFromQR })
 
+      // Handle PRE-ORDER mode (no QR code needed)
+      if (isPreorderMode) {
+        console.log('✅ PRE-ORDER mode detected - skipping QR validation')
+        localStorage.setItem('orderType', 'TAKEAWAY')
+        localStorage.setItem('channel', 'PREORDER')
+        localStorage.removeItem('tableNumber')
+        localStorage.removeItem('table_id')
+        localStorage.removeItem('qr_token')
+        console.log('✅ PRE-ORDER mode set')
+      }
       // Handle TAKEAWAY QR code
-      if (isTakeawayFromQR && tokenFromQR) {
+      else if (isTakeawayFromQR && tokenFromQR) {
         console.log('✅ TAKEAWAY QR detected')
         
         // For takeaway, we need to find the TAKEAWAY table by name
@@ -115,7 +126,7 @@ function MenuPageContent() {
     }
 
     initializePage()
-  }, [tableIdFromQR, tokenFromQR, isTakeawayFromQR])
+  }, [tableIdFromQR, tokenFromQR, isTakeawayFromQR, isPreorderMode])
 
   const validateTakeawayByToken = async (token: string) => {
     try {

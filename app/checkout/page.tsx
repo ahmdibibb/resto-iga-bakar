@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Tag, UtensilsCrossed, ShoppingBag, User, ShoppingCart } from 'lucide-react'
+import { ArrowLeft, Tag, UtensilsCrossed, ShoppingBag, User, ShoppingCart, Phone, Clock } from 'lucide-react'
 import ErrorAlert from '@/components/ErrorAlert'
 
 interface CartItem {
@@ -40,6 +40,11 @@ export default function CheckoutPage() {
   const [tableId, setTableId] = useState<string | null>(null)
   const [qrToken, setQrToken] = useState<string | null>(null)
 
+  // Pre-order specific fields
+  const [isPreorder, setIsPreorder] = useState(false)
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [pickupTime, setPickupTime] = useState('')
+
   useEffect(() => {
     const savedCart = localStorage.getItem('cart')
     if (savedCart) {
@@ -54,39 +59,31 @@ export default function CheckoutPage() {
     const savedSessionId = localStorage.getItem('session_id')
     const savedTableId = localStorage.getItem('table_id')
     const savedQrToken = localStorage.getItem('qr_token')
+    const savedChannel = localStorage.getItem('channel')
 
-    console.log('=== CHECKOUT PAGE DEBUG ===')
-    console.log('savedOrderType:', savedOrderType)
-    console.log('savedTable:', savedTable)
-    console.log('savedTableId:', savedTableId)
-    console.log('savedQrToken:', savedQrToken)
+    // Detect pre-order mode
+    if (savedChannel === 'PREORDER') {
+      setIsPreorder(true)
+      setPaymentMethod('QRIS') // Pre-order always QRIS
+    }
 
     // For TAKEAWAY, ensure NO table data is used
     if (savedOrderType === 'TAKEAWAY') {
       setOrderType('TAKEAWAY')
-      console.log('✅ Setting orderType to TAKEAWAY - NO table data')
       // Do NOT set tableNumber or tableId for TAKEAWAY
     } else if (savedOrderType === 'DINE_IN') {
       setOrderType('DINE_IN')
-      console.log('✅ Setting orderType to DINE_IN')
       if (savedTable) {
         setTableNumber(savedTable)
         setTableFromQR(true)
-        console.log('✅ Table number set:', savedTable)
       }
       if (savedTableId) {
         setTableId(savedTableId)
       }
     }
     
-    if (savedSessionId) {
-      setSessionId(savedSessionId)
-    }
-    if (savedQrToken) {
-      setQrToken(savedQrToken)
-    }
-    
-    console.log('=== END DEBUG ===')
+    if (savedSessionId) setSessionId(savedSessionId)
+    if (savedQrToken) setQrToken(savedQrToken)
   }, [router])
 
   const getTotalPrice = () => {
@@ -112,29 +109,43 @@ export default function CheckoutPage() {
   const handleCreateOrder = async () => {
     // Validation
     if (!customerName.trim()) {
-      setError({
-        message: 'Nama customer wajib diisi',
-        field: 'customerName',
-        type: 'validation'
-      })
+      setError({ message: 'Nama customer wajib diisi', field: 'customerName', type: 'validation' })
       return
     }
 
     if (orderType === 'DINE_IN' && !tableNumber.trim()) {
-      setError({
-        message: 'Nomor meja wajib diisi untuk Dine-in',
-        field: 'tableNumber',
-        type: 'validation'
-      })
+      setError({ message: 'Nomor meja wajib diisi untuk Dine-in', field: 'tableNumber', type: 'validation' })
       return
     }
 
+    // Pre-order validations
+    if (isPreorder) {
+      if (!customerPhone.trim()) {
+        setError({ message: 'Nomor HP wajib diisi untuk pre-order', field: 'customerPhone', type: 'validation' })
+        return
+      }
+      if (!pickupTime) {
+        setError({ message: 'Jam pengambilan wajib dipilih', field: 'pickupTime', type: 'validation' })
+        return
+      }
+      // Validate pickup time: must be at least 30 minutes from now and within operating hours 09:00-21:00
+      const now = new Date()
+      const [hours, minutes] = pickupTime.split(':').map(Number)
+      const pickup = new Date(now)
+      pickup.setHours(hours, minutes, 0, 0)
+      const diffMinutes = (pickup.getTime() - now.getTime()) / 60000
+      if (diffMinutes < 30) {
+        setError({ message: 'Jam pengambilan minimal 30 menit dari sekarang', field: 'pickupTime', type: 'validation' })
+        return
+      }
+      if (hours < 9 || hours >= 21) {
+        setError({ message: 'Jam pengambilan harus antara 09:00 – 21:00 WIB', field: 'pickupTime', type: 'validation' })
+        return
+      }
+    }
+
     if (!paymentMethod) {
-      setError({
-        message: 'Metode pembayaran wajib dipilih',
-        field: 'paymentMethod',
-        type: 'validation'
-      })
+      setError({ message: 'Metode pembayaran wajib dipilih', field: 'paymentMethod', type: 'validation' })
       return
     }
 
@@ -156,6 +167,15 @@ export default function CheckoutPage() {
           tableNumber: orderType === 'DINE_IN' ? tableNumber.trim() : null,
           notes: notes.trim() || null,
           customerName: customerName.trim(),
+          customerPhone: isPreorder ? customerPhone.trim() : null,
+          pickupTime: isPreorder && pickupTime ? (() => {
+            const now = new Date()
+            const [h, m] = pickupTime.split(':').map(Number)
+            const pickup = new Date(now)
+            pickup.setHours(h, m, 0, 0)
+            return pickup.toISOString()
+          })() : null,
+          channel: isPreorder ? 'PREORDER' : 'DIRECT',
           session_id: sessionId,
           table_id: orderType === 'DINE_IN' ? tableId : null,
           qr_token: qrToken,
@@ -174,8 +194,9 @@ export default function CheckoutPage() {
         return
       }
 
-      // Clear cart and QR data
+      // Clear cart and channel data
       localStorage.removeItem('cart')
+      localStorage.removeItem('channel')
 
       // Redirect to payment
       router.push(`/payment/${data.id}`)
@@ -330,15 +351,13 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* TAKEAWAY SECTION */}
-            {orderType === 'TAKEAWAY' && (
+            {/* TAKEAWAY SECTION - only show for regular takeaway (not pre-order) */}
+            {orderType === 'TAKEAWAY' && !isPreorder && (
               <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none animate-fadeIn">
                 <h2 className="mb-4 text-xl font-bold font-jakarta text-ink uppercase tracking-tight flex items-center gap-2">
                   <ShoppingBag size={22} className="text-ink" />
                   Tipe Pesanan
                 </h2>
-                
-                {/* Order Type Display */}
                 <div className="rounded-none bg-soft-cloud p-4 border border-hairline">
                   <div className="flex items-center gap-3">
                     <div className="rounded-full p-3 bg-ink">
@@ -349,6 +368,65 @@ export default function CheckoutPage() {
                       <p className="text-sm text-charcoal font-medium">Bawa pulang</p>
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* PRE-ORDER SECTION */}
+            {isPreorder && (
+              <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none animate-fadeIn">
+                <h2 className="mb-4 text-xl font-bold font-jakarta text-ink uppercase tracking-tight flex items-center gap-2">
+                  <Clock size={22} className="text-ink" />
+                  Detail Pre-Order
+                </h2>
+
+                {/* Pre-order badge */}
+                <div className="mb-5 flex items-center gap-2 rounded-none bg-soft-cloud px-4 py-3 border border-hairline">
+                  <ShoppingBag size={16} className="text-ink" />
+                  <p className="text-sm font-semibold text-ink font-jakarta">
+                    Pre-Order — Ambil sendiri di restoran
+                  </p>
+                </div>
+
+                {/* Customer Phone */}
+                <div className="mb-4">
+                  <label htmlFor="customerPhone" className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
+                    <span className="flex items-center gap-1">
+                      <Phone size={14} />
+                      Nomor HP / WhatsApp <span className="text-sale">*</span>
+                    </span>
+                  </label>
+                  <input
+                    id="customerPhone"
+                    type="tel"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="Contoh: 08123456789"
+                    className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-3 text-base focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
+                  />
+                  <p className="mt-1 text-xs text-charcoal">Kami akan kirim notifikasi WhatsApp saat pesanan siap</p>
+                </div>
+
+                {/* Pickup Time */}
+                <div>
+                  <label htmlFor="pickupTime" className="block text-sm font-semibold text-charcoal mb-2 font-jakarta">
+                    <span className="flex items-center gap-1">
+                      <Clock size={14} />
+                      Jam Pengambilan <span className="text-sale">*</span>
+                    </span>
+                  </label>
+                  <input
+                    id="pickupTime"
+                    type="time"
+                    min="09:00"
+                    max="21:00"
+                    value={pickupTime}
+                    onChange={(e) => setPickupTime(e.target.value)}
+                    className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-3 text-base focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
+                  />
+                  <p className="mt-1 text-xs text-charcoal">
+                    Jam operasional: 09:00 – 21:00 WIB. Minimal 30 menit dari sekarang.
+                  </p>
                 </div>
               </div>
             )}
@@ -371,6 +449,25 @@ export default function CheckoutPage() {
             {/* Payment Method Selection */}
             <div className="rounded-none bg-canvas p-6 border border-hairline shadow-none">
               <h2 className="mb-4 text-xl font-bold font-jakarta text-ink uppercase tracking-tight">Metode Pembayaran <span className="text-sale">*</span></h2>
+
+              {/* Pre-order: always QRIS, show info */}
+              {isPreorder ? (
+                <div className="flex items-center gap-4 rounded-none border-2 border-ink bg-soft-cloud p-5">
+                  <div className="rounded-full p-3 bg-ink">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <rect x="7" y="7" width="3" height="3"></rect>
+                      <rect x="14" y="7" width="3" height="3"></rect>
+                      <rect x="7" y="14" width="3" height="3"></rect>
+                      <rect x="14" y="14" width="3" height="3"></rect>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-bold font-jakarta text-ink uppercase tracking-wider">QRIS</p>
+                    <p className="text-xs text-charcoal">Pre-order wajib bayar via QRIS</p>
+                  </div>
+                </div>
+              ) : (
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => setPaymentMethod('QRIS')}
@@ -449,6 +546,7 @@ export default function CheckoutPage() {
                   </div>
                 </button>
               </div>
+              )}
             </div>
           </div>
 

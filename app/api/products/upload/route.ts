@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { promises as fs } from 'fs'
-import path from 'path'
 import { withApiPermission } from '@/lib/apiPermissions'
 import { handleApiError } from '@/lib/errorHandler'
 
 /**
  * POST /api/products/upload
- * Upload product image from local device to public/uploads
+ * Upload product image from device to Cloudinary
  * Protected: ADMIN only
  */
 export async function POST(request: NextRequest) {
@@ -19,7 +17,7 @@ export async function POST(request: NextRequest) {
     if (response) return response
 
     const formData = await request.formData()
-    const file = formData.get('file') as File | null
+    const file = formData.get('file') as Blob | null
 
     if (!file) {
       return NextResponse.json({ error: 'Tidak ada file yang diunggah' }, { status: 400 })
@@ -34,32 +32,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate extension
-    const ext = path.extname(file.name).toLowerCase()
-    const allowedExtensions = ['.png', '.jpg', '.jpeg']
-    if (!allowedExtensions.includes(ext)) {
-      return NextResponse.json(
-        { error: 'Ekstensi file tidak didukung. Hanya diperbolehkan ekstensi .png, .jpg, atau .jpeg.' },
-        { status: 400 }
-      )
+    // Convert file to base64 data URL
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const base64Image = `data:${file.type};base64,${buffer.toString('base64')}`
+
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME
+    const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET || 'ml_default'
+
+    if (!cloudName) {
+      return NextResponse.json({ error: 'Cloudinary cloud name is not configured' }, { status: 500 })
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    
-    // Generate a unique filename
-    const filename = `product-${Date.now()}${ext}`
-    
-    // Ensure public/uploads directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-    await fs.mkdir(uploadDir, { recursive: true })
-    
-    const filePath = path.join(uploadDir, filename)
-    await fs.writeFile(filePath, buffer)
-    
-    // Return relative public path
-    const fileUrl = `/uploads/${filename}`
-    
-    return NextResponse.json({ url: fileUrl })
+    // Prepare Cloudinary request
+    const cloudinaryFormData = new FormData()
+    cloudinaryFormData.append('file', base64Image)
+    cloudinaryFormData.append('upload_preset', uploadPreset)
+
+    const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: cloudinaryFormData,
+    })
+
+    if (!cloudinaryResponse.ok) {
+      const errorData = await cloudinaryResponse.json()
+      return NextResponse.json({ 
+        error: errorData.error?.message || 'Failed to upload to Cloudinary' 
+      }, { status: cloudinaryResponse.status })
+    }
+
+    const data = await cloudinaryResponse.json()
+    return NextResponse.json({ url: data.secure_url })
   } catch (error) {
     return handleApiError(error)
   }

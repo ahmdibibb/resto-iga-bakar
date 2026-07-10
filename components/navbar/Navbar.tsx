@@ -27,8 +27,16 @@ export default function Navbar({
   sticky = false
 }: NavbarProps) {
   const router = useRouter()
+  const [logoUrl, setLogoUrl] = useState('/logo-v3.png')
 
-
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.logo_url) setLogoUrl(data.logo_url)
+      })
+      .catch(() => {})
+  }, [])
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
@@ -45,7 +53,7 @@ export default function Navbar({
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center">
             <Image
-              src="/logo-v3.png"
+              src={logoUrl}
               alt="Iga Bakar"
               width={110}
               height={52}

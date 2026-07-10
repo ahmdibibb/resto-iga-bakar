@@ -25,6 +25,7 @@
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.552.0",
     "next": "^16.2.4",
+    "next-cloudinary": "^6.17.5",
     "qrcode.react": "^4.2.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",

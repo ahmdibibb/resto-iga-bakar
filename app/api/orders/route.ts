@@ -114,6 +114,9 @@ export async function POST(request: NextRequest) {
       tableNumber, 
       notes, 
       customerName,
+      customerPhone,
+      pickupTime,
+      channel,
       session_id,
       table_id,
       payment_method
@@ -168,6 +171,10 @@ export async function POST(request: NextRequest) {
     if (payment_method && !['CASH', 'QRIS'].includes(payment_method)) {
       throw new OrderValidationError('Invalid payment method. Allowed: CASH, QRIS.', 'payment_method')
     }
+
+    // Validation: channel
+    const validChannels = ['DIRECT', 'PREORDER', 'GOFOOD', 'GRABFOOD', 'SHOPEEFOOD']
+    const orderChannel = channel && validChannels.includes(channel) ? channel : 'DIRECT'
 
     // Validation: table availability for DINE_IN orders with table_id
     if (orderType === 'DINE_IN' && table_id) {
@@ -247,6 +254,7 @@ export async function POST(request: NextRequest) {
         session_id: session_id || null,
         table_id: orderType === 'DINE_IN' ? (table_id || null) : null,
         customerName: customerName?.trim() || null,
+        customerPhone: customerPhone?.trim() || null,
         totalAmount: new Prisma.Decimal(totalAmount),
         status: orderStatus,
         payment_status: paymentStatus,
@@ -254,6 +262,8 @@ export async function POST(request: NextRequest) {
         orderType: orderType as 'DINE_IN' | 'TAKEAWAY',
         tableNumber: orderType === 'DINE_IN' ? (tableNumber || null) : null,
         notes: notes || null,
+        channel: orderChannel as 'DIRECT' | 'PREORDER' | 'GOFOOD' | 'GRABFOOD' | 'SHOPEEFOOD',
+        pickupTime: pickupTime ? new Date(pickupTime) : null,
         items: {
           create: orderItems.map((item) => ({
             productId: item.productId,

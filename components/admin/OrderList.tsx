@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ShoppingCart, Calendar, UtensilsCrossed, ShoppingBag } from 'lucide-react'
+import { ShoppingCart, Calendar, UtensilsCrossed, ShoppingBag, Clock } from 'lucide-react'
 import OrderDetailModal from './OrderDetailModal'
 import { OrderStatusBadge, PaymentMethodBadge, PaymentStatusBadge } from '@/components/StatusBadge'
 
@@ -15,6 +15,9 @@ interface Order {
     orderType: string
     tableNumber?: string
     customerName?: string | null
+    customerPhone?: string | null
+    channel?: string
+    pickupTime?: string | null
     createdAt: string
     table?: {
         id: string
@@ -246,7 +249,21 @@ export default function OrderList() {
                                         )}
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-xs text-charcoal">
-                                        <span className="inline-flex items-center gap-1">{order.orderType === 'DINE_IN' ? <><UtensilsCrossed size={12} /> Dine-in</> : <><ShoppingBag size={12} /> Takeaway</>}</span>
+                                        {order.channel === 'PREORDER' ? (
+                                          <div>
+                                            <span className="inline-flex items-center gap-1 rounded-none bg-ink px-2 py-0.5 text-[10px] font-bold text-canvas uppercase tracking-wider">
+                                              PRE-ORDER
+                                            </span>
+                                            {order.pickupTime && (
+                                              <p className="mt-1 flex items-center gap-1 text-[10px] text-charcoal">
+                                                <Clock size={10} />
+                                                Ambil {new Date(order.pickupTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} WIB
+                                              </p>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <span className="inline-flex items-center gap-1">{order.orderType === 'DINE_IN' ? <><UtensilsCrossed size={12} /> Dine-in</> : <><ShoppingBag size={12} /> Takeaway</>}</span>
+                                        )}
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4">
                                         <div className="flex flex-col gap-1">

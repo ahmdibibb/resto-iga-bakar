@@ -44,6 +44,14 @@ enum OrderType {
   TAKEAWAY
 }
 
+enum OrderChannel {
+  DIRECT     // Langsung via QR Code di restoran
+  PREORDER   // Pre-Order online via URL publik
+  GOFOOD     // Dari GoFood (future integration)
+  GRABFOOD   // Dari GrabFood (future integration)
+  SHOPEEFOOD // Dari ShopeeFood (future integration)
+}
+
 enum TableStatus {
   AVAILABLE
   OCCUPIED
@@ -94,6 +102,7 @@ model Order {
   table_id       String?
   table          Table?        @relation(fields: [table_id], references: [id])
   customerName   String?
+  customerPhone  String?       // Nomor HP pelanggan (untuk pre-order WA notif)
   status         OrderStatus   @default(PENDING_PAYMENT)
   payment_status PaymentStatus @default(UNPAID)
   payment_method PaymentMethod?
@@ -101,6 +110,8 @@ model Order {
   orderType      OrderType     @default(DINE_IN)
   tableNumber    String?
   notes          String?       @db.Text
+  channel        OrderChannel  @default(DIRECT) // Sumber pesanan
+  pickupTime     DateTime?     // Jam ambil untuk pre-order
   printedAt      DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -117,6 +128,8 @@ model Order {
   @@index([createdAt])
   @@index([orderType])
   @@index([payment_method])
+  @@index([channel])
+  @@index([pickupTime])
 }
 
 model OrderItem {
@@ -177,5 +190,13 @@ model AuditLog {
   @@index([action])
   @@index([resource])
   @@index([timestamp])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 

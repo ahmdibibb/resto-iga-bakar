@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
 import {
   LayoutDashboard,
@@ -52,11 +52,24 @@ export default function AdminShell({
   title,
 }: AdminShellProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [userName, setUserName] = useState('Admin')
   const [userInitial, setUserInitial] = useState('A')
+  const [logoUrl, setLogoUrl] = useState('/logo-v3.png')
+  const [restaurantName, setRestaurantName] = useState('Iga Bakar Ombenk')
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.logo_url) setLogoUrl(data.logo_url)
+        if (data.restaurant_name) setRestaurantName(data.restaurant_name)
+      })
+      .catch(() => {})
+  }, [])
 
   // Detect mobile screen size
   useEffect(() => {
@@ -145,14 +158,14 @@ export default function AdminShell({
         <div className="px-6 mb-8 flex items-center justify-between border-b border-hairline/25 pb-5">
           <div className="flex items-center gap-3">
             <Image
-              src="/logo-v3.png"
-              alt="Iga Bakar Ombenk"
+              src={logoUrl}
+              alt={restaurantName}
               width={40}
               height={40}
               className="object-contain w-10 h-10 flex-shrink-0"
             />
             <div>
-              <p className="text-canvas font-bold text-xs leading-tight tracking-wider uppercase">Iga Bakar Ombenk</p>
+              <p className="text-canvas font-bold text-xs leading-tight tracking-wider uppercase">{restaurantName}</p>
               <p className="text-stone-brand text-[10px] uppercase font-semibold tracking-wider mt-0.5">Admin Portal</p>
             </div>
           </div>
@@ -195,9 +208,16 @@ export default function AdminShell({
 
         {/* Settings & Logout */}
         <div className="px-4 space-y-1 border-t border-hairline/25 pt-4 mt-4">
-          <button className="w-full flex items-center gap-3 px-4 py-2 rounded-none text-stone-brand hover:text-canvas hover:bg-soft-cloud/5 transition-all duration-150 group cursor-pointer">
+          <button
+            onClick={() => router.push('/admin/settings')}
+            className={`w-full flex items-center gap-3 px-4 py-2 rounded-none transition-all duration-150 group cursor-pointer ${
+              pathname === '/admin/settings'
+                ? 'bg-soft-cloud/15 text-canvas'
+                : 'text-stone-brand hover:text-canvas hover:bg-soft-cloud/5'
+            }`}
+          >
             <div className="p-1 rounded-none flex-shrink-0">
-              <Settings size={15} className="group-hover:text-canvas transition-colors" />
+              <Settings size={15} className={pathname === '/admin/settings' ? 'text-canvas' : 'group-hover:text-canvas transition-colors'} />
             </div>
             <span className="text-xs font-semibold uppercase tracking-wider">Settings</span>
           </button>
