@@ -26,6 +26,8 @@ export interface Order {
   customerName: string | null
   notes: string | null
   createdAt: string
+  channel?: string
+  pickupTime?: string | null
   items: OrderItem[]
   table: {
     name: string

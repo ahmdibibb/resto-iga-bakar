@@ -55,7 +55,7 @@ export function hasReadAccess(role: UserRole, resource: string): boolean {
 
   // KASIR has limited read access
   if (role === 'KASIR') {
-    const kasirReadResources = ['/orders', '/products']
+    const kasirReadResources = ['/orders', '/products', '/api/orders', '/api/products', '/api/kasir/orders']
     return kasirReadResources.some(r => resource.startsWith(r))
   }
 
@@ -88,7 +88,7 @@ export function hasWriteAccess(role: UserRole, resource: string): boolean {
 
   // KASIR has limited write access
   if (role === 'KASIR') {
-    const kasirWriteResources = ['/orders']
+    const kasirWriteResources = ['/orders', '/api/orders']
     return kasirWriteResources.some(r => resource.startsWith(r))
   }
 

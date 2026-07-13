@@ -35,6 +35,7 @@ export async function middleware(request: NextRequest) {
     "/api/orders",       // Guest can create & view orders
     "/api/payments",     // Guest can make payments
     "/api/tables/validate", // Table QR validation is public
+    "/api/settings",     // Settings (restaurant name, logo, background) is public
   ];
   const isPublicApiRoute = publicApiRoutes.some((route) =>
     pathname.startsWith(route)

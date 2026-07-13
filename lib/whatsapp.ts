@@ -1,17 +1,14 @@
 /**
- * WhatsApp Notification via Fonnte
- * 
- * Layanan WA Gateway Indonesia — https://fonnte.com
- * 
- * Setup:
- * 1. Daftar di fonnte.com
- * 2. Hubungkan nomor WhatsApp bisnis Anda
- * 3. Salin token dari dashboard Fonnte
- * 4. Tambahkan ke .env: FONNTE_TOKEN=token_anda
+ * WhatsApp Notification via Meta WhatsApp Cloud API
+ *
+ * API Resmi Meta — Bebas ban, server Meta, tidak butuh HP terhubung.
+ * Dokumentasi: https://developers.facebook.com/docs/whatsapp/cloud-api/
  */
 
-const FONNTE_TOKEN = process.env.FONNTE_TOKEN || ''
-const FONNTE_API_URL = 'https://api.fonnte.com/send'
+const WA_PHONE_NUMBER_ID = process.env.WA_PHONE_NUMBER_ID || ''
+const WA_ACCESS_TOKEN = process.env.WA_ACCESS_TOKEN || ''
+const WA_API_VERSION = 'v20.0'
+const WA_API_URL = `https://graph.facebook.com/${WA_API_VERSION}/${WA_PHONE_NUMBER_ID}/messages`
 
 export interface WhatsAppResult {
   success: boolean
@@ -19,81 +16,75 @@ export interface WhatsAppResult {
 }
 
 /**
- * Kirim pesan WhatsApp ke nomor pelanggan
+ * Kirim template pesan WhatsApp ke nomor pelanggan via Meta Cloud API
  * @param phone - Nomor HP pelanggan (format: 08xxx atau 628xxx)
- * @param message - Pesan yang akan dikirim
+ * @param templateName - Nama template yang disetujui di Meta (contoh: 'pesanan_siap')
+ * @param parameters - Variabel isi untuk template [{{1}}, {{2}}, {{3}}]
+ * @param languageCode - Kode bahasa (default: 'id' untuk Indonesia)
  */
-export async function sendWhatsAppNotification(
+export async function sendWhatsAppTemplateNotification(
   phone: string,
-  message: string
+  templateName: string,
+  parameters: string[],
+  languageCode: string = 'id'
 ): Promise<WhatsAppResult> {
-  if (!FONNTE_TOKEN) {
-    console.warn('[WHATSAPP] FONNTE_TOKEN not set. Skipping WA notification.')
-    return { success: false, message: 'Token Fonnte belum dikonfigurasi' }
+  if (!WA_PHONE_NUMBER_ID || !WA_ACCESS_TOKEN) {
+    console.warn('[WHATSAPP] WA_PHONE_NUMBER_ID atau WA_ACCESS_TOKEN belum diset di .env')
+    return { success: false, message: 'Konfigurasi WhatsApp Cloud API belum lengkap' }
   }
 
   // Normalize phone number (08xxx → 628xxx)
   const normalizedPhone = normalizePhoneNumber(phone)
 
+  // Hanya sertakan komponen body jika terdapat parameter
+  const components = parameters.length > 0 
+    ? [
+        {
+          type: 'body',
+          parameters: parameters.map((param) => ({
+            type: 'text',
+            text: param,
+          })),
+        },
+      ]
+    : undefined
+
   try {
-    const response = await fetch(FONNTE_API_URL, {
+    const response = await fetch(WA_API_URL, {
       method: 'POST',
       headers: {
-        Authorization: FONNTE_TOKEN,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${WA_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
       },
-      body: new URLSearchParams({
-        target: normalizedPhone,
-        message: message,
-        countryCode: '62', // Indonesia
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: normalizedPhone,
+        type: 'template',
+        template: {
+          name: templateName,
+          language: {
+            code: languageCode,
+          },
+          components,
+        },
       }),
     })
 
     const result = await response.json()
 
-    if (result.status === true) {
-      console.log(`[WHATSAPP] Notifikasi terkirim ke ${normalizedPhone}`)
+    if (response.ok && result.messages?.[0]?.id) {
+      console.log(`[WHATSAPP] ✅ Template "${templateName}" terkirim ke ${normalizedPhone} | ID: ${result.messages[0].id}`)
       return { success: true, message: 'Notifikasi WhatsApp berhasil dikirim' }
     } else {
-      console.error('[WHATSAPP] Gagal kirim:', result)
-      return { success: false, message: result.reason || 'Gagal mengirim notifikasi' }
+      const errMsg = result.error?.message || JSON.stringify(result)
+      console.error('[WHATSAPP] ❌ Gagal kirim template:', errMsg)
+      return { success: false, message: errMsg }
     }
   } catch (error) {
-    console.error('[WHATSAPP] Error:', error)
-    return { success: false, message: 'Koneksi ke Fonnte gagal' }
+    console.error('[WHATSAPP] Error koneksi:', error)
+    return { success: false, message: 'Koneksi ke WhatsApp Cloud API gagal' }
   }
-}
-
-/**
- * Template pesan: Pesanan Selesai (Pre-Order siap diambil)
- */
-export function buildOrderReadyMessage(params: {
-  customerName: string
-  orderNumber: string
-  pickupTime?: Date | null
-  totalAmount: number
-}): string {
-  const { customerName, orderNumber, pickupTime, totalAmount } = params
-
-  const pickupInfo = pickupTime
-    ? `Jam Ambil: *${pickupTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} WIB*`
-    : ''
-
-  const total = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(totalAmount)
-
-  return (
-    `Halo *${customerName}*! 🎉\n\n` +
-    `Pesanan Anda sudah *SIAP DIAMBIL* di Resto Iga Bakar Ombenk!\n\n` +
-    `📋 No. Pesanan: *${orderNumber}*\n` +
-    `💰 Total: *${total}*\n` +
-    `${pickupInfo ? pickupInfo + '\n' : ''}` +
-    `\nSilakan datang ke restoran untuk mengambil pesanan Anda.\n\n` +
-    `Terima kasih telah memesan di Resto Iga Bakar Ombenk! 😊`
-  )
 }
 
 /**
@@ -102,7 +93,6 @@ export function buildOrderReadyMessage(params: {
  * +628xxx → 628xxx
  */
 function normalizePhoneNumber(phone: string): string {
-  // Hapus semua karakter selain angka
   const digits = phone.replace(/\D/g, '')
 
   if (digits.startsWith('62')) {

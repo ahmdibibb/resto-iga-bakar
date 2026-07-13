@@ -31,16 +31,26 @@ export async function GET(request: NextRequest) {
     // - CASH with PAID status (payment confirmed, need to print)
     const orders = await prisma.order.findMany({
       where: {
-        printedAt: null, // Belum di-print oleh kasir
         OR: [
-          // QRIS orders that are already paid (auto-confirmed)
+          // Regular queue: not printed yet and not a preorder
           {
-            payment_method: 'QRIS',
-            payment_status: 'PAID'
+            printedAt: null,
+            channel: { not: 'PREORDER' },
+            OR: [
+              {
+                payment_method: 'QRIS',
+                payment_status: 'PAID'
+              },
+              {
+                payment_method: 'CASH'
+              }
+            ]
           },
-          // CASH orders (paid or unpaid)
+          // Pre-orders queue: paid, and not completed/cancelled yet (regardless of printedAt)
           {
-            payment_method: 'CASH'
+            channel: 'PREORDER',
+            payment_status: 'PAID',
+            status: { in: ['CONFIRMED', 'PREPARING', 'READY'] }
           }
         ]
       },
@@ -92,6 +102,8 @@ export async function GET(request: NextRequest) {
       notes: order.notes,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
+      channel: order.channel,
+      pickupTime: order.pickupTime,
       items: order.items.map((item) => ({
         id: item.id,
         productId: item.productId,

@@ -100,6 +100,8 @@ export async function GET(request: NextRequest) {
       notes: order.notes,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
+      channel: order.channel,
+      pickupTime: order.pickupTime,
       items: order.items.map((item) => ({
         id: item.id,
         productId: item.productId,

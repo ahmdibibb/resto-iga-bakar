@@ -65,20 +65,24 @@ export default function CheckoutPage() {
     if (savedChannel === 'PREORDER') {
       setIsPreorder(true)
       setPaymentMethod('QRIS') // Pre-order always QRIS
-    }
-
-    // For TAKEAWAY, ensure NO table data is used
-    if (savedOrderType === 'TAKEAWAY') {
-      setOrderType('TAKEAWAY')
-      // Do NOT set tableNumber or tableId for TAKEAWAY
-    } else if (savedOrderType === 'DINE_IN') {
-      setOrderType('DINE_IN')
-      if (savedTable) {
-        setTableNumber(savedTable)
-        setTableFromQR(true)
-      }
-      if (savedTableId) {
-        setTableId(savedTableId)
+      setOrderType('TAKEAWAY') // Pre-order is always Takeaway (no table number)
+      setTableNumber('')
+      setTableId(null)
+      setQrToken(null)
+    } else {
+      // For TAKEAWAY, ensure NO table data is used
+      if (savedOrderType === 'TAKEAWAY') {
+        setOrderType('TAKEAWAY')
+        // Do NOT set tableNumber or tableId for TAKEAWAY
+      } else if (savedOrderType === 'DINE_IN') {
+        setOrderType('DINE_IN')
+        if (savedTable) {
+          setTableNumber(savedTable)
+          setTableFromQR(true)
+        }
+        if (savedTableId) {
+          setTableId(savedTableId)
+        }
       }
     }
     
@@ -128,18 +132,29 @@ export default function CheckoutPage() {
         setError({ message: 'Jam pengambilan wajib dipilih', field: 'pickupTime', type: 'validation' })
         return
       }
-      // Validate pickup time: must be at least 30 minutes from now and within operating hours 09:00-21:00
+      // Validate pickup time: must be at least 30 minutes from now and within operating hours 11:00-22:00
       const now = new Date()
       const [hours, minutes] = pickupTime.split(':').map(Number)
       const pickup = new Date(now)
       pickup.setHours(hours, minutes, 0, 0)
+      
+      // Cutoff time for last order today is 21:30 (30 minutes before 22:00 closing)
+      // If current time is past 21:30, show "Restoran sudah close order untuk hari ini"
+      const cutoffTime = new Date(now)
+      cutoffTime.setHours(21, 30, 0, 0)
+      
+      if (now.getTime() > cutoffTime.getTime()) {
+        setError({ message: 'Restoran sudah close order untuk hari ini', field: 'pickupTime', type: 'validation' })
+        return
+      }
+
       const diffMinutes = (pickup.getTime() - now.getTime()) / 60000
       if (diffMinutes < 30) {
         setError({ message: 'Jam pengambilan minimal 30 menit dari sekarang', field: 'pickupTime', type: 'validation' })
         return
       }
-      if (hours < 9 || hours >= 21) {
-        setError({ message: 'Jam pengambilan harus antara 09:00 – 21:00 WIB', field: 'pickupTime', type: 'validation' })
+      if (hours < 11 || (hours >= 22 && minutes > 0) || hours > 22) {
+        setError({ message: 'Jam pengambilan harus antara 11:00 – 22:00 WIB', field: 'pickupTime', type: 'validation' })
         return
       }
     }
@@ -418,14 +433,14 @@ export default function CheckoutPage() {
                   <input
                     id="pickupTime"
                     type="time"
-                    min="09:00"
-                    max="21:00"
+                    min="11:00"
+                    max="22:00"
                     value={pickupTime}
                     onChange={(e) => setPickupTime(e.target.value)}
                     className="w-full rounded-full border border-hairline bg-canvas text-ink px-4 py-3 text-base focus:outline-none focus:ring-1 focus:ring-ink transition-all font-medium"
                   />
                   <p className="mt-1 text-xs text-charcoal">
-                    Jam operasional: 09:00 – 21:00 WIB. Minimal 30 menit dari sekarang.
+                    Jam operasional: 11:00 – 22:00 WIB. Minimal 30 menit dari sekarang. (Batas pemesanan terakhir hari ini adalah pukul 21:30 WIB).
                   </p>
                 </div>
               </div>

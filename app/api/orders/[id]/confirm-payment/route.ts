@@ -80,11 +80,13 @@ export async function PATCH(
 
     // For QRIS payment, allow customer to confirm (no auth required)
     if (order.payment_method === 'QRIS') {
-      // Update order to COMPLETED and PAID (simplified flow)
+      // For PREORDER: set status to CONFIRMED (waiting for kitchen/ready). Otherwise COMPLETED.
+      const targetStatus = order.channel === 'PREORDER' ? 'CONFIRMED' : 'COMPLETED'
+      
       const updatedOrder = await prisma.order.update({
         where: { id },
         data: {
-          status: 'COMPLETED',
+          status: targetStatus,
           payment_status: 'PAID'
         }
       })

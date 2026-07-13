@@ -143,6 +143,34 @@ export default function KasirPage() {
     }
   }
 
+  const updateOrderStatus = async (orderId: string, status: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+
+      if (res.ok) {
+        fetchIncomingOrders()
+        fetchHistoryOrders()
+        setError(null)
+      } else {
+        const data = await res.json()
+        setError({
+          message: data.error || 'Gagal memperbarui status pesanan',
+          type: res.status >= 500 ? 'server' : 'validation'
+        })
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error)
+      setError({
+        message: 'Koneksi gagal. Silakan coba lagi.',
+        type: 'network'
+      })
+    }
+  }
+
   const handlePrintReceipt = (order: Order) => {
     printReceipt(order, () => {
       fetchIncomingOrders()
@@ -217,6 +245,7 @@ export default function KasirPage() {
                     showPrintOnly={false}
                     onConfirmCashPayment={confirmCashPayment}
                     onPrintReceipt={handlePrintReceipt}
+                    onUpdateStatus={updateOrderStatus}
                   />
                 ))}
               </div>

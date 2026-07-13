@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 export const metadata = {
   title: 'Resto Iga Bakar Ombenk — Pesan Online',
   description:
-    'Nikmati iga bakar terbaik! Pesan langsung via QR di meja atau pre-order online dan ambil sendiri. Buka setiap hari 09.00–21.00 WIB.',
+    'Nikmati iga bakar terbaik! Pesan langsung via QR di meja atau pre-order online dan ambil sendiri. Buka setiap hari 11.00–22.00 WIB.',
 }
 
 export default async function LandingPage() {
@@ -114,7 +114,7 @@ export default async function LandingPage() {
                 Jam Buka
               </p>
               <p className="mt-1 text-sm text-charcoal">Setiap Hari</p>
-              <p className="text-sm font-semibold text-ink">09.00 – 21.00 WIB</p>
+              <p className="text-sm font-semibold text-ink">11.00 – 22.00 WIB</p>
             </div>
           </div>
 

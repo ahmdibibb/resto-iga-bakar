@@ -10,7 +10,7 @@ import {
 } from '@/lib/errorHandler'
 import { withApiPermission } from '@/lib/apiPermissions'
 import { orderEventEmitter } from '@/lib/orderEvents'
-import { sendWhatsAppNotification, buildOrderReadyMessage } from '@/lib/whatsapp'
+import { sendWhatsAppTemplateNotification } from '@/lib/whatsapp'
 
 /**
  * PATCH /api/orders/[id]/status
@@ -66,18 +66,25 @@ export async function PATCH(
     // Emit event for real-time cashier dashboard
     orderEventEmitter.emit('orderUpdate', { id: updatedOrder.id, status: updatedOrder.status })
 
-    // Send WhatsApp notification for pre-orders when COMPLETED (ready to pickup)
-    if (status === 'COMPLETED' && updatedOrder.channel === 'PREORDER' && updatedOrder.customerPhone) {
+    // Send WhatsApp template notification for pre-orders when READY (ready to pickup)
+    if (status === 'READY' && updatedOrder.channel === 'PREORDER' && updatedOrder.customerPhone) {
+      const formattedTotal = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+      }).format(updatedOrder.totalAmount.toNumber())
+
       // Fire-and-forget: don't block response
-      sendWhatsAppNotification(
+      sendWhatsAppTemplateNotification(
         updatedOrder.customerPhone,
-        buildOrderReadyMessage({
-          customerName: updatedOrder.customerName || 'Pelanggan',
-          orderNumber: updatedOrder.orderNumber,
-          pickupTime: updatedOrder.pickupTime,
-          totalAmount: updatedOrder.totalAmount.toNumber(),
-        })
-      ).catch((err) => console.error('[WHATSAPP] Error sending notification:', err))
+        'pesanan_siap',
+        [
+          updatedOrder.customerName || 'Pelanggan',
+          updatedOrder.orderNumber,
+          formattedTotal
+        ],
+        'id'
+      ).catch((err) => console.error('[WHATSAPP] Error sending template notification:', err))
     }
 
     return NextResponse.json({

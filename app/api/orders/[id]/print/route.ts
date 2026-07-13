@@ -41,12 +41,14 @@ export async function PATCH(
       throw new NotFoundError('Order', id)
     }
 
-    // Mark as printed and set status to COMPLETED
+    // Mark as printed. For PREORDER, set status to PREPARING. Otherwise COMPLETED.
+    const targetStatus = order.channel === 'PREORDER' ? 'PREPARING' : 'COMPLETED'
+
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
         printedAt: new Date(),
-        status: 'COMPLETED'
+        status: targetStatus
       }
     })
 

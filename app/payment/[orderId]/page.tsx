@@ -27,6 +27,8 @@ interface Order {
   customerName: string | null
   notes: string | null
   createdAt: string
+  channel?: string
+  pickupTime?: string | null
   table: {
     id: string
     name: string
@@ -496,23 +498,41 @@ export default function PaymentPage() {
                   <div>
                     <h3 className="text-sm font-bold font-jakarta uppercase tracking-wider text-ink mb-4">Informasi Pesanan</h3>
                     <div className="space-y-4">
+                      {/* Step 1: Payment Received */}
                       <div className="flex items-center gap-3">
                         <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
                           1
                         </div>
                         <p className="text-sm text-charcoal font-semibold">Pembayaran Anda telah diterima</p>
                       </div>
+
+                      {/* Step 2: Preparing */}
                       <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 rounded-full bg-soft-cloud text-ink text-xs font-bold flex items-center justify-center flex-shrink-0">
+                        <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
+                          order && ['PREPARING', 'READY', 'COMPLETED'].includes(order.status)
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-soft-cloud text-ink'
+                        }`}>
                           2
                         </div>
                         <p className="text-sm text-charcoal font-semibold">Pesanan sedang diproses</p>
                       </div>
+
+                      {/* Step 3: Delivered or Ready for Pickup */}
                       <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 rounded-full bg-soft-cloud text-ink text-xs font-bold flex items-center justify-center flex-shrink-0">
+                        <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
+                          order && (
+                            (order.channel === 'PREORDER' && ['READY', 'COMPLETED'].includes(order.status)) ||
+                            (order.channel !== 'PREORDER' && order.status === 'COMPLETED')
+                          )
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-soft-cloud text-ink'
+                        }`}>
                           3
                         </div>
-                        <p className="text-sm text-charcoal font-semibold">Pesanan akan diantar</p>
+                        <p className="text-sm text-charcoal font-semibold">
+                          {order && order.channel === 'PREORDER' ? 'Pesanan siap diambil' : 'Pesanan akan diantar'}
+                        </p>
                       </div>
                     </div>
                     <p className="text-xs text-charcoal/60 mt-5 italic">Simpan nomor pesanan Anda sebagai referensi</p>
@@ -563,9 +583,17 @@ export default function PaymentPage() {
                 <div className="flex justify-between">
                   <span className="text-charcoal">Tipe</span>
                   <span className="font-bold text-ink">
-                    {order.orderType === 'DINE_IN' ? 'Dine-in' : 'Takeaway'}
+                    {order.channel === 'PREORDER' ? 'Pre-Order' : (order.orderType === 'DINE_IN' ? 'Dine-in' : 'Takeaway')}
                   </span>
                 </div>
+                {order.channel === 'PREORDER' && order.pickupTime && (
+                  <div className="flex justify-between">
+                    <span className="text-charcoal">Jam Ambil</span>
+                    <span className="font-bold text-ink">
+                      {new Date(order.pickupTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} WIB
+                    </span>
+                  </div>
+                )}
                 {order.table && (
                   <div className="flex justify-between">
                     <span className="text-charcoal">Meja</span>
