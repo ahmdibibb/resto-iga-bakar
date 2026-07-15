@@ -25,6 +25,7 @@ interface Order {
   orderType: string
   tableNumber: string | null
   customerName: string | null
+  customerPhone: string | null
   notes: string | null
   createdAt: string
   channel?: string
@@ -64,6 +65,18 @@ export default function PaymentPage() {
   const [showReceipt, setShowReceipt] = useState(false)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const sessionId = useRef<string | null>(null)
+  const [logoUrl, setLogoUrl] = useState('/logo-v3.png')
+  const [restaurantName, setRestaurantName] = useState('Iga Bakar Ombenk')
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.logo_url) setLogoUrl(data.logo_url)
+        if (data.restaurant_name) setRestaurantName(data.restaurant_name)
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     const storedSessionId = localStorage.getItem('session_id')
@@ -191,13 +204,13 @@ export default function PaymentPage() {
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(22)
       doc.setTextColor(21, 17, 15)
-      doc.text('IGA BAKAR OMBENK', pageWidth / 2, y, { align: 'center' })
+      doc.text(restaurantName.toUpperCase(), pageWidth / 2, y, { align: 'center' })
       y += 8
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(10)
       doc.setTextColor(92, 85, 81)
-      doc.text('Terima kasih telah memesan di Iga Bakar Ombenk ', pageWidth / 2, y, { align: 'center' })
+      doc.text(`Terima kasih telah memesan di ${restaurantName}`, pageWidth / 2, y, { align: 'center' })
       y += 10
 
       drawDashedLine(y)
@@ -357,10 +370,10 @@ export default function PaymentPage() {
           <p className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2">Pesanan tidak ditemukan</p>
           <p className="text-charcoal mb-6 font-medium">{error.message}</p>
           <button
-            onClick={() => router.push('/menu')}
+            onClick={() => router.push(order?.channel === 'PREORDER' ? '/' : '/menu')}
             className="rounded-full bg-ink px-6 py-3 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all"
           >
-            Kembali ke Menu
+            {order?.channel === 'PREORDER' ? 'Kembali ke Beranda' : 'Kembali ke Menu'}
           </button>
         </div>
       </div>
@@ -375,15 +388,15 @@ export default function PaymentPage() {
       <div className="border-b border-hairline bg-canvas/80 backdrop-blur-sm sticky top-0 z-10 h-16 flex items-center">
         <div className="mx-auto max-w-6xl px-4 w-full flex items-center justify-between">
           <button
-            onClick={() => router.push('/menu')}
+            onClick={() => router.push(order.channel === 'PREORDER' ? '/' : '/menu')}
             className="inline-flex items-center gap-2 rounded-full border border-hairline bg-soft-cloud px-4 py-2 text-xs sm:text-sm font-bold text-ink hover:bg-hairline-soft active:scale-95 transition-all duration-200"
           >
             <ArrowLeft size={16} />
-            <span>Kembali ke Menu</span>
+            <span>{order.channel === 'PREORDER' ? 'Kembali ke Beranda' : 'Kembali ke Menu'}</span>
           </button>
           <Image
-            src="/logo-v3.png"
-            alt="Iga Bakar Ombenk"
+            src={logoUrl}
+            alt={restaurantName}
             width={112}
             height={56}
             className="object-contain h-14 w-auto"
@@ -490,52 +503,100 @@ export default function PaymentPage() {
 
             {/* Processing Info — after payment paid */}
             {isPaid && (
-              <div className="rounded-2xl bg-canvas p-6 border border-hairline">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Info size={18} className="text-green-700" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold font-jakarta uppercase tracking-wider text-ink mb-4">Informasi Pesanan</h3>
-                    <div className="space-y-4">
-                      {/* Step 1: Payment Received */}
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
-                          1
-                        </div>
-                        <p className="text-sm text-charcoal font-semibold">Pembayaran Anda telah diterima</p>
+              <div className="space-y-6">
+                {/* WhatsApp Confirmation Card — only for PREORDER */}
+                {order && order.channel === 'PREORDER' && order.customerPhone && (
+                  <div className="rounded-2xl p-6 border-2 border-green-400 bg-green-50">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-current">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
                       </div>
-
-                      {/* Step 2: Preparing */}
-                      <div className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
-                          order && ['PREPARING', 'READY', 'COMPLETED'].includes(order.status)
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-soft-cloud text-ink'
-                        }`}>
-                          2
-                        </div>
-                        <p className="text-sm text-charcoal font-semibold">Pesanan sedang diproses</p>
-                      </div>
-
-                      {/* Step 3: Delivered or Ready for Pickup */}
-                      <div className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
-                          order && (
-                            (order.channel === 'PREORDER' && ['READY', 'COMPLETED'].includes(order.status)) ||
-                            (order.channel !== 'PREORDER' && order.status === 'COMPLETED')
-                          )
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-soft-cloud text-ink'
-                        }`}>
-                          3
-                        </div>
-                        <p className="text-sm text-charcoal font-semibold">
-                          {order && order.channel === 'PREORDER' ? 'Pesanan siap diambil' : 'Pesanan akan diantar'}
+                      <div className="flex-1">
+                        <h3 className="text-base font-bold font-jakarta text-green-800 mb-1">Konfirmasi Pesanan via WhatsApp</h3>
+                        <p className="text-sm text-green-700 mb-4 leading-relaxed">
+                          Kirimkan pesan konfirmasi ke WhatsApp restoran agar pesanan Anda segera diproses dan Anda mendapat notifikasi saat pesanan siap diambil.
                         </p>
+                        <a
+                          href={`https://wa.me/6285894057990?text=${encodeURIComponent(
+                            `Konfirmasi Pesanan #${order.orderNumber}\n` +
+                            `Nama: ${order.customerName || 'Pelanggan'}\n` +
+                            `Total: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(order.totalAmount)}\n` +
+                            (order.pickupTime ? `Jam Ambil: ${new Date(order.pickupTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })} WIB` : '')
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-full bg-green-600 px-6 py-3 text-white font-bold text-sm hover:bg-green-700 active:scale-95 transition-all shadow-md hover:shadow-lg"
+                        >
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                          </svg>
+                          Konfirmasi via WhatsApp
+                        </a>
                       </div>
                     </div>
-                    <p className="text-xs text-charcoal/60 mt-5 italic">Simpan nomor pesanan Anda sebagai referensi</p>
+                  </div>
+                )}
+
+                {/* Step progress */}
+                <div className="rounded-2xl bg-canvas p-6 border border-hairline">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Info size={18} className="text-green-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold font-jakarta uppercase tracking-wider text-ink mb-4">Informasi Pesanan</h3>
+                      <div className="space-y-4">
+                        {/* Step 1: Payment Received */}
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                            1
+                          </div>
+                          <p className="text-sm text-charcoal font-semibold">Pembayaran Anda telah diterima</p>
+                        </div>
+
+                        {/* Step 2 (Pre-Order only): Konfirmasi WhatsApp */}
+                        {order && order.channel === 'PREORDER' && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                              2
+                            </div>
+                            <p className="text-sm text-charcoal font-semibold">Kirim konfirmasi via WhatsApp</p>
+                          </div>
+                        )}
+
+                        {/* Step 2/3: Preparing */}
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
+                            order && ['PREPARING', 'READY', 'COMPLETED'].includes(order.status)
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-soft-cloud text-ink'
+                          }`}>
+                            {order && order.channel === 'PREORDER' ? 3 : 2}
+                          </div>
+                          <p className="text-sm text-charcoal font-semibold">Pesanan sedang diproses</p>
+                        </div>
+
+                        {/* Step 3/4: Delivered or Ready for Pickup */}
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
+                            order && (
+                              (order.channel === 'PREORDER' && ['READY', 'COMPLETED'].includes(order.status)) ||
+                              (order.channel !== 'PREORDER' && order.status === 'COMPLETED')
+                            )
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-soft-cloud text-ink'
+                          }`}>
+                            {order && order.channel === 'PREORDER' ? 4 : 3}
+                          </div>
+                          <p className="text-sm text-charcoal font-semibold">
+                            {order && order.channel === 'PREORDER' ? 'Pesanan siap diambil (notifikasi WA)' : 'Pesanan akan diantar'}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-charcoal/60 mt-5 italic">Simpan nomor pesanan Anda sebagai referensi</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -550,7 +611,7 @@ export default function PaymentPage() {
                   atau dibatalkan secara manual oleh kasir.
                 </p>
                 <button
-                  onClick={() => router.push('/menu')}
+                  onClick={() => router.push(order.channel === 'PREORDER' ? '/menu?mode=preorder' : '/menu')}
                   className="mt-4 rounded-full bg-ink px-6 py-2.5 text-canvas font-semibold hover:bg-ink/90 active:scale-95 transition-all text-sm"
                 >
                   Pesan Ulang
@@ -679,7 +740,7 @@ export default function PaymentPage() {
               {/* Receipt Header */}
               <div className="border-b-2 border-dashed border-hairline pb-6 text-center mb-6">
                 <div className="flex justify-center mb-3">
-                  <Image src="/logo-v3.png" alt="Iga Bakar Ombenk" width={100} height={50} className="object-contain h-14 w-auto" />
+                  <Image src={logoUrl} alt={restaurantName} width={100} height={50} className="object-contain h-14 w-auto" />
                 </div>
                 <p className="text-sm text-charcoal font-medium">Terima kasih telah memesan!</p>
               </div>
@@ -758,7 +819,7 @@ export default function PaymentPage() {
               {/* Footer */}
               <div className="border-t-2 border-dashed border-hairline pt-4 text-center">
                 <p className="text-sm font-bold font-jakarta uppercase tracking-wider text-ink">Terima kasih!</p>
-                <p className="mt-1 text-xs text-charcoal font-medium inline-flex items-center gap-1">Silakan datang kembali ke Iga Bakar Ombenk <Flame size={12} className="text-orange-500" /></p>
+                <p className="mt-1 text-xs text-charcoal font-medium inline-flex items-center gap-1">Silakan datang kembali ke {restaurantName} <Flame size={12} className="text-orange-500" /></p>
               </div>
             </div>
           </div>
