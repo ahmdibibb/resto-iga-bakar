@@ -8,7 +8,7 @@
  * 4. Mapping Midtrans statuses to internal PaymentStatus
  */
 
-import * as https from 'node:https'
+
 import { createHash, timingSafeEqual } from 'node:crypto'
 
 // ── Environment ────────────────────────────────────────────────────────────
@@ -29,62 +29,59 @@ function getAuthHeader(): string {
   return `Basic ${encoded}`
 }
 
-/** Helper to make HTTPS requests to Midtrans */
-function midtransRequest<T>(
+/** Helper to make HTTPS requests to Midtrans using fetch + retry */
+async function midtransRequest<T>(
   hostname: string,
   path: string,
   method: 'GET' | 'POST',
-  payload?: any
+  payload?: any,
+  maxRetries: number = 3
 ): Promise<{ status: number; data: T }> {
-  return new Promise((resolve, reject) => {
-    const payloadString = payload ? JSON.stringify(payload) : undefined
-    
-    const options = {
-      hostname,
-      path,
-      method,
-      family: 4, // Force IPv4
-      headers: {
-        Accept: 'application/json',
-        Authorization: getAuthHeader(),
-        'Connection': 'close',
-        ...(payloadString ? {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(payloadString)
-        } : {}),
-      },
-      timeout: 10000,
-    }
+  const url = `https://${hostname}${path}`
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    Authorization: getAuthHeader(),
+  }
+  if (payload) {
+    headers['Content-Type'] = 'application/json'
+  }
 
-    const req = https.request(options, (res) => {
-      let body = ''
-      res.on('data', (chunk) => {
-        body += chunk
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+      const res = await fetch(url, {
+        method,
+        headers,
+        body: payload ? JSON.stringify(payload) : undefined,
+        signal: controller.signal,
       })
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(body)
-          resolve({ status: res.statusCode || 500, data: parsed as T })
-        } catch {
-          reject(new Error('Invalid JSON response from Midtrans'))
-        }
-      })
-    })
 
-    req.on('error', (e) => {
-      reject(e)
-    })
+      clearTimeout(timeoutId)
 
-    req.on('timeout', () => {
-      req.destroy()
-      reject(new Error('Midtrans API connection timeout'))
-    })
+      const data = (await res.json()) as T
+      return { status: res.status, data }
+    } catch (error: any) {
+      lastError = error
+      const isTimeout = error?.name === 'AbortError' || error?.code === 'ETIMEDOUT' || error?.code === 'ECONNRESET'
+      console.warn(
+        `[MIDTRANS_REQUEST] Attempt ${attempt}/${maxRetries} failed for ${method} ${path}:`,
+        error?.message || error
+      )
 
-    if (payloadString) {
-      req.write(payloadString)
+      if (attempt < maxRetries && (isTimeout || error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND' || error?.message?.includes('fetch failed'))) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 4000)
+        await new Promise((resolve) => setTimeout(resolve, delay))
+        continue
+      }
+      break
     }
-    req.end()
-  })
+  }
+
+  throw lastError || new Error('Midtrans request failed after retries')
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────

@@ -17,6 +17,7 @@ import {
   LogOut,
   QrCode,
   X,
+  Image as ImageIcon,
 } from 'lucide-react'
 import Loading from '@/components/Loading'
 
@@ -32,6 +33,7 @@ const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, route: '/admin', isTab: true },
   { id: 'products', label: 'Products', icon: Package, route: '/admin?tab=products', isTab: true },
   { id: 'orders', label: 'Orders', icon: ShoppingCart, route: '/admin?tab=orders', isTab: true },
+  { id: 'banners', label: 'Banners', icon: ImageIcon, route: '/admin?tab=banners', isTab: true },
   { id: 'users', label: 'Users', icon: UsersIcon, route: '/admin?tab=users', isTab: true },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, route: '/admin?tab=analytics', isTab: true },
   { id: 'qr', label: 'QR Generator', icon: QrCode, route: '/admin/qr-generator', isTab: false },

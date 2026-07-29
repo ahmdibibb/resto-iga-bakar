@@ -200,3 +200,12 @@ model SystemSetting {
   updatedAt DateTime @updatedAt
 }
 
+model CampaignBanner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String
+  imageUrl  String
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

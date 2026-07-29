@@ -224,9 +224,28 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Generate order number
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+    // Generate sequential order number (ORD-01-0MBNK, ORD-02-0MBNK, etc)
+    const lastOrder = await prisma.order.findFirst({
+      orderBy: { createdAt: 'desc' },
+      select: { orderNumber: true }
+    })
+    
+    let nextSeq = 1
+    if (lastOrder && lastOrder.orderNumber.startsWith('ORD-') && lastOrder.orderNumber.endsWith('-0MBNK')) {
+      const match = lastOrder.orderNumber.match(/ORD-(\d+)-0MBNK/)
+      if (match && match[1]) {
+        nextSeq = parseInt(match[1], 10) + 1
+      } else {
+        const count = await prisma.order.count()
+        nextSeq = count + 1
+      }
+    } else {
+      const count = await prisma.order.count()
+      nextSeq = count + 1
+    }
 
+    const paddedSeq = nextSeq.toString().padStart(2, '0')
+    const orderNumber = `ORD-${paddedSeq}-0MBNK`
     // Determine order status and payment status based on payment method
     // Simplified flow: No IN_KITCHEN status, kitchen is outside the system
     let orderStatus: 'PENDING_PAYMENT' | 'COMPLETED' = 'PENDING_PAYMENT'

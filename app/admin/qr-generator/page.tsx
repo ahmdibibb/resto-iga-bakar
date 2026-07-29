@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { QRCodeSVG } from 'qrcode.react'
+import { QRCodeCanvas } from 'qrcode.react'
 import { Download, Printer, QrCode, UtensilsCrossed, ShoppingBag, RefreshCw } from 'lucide-react'
 import html2canvas from 'html2canvas'
 import AdminShell from '@/components/admin/AdminShell'
@@ -130,13 +130,14 @@ export default function QRGeneratorPage() {
         return
       }
 
-      // Use html2canvas to convert QR code to image
-      const canvas = await html2canvas(qrElement, {
-        backgroundColor: '#ffffff',
-        scale: 2 // Higher quality
-      })
+      // Find the generated canvas inside the QR container
+      const canvas = qrElement.querySelector('canvas')
+      if (!canvas) {
+        alert('QR code belum dirender sepenuhnya. Silakan coba lagi.')
+        return
+      }
 
-      // Convert canvas to blob and download
+      // Directly convert the QR canvas to blob and download
       canvas.toBlob((blob) => {
         if (!blob) return
         const url = URL.createObjectURL(blob)
@@ -246,7 +247,7 @@ export default function QRGeneratorPage() {
                               <ShoppingBag size={14} className="text-canvas" />
                               <span className="text-xs font-bold uppercase tracking-wider font-jakarta">TAKEAWAY</span>
                             </div>
-                            <QRCodeSVG
+                            <QRCodeCanvas
                               value={qrUrl}
                               size={200}
                               level="H"
@@ -348,7 +349,7 @@ export default function QRGeneratorPage() {
                           <UtensilsCrossed size={14} className="text-canvas" />
                           <span className="text-xs font-bold font-jakarta uppercase tracking-wider">{table.name}</span>
                         </div>
-                        <QRCodeSVG
+                        <QRCodeCanvas
                           value={qrUrl}
                           size={200}
                           level="H"

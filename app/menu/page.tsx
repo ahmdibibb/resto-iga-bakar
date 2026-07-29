@@ -38,6 +38,7 @@ function MenuPageContent() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('ALL')
   const [error, setError] = useState<string | null>(null)
   const [tableInfo, setTableInfo] = useState<{ id: string; name: string } | null>(null)
+  const [activeBanner, setActiveBanner] = useState<any>(null)
 
   // Get table ID and token from QR code URL params
   const tableIdFromQR = searchParams.get('table')
@@ -84,9 +85,10 @@ function MenuPageContent() {
         localStorage.setItem('orderType', 'TAKEAWAY')
         localStorage.setItem('qr_token', tokenFromQR)
 
-        // CRITICAL: Remove ALL table-related data for TAKEAWAY
+        // CRITICAL: Remove ALL table-related and channel data for TAKEAWAY
         localStorage.removeItem('tableNumber')
         localStorage.removeItem('table_id')
+        localStorage.removeItem('channel')
 
         console.log('✅ TAKEAWAY mode set - NO table data')
         console.log('localStorage after TAKEAWAY set:', {
@@ -115,13 +117,17 @@ function MenuPageContent() {
           localStorage.setItem('tableNumber', validationResult.table.name)
           localStorage.setItem('qr_token', tokenFromQR)
           localStorage.setItem('orderType', 'DINE_IN')
+          localStorage.removeItem('channel')
 
           console.log('✅ DINE_IN mode set with table:', validationResult.table.name)
         }
       }
 
-      // Load products and cart
-      await fetchProducts()
+      // Load products, banner, and cart
+      await Promise.all([
+        fetchProducts(),
+        fetchActiveBanner()
+      ])
       loadCart()
     }
 
@@ -197,6 +203,20 @@ function MenuPageContent() {
       console.error('Error fetching products:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchActiveBanner = async () => {
+    try {
+      const res = await fetch('/api/banners/active')
+      const data = await res.json()
+      if (data.active && data.banner) {
+        setActiveBanner(data.banner)
+      } else {
+        setActiveBanner(null)
+      }
+    } catch (error) {
+      console.error('Error fetching active banner:', error)
     }
   }
 
@@ -373,37 +393,34 @@ function MenuPageContent() {
           <div className="mx-auto max-w-7xl">
 
             {/* Hero Campaign Banner */}
-            <div className="relative mb-12 aspect-[16/9] w-full overflow-hidden bg-soft-cloud border border-hairline">
-              <img
-                src="/iga_bakar_hero.png"
-                alt="Iga Bakar Campaign"
-                className="h-full w-full object-cover brightness-[0.75]"
-              />
-              <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 md:p-12 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent">
-                <span className="text-xs font-bold tracking-widest text-canvas/80 uppercase font-jakarta mb-2">
-                  Spesial Akhir Pekan
-                </span>
-                <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight text-canvas font-bebas leading-[0.9] uppercase mb-4 max-w-2xl">
-                  IGA BAKAR OM BENK: THE RITUAL OF SMOKE
-                </h2>
-                <div className="flex">
-                  <button
-                    onClick={() => {
-                      const merapiProduct = products.find(p => p.name.toLowerCase().includes('merapi'));
-                      if (merapiProduct) {
-                        addToCart(merapiProduct);
-                      } else {
+            {activeBanner && (
+              <div className="relative mb-12 aspect-[16/9] w-full overflow-hidden bg-soft-cloud border border-hairline">
+                <img
+                  src={activeBanner.imageUrl}
+                  alt={activeBanner.title}
+                  className="h-full w-full object-cover brightness-[0.75]"
+                />
+                <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 md:p-12 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent">
+                  <span className="text-xs font-bold tracking-widest text-canvas/80 uppercase font-jakarta mb-2">
+                    {activeBanner.subtitle}
+                  </span>
+                  <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight text-canvas font-bebas leading-[0.9] uppercase mb-4 max-w-2xl">
+                    {activeBanner.title}
+                  </h2>
+                  <div className="flex">
+                    <button
+                      onClick={() => {
                         const gridElement = document.getElementById('menu-grid');
                         gridElement?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="rounded-full bg-canvas text-ink px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:bg-soft-cloud active:scale-95 cursor-pointer font-jakarta"
-                  >
-                    Pesan Sekarang
-                  </button>
+                      }}
+                      className="rounded-full bg-canvas text-ink px-6 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 hover:bg-soft-cloud active:scale-95 cursor-pointer font-jakarta"
+                    >
+                      Pesan Sekarang
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div id="menu-grid" className="mb-8 flex items-end justify-between border-b border-hairline pb-4">
               <h2 className="text-xl font-bold text-ink lg:text-2xl font-jakarta uppercase tracking-tight">

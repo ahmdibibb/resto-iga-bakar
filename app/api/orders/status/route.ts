@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { handleApiError, OrderValidationError, NotFoundError } from '@/lib/errorHandler'
 
+// Rate-limit cache: prevents checking Midtrans API on every poll (only every 5s per order)
+const midtransCheckCache = new Map<string, number>()
+
 /**
  * GET /api/orders/status?session_id={session_id}
  * Get order status by session_id for anonymous customers
@@ -59,6 +62,46 @@ export async function GET(request: NextRequest) {
     if (!order) {
       throw new NotFoundError('Order', session_id)
     }
+
+    // --- REAL-TIME MIDTRANS CHECK FOR LOCALHOST/WEBHOOK FALLBACK ---
+    // Rate-limit: only check Midtrans API every 5s per order to avoid hammering
+    if (order.payment_method === 'QRIS' && (order.payment_status === 'PENDING' || order.payment_status === 'UNPAID')) {
+      const cacheKey = `midtrans_check_${order.id}`
+      const now = Date.now()
+      const lastCheck = midtransCheckCache.get(cacheKey) || 0
+
+      if (now - lastCheck >= 5000) {
+        midtransCheckCache.set(cacheKey, now)
+        try {
+          const paymentRecord = await prisma.payment.findFirst({ where: { orderId: order.id } })
+          if (paymentRecord?.transactionId) {
+            const { getTransactionStatus, mapMidtransStatus } = await import('@/lib/midtrans')
+            const txStatus = await getTransactionStatus(paymentRecord.transactionId)
+            const internalStatus = mapMidtransStatus(txStatus.transaction_status, txStatus.fraud_status)
+            
+            if (internalStatus === 'PAID') {
+              const targetStatus = order.channel === 'PREORDER' ? 'CONFIRMED' : 'COMPLETED'
+              await prisma.$transaction([
+                prisma.payment.update({ where: { id: paymentRecord.id }, data: { status: 'PAID', paidAt: new Date() } }),
+                prisma.order.update({ where: { id: order.id }, data: { status: targetStatus, payment_status: 'PAID' } })
+              ])
+              order.status = targetStatus as any
+              order.payment_status = 'PAID'
+              if (order.payment) order.payment.status = 'PAID'
+              
+              // Clean up cache entry
+              midtransCheckCache.delete(cacheKey)
+              
+              const { orderEventEmitter } = await import('@/lib/orderEvents')
+              orderEventEmitter.emit('orderUpdate', { id: order.id, status: targetStatus, payment_status: 'PAID' })
+            }
+          }
+        } catch (error) {
+          console.error('[STATUS_POLLING] Midtrans check failed, falling back to DB:', error)
+        }
+      }
+    }
+    // -------------------------------------------------------------
 
     // Convert Decimal to number for frontend
     const orderResponse = {

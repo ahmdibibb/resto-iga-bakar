@@ -175,7 +175,7 @@ export default function PaymentPage() {
       } catch (err) {
         console.error('Polling error:', err)
       }
-    }, 5000)
+    }, 2000)
   }
 
   const handleConfirmPayment = async () => {
@@ -210,10 +210,12 @@ export default function PaymentPage() {
 
     const snapToken = order.payment.qris_string
     window.snap.pay(snapToken, {
-      onSuccess() {
+      onSuccess(result: any) {
+        // Real-time optimistic update based on Snap's success callback
+        setOrder((prev) => prev ? { ...prev, payment_status: 'PAID' } : null)
         handleConfirmPayment()
       },
-      onPending() {
+      onPending(result: any) {
         handleConfirmPayment()
       },
       onError() {

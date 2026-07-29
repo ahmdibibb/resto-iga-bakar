@@ -37,6 +37,7 @@ import AdminShell from '@/components/admin/AdminShell'
 import UserManagement from '@/components/admin/UserManagement'
 import OrderList from '@/components/admin/OrderList'
 import Analytics from '@/components/admin/Analytics'
+import BannerManagement from '@/components/admin/BannerManagement'
 import OrderDetailModal from '@/components/admin/OrderDetailModal'
 import ProductForm from '@/components/admin/ProductForm'
 import ProductTable from '@/components/admin/ProductTable'
@@ -86,7 +87,7 @@ interface SalesReport {
   dailyRevenue: Array<{ date: string; amount: number }>
 }
 
-type Tab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'qr'
+type Tab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'banners' | 'qr'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -99,7 +100,8 @@ export default function AdminDashboard() {
   const [revenuePeriod, setRevenuePeriod] = useState('monthly')
   const [orderPeriod, setOrderPeriod] = useState('weekly')
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
-
+  const [productToDelete, setProductToDelete] = useState<{id: string; name: string} | null>(null)
+  const [deleteResult, setDeleteResult] = useState<{show: boolean; success: boolean; title: string; message: string}>({show: false, success: false, title: '', message: ''})
   // SWR hooks for real-time data with auto-refresh
   const { chartData, isLoading: statsLoading, isError: statsError } = useAdminStats(revenuePeriod)
   const {
@@ -117,7 +119,7 @@ export default function AdminDashboard() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const tabParam = params.get('tab') as Tab
-      if (tabParam && ['dashboard', 'products', 'orders', 'users', 'analytics'].includes(tabParam)) {
+      if (tabParam && ['dashboard', 'products', 'orders', 'users', 'analytics', 'banners'].includes(tabParam)) {
         setActiveTab(tabParam)
       }
     }
@@ -192,9 +194,13 @@ export default function AdminDashboard() {
 
   const handleDeleteProduct = async (id: string) => {
     const product = products?.find((p: any) => p.id === id)
-    const productName = product?.name || 'this product'
-    
-    if (!confirm(`Are you sure you want to delete "${productName}"?\n\nNote: If this product has order history, it will be deactivated instead of deleted.`)) return
+    setProductToDelete({ id, name: product?.name || 'this product' })
+  }
+
+  const executeDelete = async () => {
+    if (!productToDelete) return
+    const { id, name } = productToDelete
+    setProductToDelete(null)
 
     try {
       const res = await fetch(`/api/products/${id}`, { 
@@ -206,27 +212,42 @@ export default function AdminDashboard() {
         const data = await res.json()
         
         if (data.softDelete) {
-          // Product was deactivated (has order history)
-          alert(`✓ Product deactivated successfully!\n\n"${productName}" has ${data.orderCount} order(s) in history.\n\nThe product was deactivated to preserve order records. You can reactivate it anytime by editing the product.`)
+          setDeleteResult({
+            show: true,
+            success: true,
+            title: 'Product Deactivated',
+            message: `"${name}" has ${data.orderCount} order(s) in history.\n\nThe product was deactivated to preserve order records. You can reactivate it anytime by editing the product.`
+          })
         } else {
-          // Product was permanently deleted
-          alert(`✓ Product deleted successfully!\n\n"${productName}" has been permanently removed.`)
+          setDeleteResult({
+            show: true,
+            success: true,
+            title: 'Product Deleted',
+            message: `"${name}" has been permanently removed.`
+          })
         }
         
         mutateProducts() // Revalidate products data
         setError(null)
       } else {
         const errorData = await res.json()
-        setError(errorData.error || 'Failed to delete product')
-        alert(`❌ Error: ${errorData.error || 'Failed to delete product'}`)
+        setDeleteResult({
+          show: true,
+          success: false,
+          title: 'Error',
+          message: errorData.error || 'Failed to delete product'
+        })
       }
     } catch (error) {
       console.error('Error deleting product:', error)
-      setError('Network error. Please try again.')
-      alert('❌ Network error. Please try again.')
+      setDeleteResult({
+        show: true,
+        success: false,
+        title: 'Error',
+        message: 'Network error. Please try again.'
+      })
     }
   }
-
   return (
     <AdminShell activeTab={activeTab} onTabChange={setActiveTab}>
       {error && (
@@ -520,12 +541,65 @@ export default function AdminDashboard() {
       {activeTab === 'orders' && <OrderList />}
       {activeTab === 'users' && <UserManagement />}
       {activeTab === 'analytics' && <Analytics />}
+      {activeTab === 'banners' && <BannerManagement />}
 
       {/* Order Detail Modal */}
       <OrderDetailModal
         order={selectedOrder}
         onClose={() => setSelectedOrder(null)}
       />
+
+      {/* Custom Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-canvas border border-hairline p-6 max-w-sm w-full mx-4 shadow-lg animate-scaleIn">
+            <h3 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-4">Hapus Produk?</h3>
+            <p className="text-charcoal mb-4">
+              Apakah Anda yakin ingin menghapus <strong>"{productToDelete.name}"</strong>?
+            </p>
+            <p className="text-xs text-charcoal/80 mb-6 p-3 bg-soft-cloud border border-hairline">
+              <strong>Catatan:</strong> Jika produk ini memiliki riwayat pesanan, produk akan dinonaktifkan alih-alih dihapus permanen.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setProductToDelete(null)}
+                className="px-5 py-2.5 rounded-full bg-soft-cloud text-ink font-semibold hover:bg-hairline-soft transition-all border border-hairline"
+              >
+                Batal
+              </button>
+              <button
+                onClick={executeDelete}
+                className="px-5 py-2.5 rounded-full bg-sale text-canvas font-semibold hover:bg-sale/90 transition-all"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Delete Result Modal */}
+      {deleteResult.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-canvas border border-hairline p-6 max-w-sm w-full mx-4 shadow-lg animate-scaleIn text-center">
+            <div className={`mx-auto w-12 h-12 flex items-center justify-center rounded-full mb-4 ${deleteResult.success ? 'bg-success/20 text-success' : 'bg-sale/20 text-sale'}`}>
+              <span className="text-2xl font-bold">{deleteResult.success ? '✓' : '!'}</span>
+            </div>
+            <h3 className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2">
+              {deleteResult.title}
+            </h3>
+            <p className="text-charcoal mb-6 whitespace-pre-wrap text-sm">
+              {deleteResult.message}
+            </p>
+            <button
+              onClick={() => setDeleteResult({ ...deleteResult, show: false })}
+              className="px-8 py-2.5 rounded-full bg-ink text-canvas font-semibold hover:bg-ink/90 transition-all w-full"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
     </AdminShell>
   )
 }

@@ -91,6 +91,14 @@ export default function ProductForm({ editingProduct, onSubmit, onCancel }: Prod
       return
     }
 
+    // Validate file size (max 4MB)
+    const MAX_FILE_SIZE = 4 * 1024 * 1024 // 4MB
+    if (file.size > MAX_FILE_SIZE) {
+      alert('Ukuran gambar terlalu besar. Maksimal 4MB.')
+      e.target.value = ''
+      return
+    }
+
     setUploading(true)
     const uploadData = new FormData()
     uploadData.append('file', file)

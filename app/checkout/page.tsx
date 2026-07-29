@@ -70,6 +70,7 @@ export default function CheckoutPage() {
       setTableId(null)
       setQrToken(null)
     } else {
+      setIsPreorder(false)
       // For TAKEAWAY, ensure NO table data is used
       if (savedOrderType === 'TAKEAWAY') {
         setOrderType('TAKEAWAY')
