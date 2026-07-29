@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Login - Resto Iga Bakar</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #e5e5e5; padding: 20px; }
+    h1 { font-size: 1.5rem; margin-bottom: 20px; color: #fff; }
+    h2 { font-size: 1.1rem; margin: 15px 0 8px; color: #fbbf24; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    label { display: block; font-size: 0.875rem; color: #a3a3a3; margin-bottom: 4px; }
+    input { width: 100%; padding: 10px 14px; border-radius: 6px; border: 1px solid #333; background: #0a0a0a; color: #fff; font-size: 1rem; margin-bottom: 12px; }
+    input:focus { outline: none; border-color: #fbbf24; }
+    button { width: 100%; padding: 12px; border-radius: 6px; border: none; background: #fbbf24; color: #0a0a0a; font-weight: 700; font-size: 1rem; cursor: pointer; }
+    button:hover { background: #f59e0b; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .log { background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 12px; margin: 8px 0; font-family: monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; }
+    .ok { color: #3fb950; }
+    .fail { color: #f85149; }
+    .warn { color: #d29922; }
+    .info { color: #58a6ff; }
+    .step { padding: 6px 0; border-bottom: 1px solid #21262d; }
+    .step:last-child { border-bottom: none; }
+    #diagnostics .step::before { content: '→ '; color: #8b949e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Debug Login - Resto Iga Bakar</h1>
+
+    <!-- Diagnostic Section -->
+    <div class="card">
+      <h2>1. Diagnostik Otomatis</h2>
+      <p style="font-size:0.85rem; color:#8b949e; margin-bottom:10px;">Berjalan otomatis saat halaman dimuat</p>
+      <div id="diagnostics" class="log"></div>
+    </div>
+
+    <!-- Login Test Section -->
+    <div class="card">
+      <h2>2. Test Login</h2>
+      <label for="d-email">Email</label>
+      <input type="email" id="d-email" value="admin@resto.com" />
+      <label for="d-password">Password</label>
+      <input type="password" id="d-password" value="admin123" />
+      <button id="btn-login" onclick="testLogin()">🔐 Test Login</button>
+    </div>
+
+    <!-- Login Result Section -->
+    <div class="card">
+      <h2>3. Hasil Login</h2>
+      <div id="login-result" class="log" style="min-height:60px;">Belum ditest...</div>
+    </div>
+
+    <!-- Manual Redirect Section -->
+    <div class="card">
+      <h2>4. Manual Redirect (setelah login berhasil)</h2>
+      <button onclick="window.location.href='/admin'" style="background:#3fb950;margin-bottom:8px;">→ Ke /admin</button>
+      <button onclick="window.location.href='/kasir'" style="background:#58a6ff;margin-bottom:8px;">→ Ke /kasir</button>
+      <button onclick="window.location.href='/owner'" style="background:#a371f7;">→ Ke /owner</button>
+    </div>
+  </div>
+
+  <script>
+    const diagEl = document.getElementById('diagnostics');
+    const resultEl = document.getElementById('login-result');
+
+    function addDiag(msg, cls) {
+      const div = document.createElement('div');
+      div.className = 'step ' + (cls || '');
+      div.textContent = msg;
+      diagEl.appendChild(div);
+    }
+
+    // === DIAGNOSTIK OTOMATIS ===
+    (async function runDiagnostics() {
+      addDiag('JavaScript berjalan: YA ✅', 'ok');
+      addDiag('URL: ' + window.location.href, 'info');
+      addDiag('Protocol: ' + window.location.protocol, 'info');
+      addDiag('UserAgent: ' + navigator.userAgent.substring(0, 80) + '...', 'info');
+      addDiag('Cookies saat ini: ' + (document.cookie || '(kosong - mungkin HttpOnly)'), 'info');
+
+      // Test fetch ke API sederhana
+      try {
+        addDiag('Mengirim GET ke /api/products...', 'info');
+        const r = await fetch('/api/products');
+        addDiag('GET /api/products → Status: ' + r.status + ' ' + r.statusText, r.ok ? 'ok' : 'fail');
+        const contentType = r.headers.get('content-type');
+        addDiag('Content-Type: ' + contentType, 'info');
+        
+        if (contentType && contentType.includes('text/html')) {
+          const html = await r.text();
+          addDiag('⚠️ MASALAH: API mengembalikan HTML bukan JSON!', 'fail');
+          addDiag('HTML awal: ' + html.substring(0, 200), 'fail');
+          addDiag('Ini berarti ngrok interstitial page memblokir request!', 'fail');
+        } else {
+          const data = await r.json();
+          addDiag('Response OK, produk ditemukan: ' + (data.length || data.products?.length || '?'), 'ok');
+        }
+      } catch (err) {
+        addDiag('GAGAL fetch /api/products: ' + err.message, 'fail');
+      }
+
+      // Test fetch ke login API dengan OPTIONS
+      try {
+        addDiag('Mengirim OPTIONS ke /api/auth/login...', 'info');
+        const r2 = await fetch('/api/auth/login', { method: 'OPTIONS' });
+        addDiag('OPTIONS /api/auth/login → Status: ' + r2.status, r2.ok ? 'ok' : 'warn');
+      } catch (err) {
+        addDiag('OPTIONS gagal: ' + err.message, 'warn');
+      }
+
+      addDiag('--- Diagnostik selesai ---', 'info');
+    })();
+
+    // === TEST LOGIN ===
+    async function testLogin() {
+      const btn = document.getElementById('btn-login');
+      btn.disabled = true;
+      btn.textContent = '⏳ Mengirim...';
+      resultEl.innerHTML = '';
+
+      const email = document.getElementById('d-email').value;
+      const password = document.getElementById('d-password').value;
+
+      function addResult(msg, cls) {
+        const div = document.createElement('div');
+        div.className = 'step ' + (cls || '');
+        div.textContent = msg;
+        resultEl.appendChild(div);
+      }
+
+      try {
+        addResult('Mengirim POST ke /api/auth/login...', 'info');
+        addResult('Body: {"email":"' + email + '","password":"***"}', 'info');
+
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+          credentials: 'same-origin',
+        });
+
+        addResult('Status: ' + res.status + ' ' + res.statusText, res.ok ? 'ok' : 'fail');
+
+        // Log ALL response headers
+        const headers = {};
+        res.headers.forEach((value, key) => { headers[key] = value; });
+        addResult('Response Headers: ' + JSON.stringify(headers, null, 2), 'info');
+
+        // Check for Set-Cookie (won't be visible from JS for HttpOnly, but let's try)
+        const setCookie = res.headers.get('set-cookie');
+        addResult('Set-Cookie header (dari JS): ' + (setCookie || 'TIDAK TERLIHAT (normal jika HttpOnly)'), 'warn');
+
+        const rawText = await res.text();
+        addResult('Response Body: ' + rawText.substring(0, 500), 'info');
+
+        // Check content type
+        const ct = res.headers.get('content-type');
+        if (ct && ct.includes('text/html')) {
+          addResult('⚠️ MASALAH KRITIS: Response adalah HTML, bukan JSON!', 'fail');
+          addResult('Ini berarti ngrok interstitial page memblokir API request!', 'fail');
+          addResult('SOLUSI: Tambahkan header ngrok-skip-browser-warning ke fetch', 'warn');
+          
+          // Retry with ngrok header
+          addResult('', 'info');
+          addResult('🔄 Mencoba ulang dengan header ngrok-skip-browser-warning...', 'warn');
+          
+          const res2 = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': 'true',
+            },
+            body: JSON.stringify({ email, password }),
+            credentials: 'same-origin',
+          });
+
+          addResult('Status (retry): ' + res2.status + ' ' + res2.statusText, res2.ok ? 'ok' : 'fail');
+          const rawText2 = await res2.text();
+          addResult('Response Body (retry): ' + rawText2.substring(0, 500), 'info');
+          
+          if (res2.ok) {
+            addResult('✅ LOGIN BERHASIL dengan ngrok header!', 'ok');
+            addResult('Cookies setelah login: ' + (document.cookie || '(HttpOnly, tidak terlihat dari JS)'), 'info');
+          }
+        } else {
+          // JSON response
+          try {
+            const data = JSON.parse(rawText);
+            if (res.ok) {
+              addResult('✅ LOGIN BERHASIL!', 'ok');
+              addResult('User: ' + JSON.stringify(data.user), 'ok');
+              addResult('Cookies setelah login: ' + (document.cookie || '(HttpOnly, tidak terlihat dari JS)'), 'info');
+              addResult('Gunakan tombol redirect di bawah untuk masuk ke dashboard.', 'ok');
+            } else {
+              addResult('❌ LOGIN GAGAL: ' + data.error, 'fail');
+            }
+          } catch (e) {
+            addResult('❌ Gagal parse JSON: ' + e.message, 'fail');
+          }
+        }
+      } catch (err) {
+        addResult('❌ EXCEPTION: ' + err.message, 'fail');
+        addResult('Stack: ' + err.stack, 'fail');
+      }
+
+      btn.disabled = false;
+      btn.textContent = '🔐 Test Login';
+    }
+  </script>
+</body>
+</html>
