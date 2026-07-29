@@ -70,10 +70,10 @@ function MenuPageContent() {
       // Handle TAKEAWAY QR code
       else if (isTakeawayFromQR && tokenFromQR) {
         console.log('✅ TAKEAWAY QR detected')
-        
+
         // For takeaway, we need to find the TAKEAWAY table by name
         const validationResult = await validateTakeawayByToken(tokenFromQR)
-        
+
         if (!validationResult.valid) {
           setError(validationResult.error || 'QR Code takeaway tidak valid')
           setLoading(false)
@@ -83,11 +83,11 @@ function MenuPageContent() {
         // Set takeaway mode - COMPLETELY INDEPENDENT, NO TABLE
         localStorage.setItem('orderType', 'TAKEAWAY')
         localStorage.setItem('qr_token', tokenFromQR)
-        
+
         // CRITICAL: Remove ALL table-related data for TAKEAWAY
         localStorage.removeItem('tableNumber')
         localStorage.removeItem('table_id')
-        
+
         console.log('✅ TAKEAWAY mode set - NO table data')
         console.log('localStorage after TAKEAWAY set:', {
           orderType: localStorage.getItem('orderType'),
@@ -98,10 +98,10 @@ function MenuPageContent() {
       // Handle Table QR code
       else if (tableIdFromQR && tokenFromQR) {
         console.log('✅ DINE_IN QR detected')
-        
+
         // Validate table and token
         const validationResult = await validateTable(tableIdFromQR, tokenFromQR)
-        
+
         if (!validationResult.valid) {
           setError(validationResult.error || 'QR Code tidak valid')
           setLoading(false)
@@ -115,7 +115,7 @@ function MenuPageContent() {
           localStorage.setItem('tableNumber', validationResult.table.name)
           localStorage.setItem('qr_token', tokenFromQR)
           localStorage.setItem('orderType', 'DINE_IN')
-          
+
           console.log('✅ DINE_IN mode set with table:', validationResult.table.name)
         }
       }
@@ -133,13 +133,13 @@ function MenuPageContent() {
       // For TAKEAWAY, we don't need to find the table first
       // Just validate directly with a special marker
       // The backend will handle TAKEAWAY table lookup
-      
+
       const validationResponse = await fetch('/api/tables/validate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           tableId: 'TAKEAWAY_MARKER', // Special marker for backend
           qr_token: token,
           isTakeaway: true // Flag to indicate this is takeaway validation
@@ -147,7 +147,7 @@ function MenuPageContent() {
       })
 
       const data = await validationResponse.json()
-      
+
       // CRITICAL: For TAKEAWAY, do NOT return table info
       if (data.valid) {
         return {
@@ -155,7 +155,7 @@ function MenuPageContent() {
           // Do NOT include table info for TAKEAWAY
         }
       }
-      
+
       return data
     } catch (error) {
       console.error('Error validating takeaway:', error)
@@ -339,7 +339,7 @@ function MenuPageContent() {
   // Determine table info from state or localStorage
   const savedTable = typeof window !== 'undefined' ? localStorage.getItem('tableNumber') : null
   const savedOrderType = typeof window !== 'undefined' ? localStorage.getItem('orderType') : null
-  
+
   // For TAKEAWAY, do NOT use any table info
   const displayTable = savedOrderType === 'TAKEAWAY' ? null : (tableInfo?.name || savedTable)
   const isTakeaway = isTakeawayFromQR || savedOrderType === 'TAKEAWAY'
@@ -371,7 +371,7 @@ function MenuPageContent() {
         {/* Right Side - Products Grid */}
         <div className="flex-1 px-4 py-8 sm:px-6 lg:px-8 bg-canvas">
           <div className="mx-auto max-w-7xl">
-            
+
             {/* Hero Campaign Banner */}
             <div className="relative mb-12 aspect-[16/9] w-full overflow-hidden bg-soft-cloud border border-hairline">
               <img
@@ -384,7 +384,7 @@ function MenuPageContent() {
                   Spesial Akhir Pekan
                 </span>
                 <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight text-canvas font-bebas leading-[0.9] uppercase mb-4 max-w-2xl">
-                  IGA BAKAR MERAPI: THE RITUAL OF SMOKE
+                  IGA BAKAR OM BENK: THE RITUAL OF SMOKE
                 </h2>
                 <div className="flex">
                   <button
@@ -462,7 +462,7 @@ function MenuPageContent() {
                       <span className="text-[10px] font-semibold text-mute uppercase tracking-widest mb-1.5 block">
                         {product.category || 'MENU'}
                       </span>
-                      
+
                       <h3 className="mb-1 text-base font-bold text-ink tracking-tight font-jakarta line-clamp-1">
                         {product.name}
                       </h3>
