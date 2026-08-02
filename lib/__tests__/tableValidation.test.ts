@@ -129,7 +129,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'TAKEAWAY',
         qr_token: validToken,
         status: 'AVAILABLE',
-        capacity: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -164,7 +163,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'TAKEAWAY',
         qr_token: storedToken,
         status: 'AVAILABLE',
-        capacity: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -185,7 +183,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'TAKEAWAY',
         qr_token: storedToken,
         status: 'AVAILABLE',
-        capacity: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -203,7 +200,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'TAKEAWAY',
         qr_token: 'a'.repeat(64),
         status: 'AVAILABLE',
-        capacity: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -234,7 +230,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'TAKEAWAY',
         qr_token: storedToken,
         status: 'AVAILABLE',
-        capacity: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -258,7 +253,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'Meja 1',
         qr_token: validToken,
         status: 'AVAILABLE',
-        capacity: 4,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -284,7 +278,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'Meja 2',
         qr_token: validToken,
         status: 'OCCUPIED',
-        capacity: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -316,7 +309,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'Meja 3',
         qr_token: storedToken,
         status: 'AVAILABLE',
-        capacity: 4,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -337,7 +329,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'Meja 4',
         qr_token: storedToken,
         status: 'AVAILABLE',
-        capacity: 4,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -365,7 +356,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'Meja 5',
         qr_token: validToken,
         status: 'AVAILABLE',
-        capacity: 4,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -399,13 +389,12 @@ describe('Table Validation Module - Whitebox Testing', () => {
     })
 
     // Test Case 33: Path - different table statuses
-    it('should return valid result for RESERVED table', async () => {
+    it('should return valid result for OCCUPIED table', async () => {
       vi.mocked(prisma.table.findUnique).mockResolvedValue({
         id: validTableId,
         name: 'Meja 6',
         qr_token: validToken,
-        status: 'RESERVED',
-        capacity: 6,
+        status: 'OCCUPIED',
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -413,7 +402,7 @@ describe('Table Validation Module - Whitebox Testing', () => {
       const result = await validateTableAvailability(validTableId, validToken)
 
       expect(result.valid).toBe(true)
-      expect(result.table?.status).toBe('RESERVED')
+      expect(result.table?.status).toBe('OCCUPIED')
     })
 
     // Test Case 34: Path - timing attack protection
@@ -426,7 +415,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'Meja 7',
         qr_token: storedToken,
         status: 'AVAILABLE',
-        capacity: 4,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -444,7 +432,6 @@ describe('Table Validation Module - Whitebox Testing', () => {
         name: 'Meja VIP #1 (Premium)',
         qr_token: validToken,
         status: 'AVAILABLE',
-        capacity: 8,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
