@@ -35,26 +35,23 @@ export default function ErrorAlert({ error, onDismiss }: ErrorAlertProps) {
   }[error.type]
 
   return (
-    <div className={`rounded-xl border p-4 ${bgColor} animate-shake mb-4`}>
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
-          <AlertTriangle size={18} className={iconColor} />
-          <div>
-            <p className={`text-sm font-medium ${textColor}`}>
+    <div className={`rounded-xl border p-4 ${bgColor} animate-shake mb-4 scroll-mt-24`} role="alert">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3 flex-1">
+          <div className="flex-shrink-0 mt-0.5">
+            <AlertTriangle size={20} className={iconColor} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm font-semibold ${textColor} leading-relaxed`}>
               {error.message}
             </p>
-            {error.field && (
-              <p className={`text-xs mt-1 ${textColor} opacity-75`}>
-                Field: {error.field}
-              </p>
-            )}
           </div>
         </div>
         {onDismiss && (
           <button
             onClick={onDismiss}
-            className={`ml-4 ${textColor} hover:opacity-70 transition-opacity`}
-            aria-label="Dismiss error"
+            className={`flex-shrink-0 ${textColor} hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 rounded p-1`}
+            aria-label="Tutup pesan"
           >
             <svg
               className="w-5 h-5"

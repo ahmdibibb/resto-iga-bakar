@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { MidtransError } from './midtrans'
 
 /**
  * Custom error classes for different error scenarios
@@ -124,6 +125,22 @@ export function handleApiError(error: unknown): NextResponse {
     return NextResponse.json(
       { error: error.message },
       { status: 409 }
+    )
+  }
+
+  // Midtrans errors (preserve status code and provide user-friendly message)
+  if (error instanceof MidtransError) {
+    const userMessage =
+      error.statusCode === 502
+        ? 'Layanan pembayaran sedang tidak dapat dihubungi'
+        : 'Terjadi kesalahan pada layanan pembayaran'
+
+    return NextResponse.json(
+      {
+        error: userMessage,
+        code: error.code || 'MIDTRANS_ERROR',
+      },
+      { status: error.statusCode }
     )
   }
 

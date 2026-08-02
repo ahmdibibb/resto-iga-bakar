@@ -12,7 +12,12 @@
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
     "db:setup": "node scripts/setup-database.js",
-    "db:test": "node scripts/test-database.js"
+    "db:test": "node scripts/test-database.js",
+    "diagnose:midtrans": "node scripts/diagnose-midtrans.mjs",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
@@ -36,14 +41,20 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/ui": "^4.1.10",
+    "happy-dom": "^20.11.1",
+    "jsdom": "^30.0.1",
     "prisma": "^6.18.0",
-    "puppeteer": "^25.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

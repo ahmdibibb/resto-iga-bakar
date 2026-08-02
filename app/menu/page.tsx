@@ -209,6 +209,15 @@ function MenuPageContent() {
   const fetchActiveBanner = async () => {
     try {
       const res = await fetch('/api/banners/active')
+      
+      // Check if response is JSON
+      const contentType = res.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Banner API returned non-JSON response, skipping banner')
+        setActiveBanner(null)
+        return
+      }
+      
       const data = await res.json()
       if (data.active && data.banner) {
         setActiveBanner(data.banner)
@@ -217,6 +226,7 @@ function MenuPageContent() {
       }
     } catch (error) {
       console.error('Error fetching active banner:', error)
+      setActiveBanner(null)
     }
   }
 

@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Allow ngrok domains for development resources
+  allowedDevOrigins: ['alene-unseeking-felicia.ngrok-free.dev'],
   // Allow ngrok domains for image optimization
   images: {
     remotePatterns: [

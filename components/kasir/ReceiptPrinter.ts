@@ -1,14 +1,17 @@
 /**
  * ReceiptPrinter — Utility untuk mencetak struk pesanan
  * 
- * Membuka jendela popup baru berisi layout struk thermal 80mm,
- * lalu otomatis memicu dialog print browser. Setelah cetak,
- * jendela popup ditutup secara otomatis.
+ * Mendukung 3 metode print:
+ * 1. Bluetooth Thermal Printer (via Web Bluetooth API + ESC/POS)
+ * 2. WiFi Network Thermal Printer (via HTTP/ESC/POS)
+ * 3. Browser Print Dialog (fallback untuk printer USB/Network)
  * 
  * Fungsi ini juga menandai order sebagai "printed" di backend
  * melalui API endpoint PATCH /api/orders/[id]/print.
  */
 
+import { getThermalPrinter } from '@/lib/thermalPrinter'
+import { getWiFiPrinter } from '@/lib/wifiPrinter'
 import type { Order } from './types'
 
 /**
@@ -21,6 +24,102 @@ export async function printReceipt(
   order: Order,
   onPrinted?: () => void
 ): Promise<void> {
+  // Check connection type preference
+  const connectionType = localStorage.getItem('printerConnectionType') as 'bluetooth' | 'wifi' | null
+
+  // Prepare receipt data
+  const receiptData = {
+    orderNumber: order.orderNumber,
+    customerName: order.customerName || order.user?.name || null,
+    tableName: order.table?.name || null,
+    orderType: order.orderType,
+    paymentMethod: order.payment_method || null,
+    items: order.items,
+    notes: order.notes,
+    createdAt: order.createdAt
+  }
+
+  // Method 1: Print via WiFi Network Printer
+  if (connectionType === 'wifi') {
+    const wifiPrinter = getWiFiPrinter()
+    
+    if (wifiPrinter.isConfigured()) {
+      try {
+        await wifiPrinter.printReceipt(receiptData)
+
+        // Mark order as printed
+        await markOrderAsPrinted(order.id)
+
+        if (onPrinted) {
+          onPrinted()
+        }
+
+        return
+      } catch (error) {
+        console.error('Error printing via WiFi:', error)
+        
+        // Ask user if want to retry or use browser print
+        const retry = confirm(
+          'Gagal print via WiFi printer.\n\n' +
+          'Klik OK untuk coba lagi, atau Cancel untuk print via browser.'
+        )
+
+        if (retry) {
+          return printReceipt(order, onPrinted)
+        }
+        // Fall through to browser print method
+      }
+    }
+  }
+
+  // Method 2: Print via Bluetooth Thermal Printer
+  if (connectionType === 'bluetooth' || !connectionType) {
+    const printer = getThermalPrinter()
+    const pairedPrinter = printer.getPairedPrinterInfo()
+
+    if (pairedPrinter && navigator.bluetooth) {
+      try {
+        // Connect jika belum connected
+        if (!printer.getConnectionStatus()) {
+          await printer.connect()
+        }
+
+        // Print receipt
+        await printer.printReceipt(receiptData)
+
+        // Mark order as printed
+        await markOrderAsPrinted(order.id)
+
+        if (onPrinted) {
+          onPrinted()
+        }
+
+        return
+      } catch (error) {
+        console.error('Error printing via Bluetooth:', error)
+        
+        // Ask user if want to retry or use browser print
+        const retry = confirm(
+          'Gagal print via Bluetooth printer.\n\n' +
+          'Klik OK untuk coba lagi, atau Cancel untuk print via browser.'
+        )
+
+        if (retry) {
+          return printReceipt(order, onPrinted)
+        }
+        // Fall through to browser print method
+      }
+    }
+  }
+
+  // Method 3: Browser Print Dialog (fallback)
+  printViaBrowser(order, onPrinted)
+}
+
+/**
+ * Print via browser print dialog (fallback method)
+ */
+function printViaBrowser(order: Order, onPrinted?: () => void): void {
   const printWindow = window.open('', '_blank')
   if (!printWindow) {
     alert('Please allow popups to print receipt')
@@ -133,13 +232,24 @@ export async function printReceipt(
   printWindow.document.close()
 
   // Mark order as printed after print dialog
+  markOrderAsPrinted(order.id).then(() => {
+    if (onPrinted) {
+      onPrinted()
+    }
+  })
+}
+
+/**
+ * Mark order as printed via API
+ */
+async function markOrderAsPrinted(orderId: string): Promise<void> {
   try {
-    const res = await fetch(`/api/orders/${order.id}/print`, {
+    const res = await fetch(`/api/orders/${orderId}/print`, {
       method: 'PATCH',
     })
 
-    if (res.ok && onPrinted) {
-      onPrinted()
+    if (!res.ok) {
+      console.error('Failed to mark order as printed')
     }
   } catch (error) {
     console.error('Error marking order as printed:', error)

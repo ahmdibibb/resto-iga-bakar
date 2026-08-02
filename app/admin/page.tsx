@@ -28,7 +28,6 @@ import {
   Users as UsersIcon,
   TrendingUp,
   Plus,
-  Download,
   DollarSign,
   UtensilsCrossed,
   ShoppingBag,
@@ -41,19 +40,12 @@ import BannerManagement from '@/components/admin/BannerManagement'
 import OrderDetailModal from '@/components/admin/OrderDetailModal'
 import ProductForm from '@/components/admin/ProductForm'
 import ProductTable from '@/components/admin/ProductTable'
-import { generateSalesReportPDF } from '@/lib/generateSalesReportPDF'
+
 import { useAdminStats, useTodayStats, useRecentOrders, useProducts } from '@/lib/hooks/useAdminStats'
 import { DashboardCardSkeleton, TableSkeleton } from '@/components/admin/LoadingSkeleton'
 import { RevenueBarChart } from '@/components/admin/RevenueBarChart'
 
-interface DashboardStats {
-  totalSales: number
-  totalOrders: number
-  productsSold: number
-  lowStockProducts: Array<{ id: string; name: string; stock: number }>
-  topProducts: Array<{ product: any; quantitySold: number }>
-  dailySales: Array<{ date: string; amount: number }>
-}
+
 
 interface Product {
   id: string
@@ -66,35 +58,14 @@ interface Product {
   image: string | null
 }
 
-interface SalesReport {
-  period: {
-    startDate: string
-    endDate: string
-    days: number
-  }
-  totalProductsSold: number
-  totalRevenue: number
-  revenueByMethod: {
-    CASH: number
-    QRIS: number
-  }
-  productSales: Array<{
-    productId: string
-    productName: string
-    quantitySold: number
-    totalRevenue: number
-  }>
-  dailyRevenue: Array<{ date: string; amount: number }>
-}
+
 
 type Tab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'banners' | 'qr'
 
 export default function AdminDashboard() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
-  const [salesReport, setSalesReport] = useState<SalesReport | null>(null)
   const [showProductForm, setShowProductForm] = useState(false)
-  const [showSalesReport, setShowSalesReport] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [revenuePeriod, setRevenuePeriod] = useState('monthly')
@@ -135,24 +106,7 @@ export default function AdminDashboard() {
     }
   }, [statsError, todayError, ordersError, productsError])
 
-  const fetchSalesReport = async () => {
-    try {
-      const res = await fetch('/api/dashboard/sales-report', {
-        credentials: 'include',
-      })
 
-      if (!res.ok) {
-        setSalesReport(null)
-        return
-      }
-
-      const data = await res.json()
-      setSalesReport(data)
-    } catch (error) {
-      console.error('Error fetching sales report:', error)
-      setSalesReport(null)
-    }
-  }
 
   const handleSubmitProduct = async (formData: { name: string; description: string; price: string; stock: string; image: string; category: string }) => {
     try {

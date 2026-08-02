@@ -47,9 +47,9 @@ export default function Analytics() {
         setLoading(true)
         try {
             const [overviewRes, productsRes, revenueRes] = await Promise.all([
-                fetch(`/api/admin/analytics?days=${days}&type=overview`, { credentials: 'include' }),
-                fetch(`/api/admin/analytics?days=${days}&type=top-products`, { credentials: 'include' }),
-                fetch(`/api/admin/analytics?days=${days}&type=revenue-breakdown`, { credentials: 'include' }),
+                fetch(`/api/owner/analytics?days=${days}&type=overview`, { credentials: 'include' }),
+                fetch(`/api/owner/analytics?days=${days}&type=top-products`, { credentials: 'include' }),
+                fetch(`/api/owner/analytics?days=${days}&type=revenue-breakdown`, { credentials: 'include' }),
             ])
 
             const [overviewData, productsData, revenueData] = await Promise.all([

@@ -12,15 +12,17 @@
  * - @/components/kasir/OrderCard      → Kartu pesanan
  * - @/components/kasir/ReceiptPrinter  → Cetak struk
  * - @/components/kasir/types           → Tipe data shared
+ * - @/components/kasir/KasirSidebar    → Sidebar navigation
  */
 
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Clock, History, Inbox } from 'lucide-react'
-import Navbar from '@/components/navbar/Navbar'
+import { Clock, History } from 'lucide-react'
 import Loading from '@/components/Loading'
 import ErrorAlert from '@/components/ErrorAlert'
 import OrderCard from '@/components/kasir/OrderCard'
+import KasirSidebar from '@/components/kasir/KasirSidebar'
+import PrinterSettings from '@/components/kasir/PrinterSettings'
 import { printReceipt } from '@/components/kasir/ReceiptPrinter'
 import type { Order, ErrorState, TabType, HistoryFilter } from '@/components/kasir/types'
 
@@ -32,6 +34,8 @@ export default function KasirPage() {
   const [historyOrders, setHistoryOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<ErrorState | null>(null)
+  const [showPrinterSettings, setShowPrinterSettings] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const fetchIncomingOrders = async () => {
     try {
@@ -183,61 +187,77 @@ export default function KasirPage() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas font-inter text-ink">
-      <Navbar title="Kasir Dashboard" />
+    <div className="flex min-h-screen bg-canvas font-inter text-ink">
+      {/* Sidebar */}
+      <KasirSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onOpenPrinterSettings={() => setShowPrinterSettings(true)}
+        incomingCount={incomingOrders.length}
+        sidebarOpen={sidebarOpen}
+        onCloseSidebar={() => setSidebarOpen(false)}
+      />
 
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Tab Navigation */}
-        <div className="mb-6 flex gap-2 border-b border-hairline">
-          <button
-            onClick={() => setActiveTab('incoming')}
-            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all font-jakarta uppercase tracking-wider text-xs ${
-              activeTab === 'incoming'
-                ? 'border-b-2 border-ink text-ink font-bold'
-                : 'text-charcoal hover:text-ink'
-            }`}
-          >
-            <Inbox size={20} />
-            Pesanan Masuk
-            {incomingOrders.length > 0 && (
-              <span className="rounded-full bg-ink px-2 py-0.5 text-xs text-canvas ml-1 font-bold">
-                {incomingOrders.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`flex items-center gap-2 px-6 py-3 font-semibold transition-all font-jakarta uppercase tracking-wider text-xs ${
-              activeTab === 'history'
-                ? 'border-b-2 border-ink text-ink font-bold'
-                : 'text-charcoal hover:text-ink'
-            }`}
-          >
-            <History size={20} />
-            History Pesanan
-          </button>
-        </div>
+      {/* Main Content - Match Admin Structure */}
+      <div className="flex-1 transition-all duration-300 lg:ml-64 flex flex-col min-h-screen">
+        {/* Top Bar */}
+        <header className="sticky top-0 z-40 bg-canvas border-b border-hairline px-4 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Hamburger Menu Button - Mobile Only */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-1.5 rounded-full border border-hairline hover:bg-soft-cloud transition-colors text-ink lg:hidden cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </button>
 
-        <ErrorAlert error={error} onDismiss={() => setError(null)} />
+              <h1 className="text-lg font-bold text-ink uppercase tracking-wider font-jakarta">
+                {activeTab === 'incoming' ? 'PESANAN MASUK' : 'HISTORY PESANAN'}
+              </h1>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="flex-1 p-4 lg:p-8">
+          <ErrorAlert error={error} onDismiss={() => setError(null)} />
 
         {/* Incoming Orders Tab */}
         {activeTab === 'incoming' && (
           <>
             <div className="mb-6">
-              <h2 className="text-2xl font-bold font-jakarta uppercase tracking-tight text-ink">Pesanan Masuk</h2>
-              <p className="text-sm text-charcoal mt-1">
+              <p className="text-sm text-charcoal">
                 Konfirmasi pembayaran cash dan print struk pesanan
               </p>
             </div>
 
             {incomingOrders.length === 0 ? (
-              <div className="rounded-none bg-soft-cloud p-12 text-center border border-hairline shadow-none">
-                <Clock size={48} className="mx-auto text-charcoal" />
-                <p className="mt-4 text-lg font-bold font-jakarta uppercase tracking-tight text-ink">Tidak ada pesanan masuk</p>
-                <p className="text-sm text-charcoal mt-2">Pesanan baru akan muncul di sini</p>
+              <div className="rounded-none bg-soft-cloud p-16 text-center border border-hairline">
+                <Clock size={64} className="mx-auto text-charcoal mb-4" />
+                <p className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2">
+                  Tidak ada pesanan masuk
+                </p>
+                <p className="text-sm text-charcoal">
+                  Pesanan baru akan muncul di sini secara otomatis
+                </p>
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {incomingOrders.map((order) => (
                   <OrderCard
                     key={order.id}
@@ -256,17 +276,14 @@ export default function KasirPage() {
         {/* History Orders Tab */}
         {activeTab === 'history' && (
           <>
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold font-jakarta uppercase tracking-tight text-ink">History Pesanan</h2>
-                <p className="text-sm text-charcoal mt-1">
-                  Pesanan yang sudah dikonfirmasi kasir
-                </p>
-              </div>
+            <div className="mb-6 flex items-start justify-between">
+              <p className="text-sm text-charcoal">
+                Pesanan yang sudah dikonfirmasi kasir
+              </p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setHistoryFilter('today')}
-                  className={`px-4 py-2 rounded-full font-semibold transition-all text-sm border ${
+                  className={`px-5 py-2.5 rounded-full font-semibold transition-all text-sm border uppercase tracking-wide ${
                     historyFilter === 'today'
                       ? 'bg-ink text-canvas border-ink'
                       : 'bg-canvas text-ink border-hairline hover:bg-soft-cloud'
@@ -276,7 +293,7 @@ export default function KasirPage() {
                 </button>
                 <button
                   onClick={() => setHistoryFilter('week')}
-                  className={`px-4 py-2 rounded-full font-semibold transition-all text-sm border ${
+                  className={`px-5 py-2.5 rounded-full font-semibold transition-all text-sm border uppercase tracking-wide ${
                     historyFilter === 'week'
                       ? 'bg-ink text-canvas border-ink'
                       : 'bg-canvas text-ink border-hairline hover:bg-soft-cloud'
@@ -288,15 +305,17 @@ export default function KasirPage() {
             </div>
 
             {historyOrders.length === 0 ? (
-              <div className="rounded-none bg-soft-cloud p-12 text-center border border-hairline shadow-none">
-                <History size={48} className="mx-auto text-charcoal" />
-                <p className="mt-4 text-lg font-bold font-jakarta uppercase tracking-tight text-ink">Tidak ada history pesanan</p>
-                <p className="text-sm text-charcoal mt-2">
+              <div className="rounded-none bg-soft-cloud p-16 text-center border border-hairline">
+                <History size={64} className="mx-auto text-charcoal mb-4" />
+                <p className="text-xl font-bold font-jakarta uppercase tracking-tight text-ink mb-2">
+                  Tidak ada history pesanan
+                </p>
+                <p className="text-sm text-charcoal">
                   {historyFilter === 'today' ? 'Belum ada pesanan hari ini' : 'Belum ada pesanan minggu ini'}
                 </p>
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {historyOrders.map((order) => (
                   <OrderCard
                     key={order.id}
@@ -310,7 +329,13 @@ export default function KasirPage() {
             )}
           </>
         )}
+        </main>
       </div>
+
+      {/* Printer Settings Modal */}
+      {showPrinterSettings && (
+        <PrinterSettings onClose={() => setShowPrinterSettings(false)} />
+      )}
     </div>
   )
 }

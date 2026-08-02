@@ -34,7 +34,7 @@ async function midtransRequest<T>(
   hostname: string,
   path: string,
   method: 'GET' | 'POST',
-  payload?: any,
+  payload?: unknown,
   maxRetries: number = 3
 ): Promise<{ status: number; data: T }> {
   const url = `https://${hostname}${path}`
@@ -49,9 +49,16 @@ async function midtransRequest<T>(
   let lastError: Error | null = null
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const startTime = Date.now()
+    let timeoutId: NodeJS.Timeout | undefined
+
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000)
+      timeoutId = setTimeout(() => controller.abort(), 15000)
+
+      console.log(
+        `[MIDTRANS_REQUEST] Attempt ${attempt}/${maxRetries}: ${method} https://${hostname}${path}`
+      )
 
       const res = await fetch(url, {
         method,
@@ -60,24 +67,71 @@ async function midtransRequest<T>(
         signal: controller.signal,
       })
 
-      clearTimeout(timeoutId)
+      const duration = Date.now() - startTime
 
-      const data = (await res.json()) as T
-      return { status: res.status, data }
-    } catch (error: any) {
-      lastError = error
-      const isTimeout = error?.name === 'AbortError' || error?.code === 'ETIMEDOUT' || error?.code === 'ECONNRESET'
-      console.warn(
-        `[MIDTRANS_REQUEST] Attempt ${attempt}/${maxRetries} failed for ${method} ${path}:`,
-        error?.message || error
+      // Parse response safely
+      const responseText = await res.text()
+      let data: T
+
+      try {
+        data = JSON.parse(responseText) as T
+      } catch (parseError) {
+        console.error(
+          `[MIDTRANS_REQUEST] Non-JSON response [${res.status}] after ${duration}ms:`,
+          responseText.substring(0, 200)
+        )
+        throw new Error(
+          `Midtrans returned non-JSON response: ${res.status} ${res.statusText}`
+        )
+      }
+
+      console.log(
+        `[MIDTRANS_REQUEST] Success [${res.status}] after ${duration}ms`
       )
 
-      if (attempt < maxRetries && (isTimeout || error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND' || error?.message?.includes('fetch failed'))) {
+      return { status: res.status, data }
+    } catch (error: unknown) {
+      const duration = Date.now() - startTime
+      lastError = error instanceof Error ? error : new Error(String(error))
+
+      // Extract error code from Undici errors (error.cause.code) or fallback to error.code
+      const errorCode =
+        (error as any)?.cause?.code || (error as any)?.code || 'UNKNOWN'
+      const errorName = (error as Error)?.name || 'Error'
+      const errorMessage = (error as Error)?.message || String(error)
+
+      console.warn(
+        `[MIDTRANS_REQUEST] Attempt ${attempt}/${maxRetries} failed after ${duration}ms:`,
+        `name=${errorName} code=${errorCode} message="${errorMessage}"`
+      )
+
+      // Determine if error is retryable
+      const isAbortError = errorName === 'AbortError'
+      const isRetryableCode = [
+        'UND_ERR_CONNECT_TIMEOUT',
+        'ETIMEDOUT',
+        'ECONNRESET',
+        'ECONNREFUSED',
+        'ENOTFOUND',
+        'EAI_AGAIN',
+      ].includes(errorCode)
+
+      const shouldRetry = attempt < maxRetries && (isAbortError || isRetryableCode)
+
+      if (shouldRetry) {
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 4000)
+        console.log(
+          `[MIDTRANS_REQUEST] Retrying in ${delay}ms...`
+        )
         await new Promise((resolve) => setTimeout(resolve, delay))
         continue
       }
+
       break
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
     }
   }
 
@@ -155,12 +209,14 @@ export interface CheckPaymentStatusResponse {
 export class MidtransError extends Error {
   public statusCode: number
   public midtransResponse?: unknown
+  public code?: string
 
-  constructor(message: string, statusCode: number, midtransResponse?: unknown) {
+  constructor(message: string, statusCode: number, midtransResponse?: unknown, code?: string) {
     super(message)
     this.name = 'MidtransError'
     this.statusCode = statusCode
     this.midtransResponse = midtransResponse
+    this.code = code
   }
 }
 
@@ -212,7 +268,14 @@ export async function createSnapTransaction(
     data = res.data
   } catch (error) {
     console.error('[MIDTRANS_CREATE_TRANSACTION] Network error:', error)
-    throw new MidtransError('Failed to connect to Midtrans', 502)
+    const errorCode =
+      (error as any)?.cause?.code || (error as any)?.code || 'UNKNOWN'
+    throw new MidtransError(
+      'Failed to connect to Midtrans',
+      502,
+      undefined,
+      errorCode
+    )
   }
 
   if (status < 200 || status >= 300 || !data.token) {
@@ -264,7 +327,14 @@ export async function getTransactionStatus(
     data = res.data
   } catch (error) {
     console.error('[MIDTRANS_STATUS_CHECK] Network error:', error)
-    throw new MidtransError('Failed to connect to Midtrans', 502)
+    const errorCode =
+      (error as any)?.cause?.code || (error as any)?.code || 'UNKNOWN'
+    throw new MidtransError(
+      'Failed to connect to Midtrans',
+      502,
+      undefined,
+      errorCode
+    )
   }
 
   if (status < 200 || status >= 300) {

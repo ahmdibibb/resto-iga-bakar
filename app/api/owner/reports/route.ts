@@ -6,6 +6,7 @@ import {
 } from '@/lib/errorHandler'
 import { withApiPermission } from '@/lib/apiPermissions'
 import { logAnalyticsAccess } from '@/lib/auditLog'
+import { generateRevenueChart } from '@/lib/reportUtils'
 
 /**
  * GET /api/owner/reports
@@ -266,7 +267,8 @@ export async function GET(request: NextRequest) {
       }))
 
     // Generate revenue chart data based on period
-    const revenueChart = generateRevenueChart(orders, startDate, endDate, period)
+    const validPeriod = (period === 'weekly' || period === 'monthly' || period === 'yearly') ? period : 'monthly'
+    const revenueChart = generateRevenueChart(orders, startDate, endDate, validPeriod)
 
     return NextResponse.json({
       reportType: 'sales',
@@ -291,104 +293,3 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function generateRevenueChart(
-  orders: any[],
-  startDate: Date,
-  endDate: Date,
-  period: string
-) {
-  const chartData: { period: string, revenue: number, orders: number }[] = []
-
-  if (period === 'daily') {
-    // Group by day
-    const dayMap = new Map<string, { revenue: number, orders: number }>()
-    
-    orders.forEach(order => {
-      const day = order.createdAt.toISOString().split('T')[0]
-      const existing = dayMap.get(day)
-      if (existing) {
-        existing.revenue += order.totalAmount.toNumber()
-        existing.orders += 1
-      } else {
-        dayMap.set(day, {
-          revenue: order.totalAmount.toNumber(),
-          orders: 1
-        })
-      }
-    })
-
-    // Fill in missing days
-    const currentDate = new Date(startDate)
-    while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split('T')[0]
-      const data = dayMap.get(dateStr) || { revenue: 0, orders: 0 }
-      chartData.push({
-        period: dateStr,
-        revenue: data.revenue,
-        orders: data.orders
-      })
-      currentDate.setDate(currentDate.getDate() + 1)
-    }
-  } else if (period === 'weekly') {
-    // Group by week
-    const weekMap = new Map<string, { revenue: number, orders: number }>()
-    
-    orders.forEach(order => {
-      const weekStart = getWeekStart(order.createdAt)
-      const weekKey = weekStart.toISOString().split('T')[0]
-      const existing = weekMap.get(weekKey)
-      if (existing) {
-        existing.revenue += order.totalAmount.toNumber()
-        existing.orders += 1
-      } else {
-        weekMap.set(weekKey, {
-          revenue: order.totalAmount.toNumber(),
-          orders: 1
-        })
-      }
-    })
-
-    weekMap.forEach((data, weekKey) => {
-      chartData.push({
-        period: `Week of ${weekKey}`,
-        revenue: data.revenue,
-        orders: data.orders
-      })
-    })
-  } else if (period === 'monthly') {
-    // Group by month
-    const monthMap = new Map<string, { revenue: number, orders: number }>()
-    
-    orders.forEach(order => {
-      const month = `${order.createdAt.getFullYear()}-${String(order.createdAt.getMonth() + 1).padStart(2, '0')}`
-      const existing = monthMap.get(month)
-      if (existing) {
-        existing.revenue += order.totalAmount.toNumber()
-        existing.orders += 1
-      } else {
-        monthMap.set(month, {
-          revenue: order.totalAmount.toNumber(),
-          orders: 1
-        })
-      }
-    })
-
-    monthMap.forEach((data, month) => {
-      chartData.push({
-        period: month,
-        revenue: data.revenue,
-        orders: data.orders
-      })
-    })
-  }
-
-  return chartData.sort((a, b) => a.period.localeCompare(b.period))
-}
-
-function getWeekStart(date: Date): Date {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-  d.setHours(0, 0, 0, 0)
-  return d
-}

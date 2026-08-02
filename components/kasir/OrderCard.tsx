@@ -16,7 +16,7 @@
 
 import { Banknote, Printer, UtensilsCrossed, ShoppingBag, ClipboardList, Check, Clock, Send } from 'lucide-react'
 import type { Order } from './types'
-import PaymentMethodBadge from './PaymentMethodBadge'
+import { PaymentMethodBadge } from '@/components/StatusBadge'
 
 interface OrderCardProps {
   order: Order
