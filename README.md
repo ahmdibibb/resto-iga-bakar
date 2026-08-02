@@ -1,4 +1,4 @@
-# Resto Iga Bakar - Sistem Informasi Manajemen Restoran
+﻿# Resto Iga Bakar - Sistem Informasi Manajemen Restoran
 
 Sistem informasi manajemen restoran berbasis web dengan Next.js, TypeScript, dan MySQL.
 
@@ -8,7 +8,7 @@ Sistem informasi manajemen restoran berbasis web dengan Next.js, TypeScript, dan
 - Melihat dan memilih produk
 - Keranjang belanja
 - Checkout
-- Pembayaran (Tunai, QRIS,)
+- Pembayaran (Tunai, QRIS)
 - Menerima e-struk setelah pembayaran
 
 ### Admin
@@ -20,7 +20,7 @@ Sistem informasi manajemen restoran berbasis web dengan Next.js, TypeScript, dan
 
 ### Kasir
 - Menerima orderan dari queue
-- Konfimasi pembayaran
+- Konfirmasi pembayaran
 - Print struk pesanan untuk kitchen
 - Orderan diurutkan berdasarkan nomor order
 
@@ -30,123 +30,222 @@ Sistem informasi manajemen restoran berbasis web dengan Next.js, TypeScript, dan
 - **Database**: MySQL dengan Prisma ORM
 - **Authentication**: JWT (JSON Web Token)
 - **Styling**: Tailwind CSS
+- **Payment Gateway**: Midtrans Snap
+- **Image Storage**: Cloudinary
 
-## Setup
+---
 
-### 1. Install Dependencies
+## Panduan Setup dari Awal
+
+Ikuti langkah-langkah berikut secara berurutan untuk menjalankan project ini di lingkungan lokal.
+
+### Prasyarat
+
+Pastikan perangkat Anda sudah terinstall:
+
+| Perangkat | Versi Minimal | Link Download |
+|---|---|---|
+| **Node.js** | v18.x atau lebih baru | https://nodejs.org |
+| **MySQL** | v8.0 | https://dev.mysql.com/downloads/ |
+| **Git** | Terbaru | https://git-scm.com |
+
+---
+
+### Langkah 1 — Clone Repository
+
+```bash
+git clone https://github.com/username/resto-iga-bakar.git
+cd resto-iga-bakar
+```
+
+---
+
+### Langkah 2 — Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Setup Database
+---
 
-**⚠️ PENTING - Fix Authentication Error Terlebih Dahulu:**
-Jika Anda menggunakan MySQL 8.0+ dan mendapat error `Unknown authentication plugin 'sha256_password'`, fix terlebih dahulu:
+### Langkah 3 — Konfigurasi Environment Variables
+
+Salin file contoh environment dan sesuaikan isinya:
+
+```bash
+# Windows (Command Prompt / PowerShell)
+copy .env.example .env
+
+# Mac / Linux
+cp .env.example .env
+```
+
+Buka file `.env` dan isi setiap variabel yang dibutuhkan:
+
+```env
+# === DATABASE ===
+# Ganti 'root' dan 'password' dengan kredensial MySQL Anda
+DATABASE_URL="mysql://root:password@localhost:3306/resto_iga_bakar"
+
+# === JWT SECRET ===
+# Isi dengan string acak yang panjang dan aman (min. 32 karakter)
+JWT_SECRET="ganti-dengan-string-rahasia-anda-minimal-32-karakter"
+
+# === MIDTRANS (Payment Gateway) ===
+# Daftar akun Sandbox di https://dashboard.sandbox.midtrans.com
+# Ambil key di: Settings > Access Keys
+MIDTRANS_SERVER_KEY=SB-Mid-server-xxxxxxxxxxxxxxxx
+MIDTRANS_IS_PRODUCTION=false
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=SB-Mid-client-xxxxxxxxxxxxxxxx
+NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION=false
+
+# === CLOUDINARY (Upload Gambar Produk) ===
+# Daftar akun gratis di https://cloudinary.com
+CLOUDINARY_CLOUD_NAME="nama_cloud_anda"
+CLOUDINARY_UPLOAD_PRESET="nama_upload_preset_anda"
+
+# === WHATSAPP (Opsional) ===
+WA_PHONE_NUMBER_ID=your_phone_number_id
+WA_ACCESS_TOKEN=your_whatsapp_access_token
+
+# === LAINNYA ===
+PAYMENT_TIMEOUT_MINUTES=10
+BYPASS_PREORDER_PICKUP_TIME=true
+NEXT_PUBLIC_BYPASS_PREORDER_PICKUP_TIME=true
+```
+
+> **Catatan:** Variabel `MIDTRANS_*` dan `CLOUDINARY_*` wajib diisi agar fitur pembayaran dan upload gambar produk dapat berfungsi.
+
+---
+
+### Langkah 4 — Setup Database MySQL
+
+#### 4a. Buat Database
+
+Login ke MySQL dan buat database baru:
 
 ```sql
--- Login ke MySQL: mysql -u root -p
+-- Login ke MySQL
+mysql -u root -p
+
+-- Buat database
+CREATE DATABASE resto_iga_bakar;
+EXIT;
+```
+
+#### 4b. Fix Authentication MySQL 8.0+ (jika perlu)
+
+Jika Anda mendapatkan error `Unknown authentication plugin 'sha256_password'` atau `caching_sha2_password`, jalankan perintah berikut di MySQL:
+
+```sql
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password_anda';
 FLUSH PRIVILEGES;
 ```
 
-Lihat `FIX_AUTH_NOW.md` untuk quick fix atau `MYSQL_AUTH_FIX.md` untuk penjelasan lengkap.
+---
 
-**Setup Database:**
-1. Import database setup SQL:
-   ```bash
-   mysql -u root -p < prisma/database_setup.sql
-   ```
-
-2. Buat file `.env` di root project:
-   ```env
-   DATABASE_URL="mysql://root:password@localhost:3306/resto_iga_bakar"
-   JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
-   ```
-   Ganti `root` dan `password` dengan kredensial MySQL Anda.
-
-3. Test koneksi:
-   ```bash
-   npm run db:test
-   ```
-
-### 3. Setup Prisma
+### Langkah 5 — Setup Prisma ORM
 
 ```bash
-# Generate Prisma Client
+# Generate Prisma Client dari schema
 npx prisma generate
 
-# Run migrations
+# Jalankan migrasi untuk membuat struktur tabel di database
 npx prisma migrate dev --name init
-
-# (Optional) Open Prisma Studio untuk melihat data
-npx prisma studio
 ```
 
-### 4. Run Development Server
+Pastikan output migrasi menampilkan pesan sukses tanpa error.
+
+---
+
+### Langkah 6 — Import Data Awal (Seed)
+
+Import data awal seperti akun admin, kasir, dan contoh produk:
+
+```bash
+npm run seed
+```
+
+**Akun default setelah seed:**
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@resto.com | admin123 |
+| Kasir | kasir@resto.com | kasir123 |
+| User | user1@example.com | user123 |
+
+---
+
+### Langkah 7 — Jalankan Development Server
 
 ```bash
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) di browser.
+Buka browser dan akses: **http://localhost:3000**
 
-## Penggunaan
+---
 
-### Membuat Akun
+### Ringkasan Perintah Setup
 
-1. **Register (USER saja)**: Buka halaman register untuk membuat akun USER
-2. **Admin & Kasir**: Dibuat melalui SQL seed atau akan dikelola oleh admin (fitur CRUD user akan ditambahkan)
-
-## Setup Database dengan Sample Data
-
-Setelah migration, import sample data:
+Jika semua prasyarat sudah terpenuhi dan database sudah ada, berikut urutan perintah lengkapnya:
 
 ```bash
-# Import SQL seed file
-mysql -u username -p resto_iga_bakar < prisma/seed.sql
+# 1. Clone & masuk ke direktori
+git clone https://github.com/username/resto-iga-bakar.git
+cd resto-iga-bakar
 
-# Atau gunakan MySQL Workbench/phpMyAdmin untuk import file prisma/seed.sql
+# 2. Install dependencies
+npm install
+
+# 3. Salin dan isi file environment
+copy .env.example .env
+# Edit file .env sesuai konfigurasi Anda
+
+# 4. Setup Prisma & database
+npx prisma generate
+npx prisma migrate dev --name init
+
+# 5. Isi data awal
+npm run seed
+
+# 6. Jalankan aplikasi
+npm run dev
 ```
 
-Lihat file `prisma/seed.md` untuk detail lengkap.
+---
 
-**Default Login Credentials (dari seed):**
-- Admin: admin@resto.com / admin123
-- Kasir: kasir@resto.com / kasir123
-- User: user1@example.com / user123
+## Scripts yang Tersedia
 
-### User Flow
+| Script | Perintah | Fungsi |
+|---|---|---|
+| Development | `npm run dev` | Menjalankan server pengembangan lokal |
+| Build | `npm run build` | Membuild aplikasi untuk production |
+| Start | `npm run start` | Menjalankan aplikasi hasil build |
+| Prisma Generate | `npm run db:generate` | Generate ulang Prisma Client |
+| Prisma Migrate | `npm run db:migrate` | Menjalankan migrasi database |
+| Prisma Studio | `npm run db:studio` | Membuka GUI database Prisma |
+| DB Push | `npm run db:push` | Push schema ke database tanpa migrasi |
+| Seed | `npm run seed` | Mengisi data awal ke database |
+| Test | `npm run test` | Menjalankan semua unit test |
+| Test Coverage | `npm run test:coverage` | Menjalankan test dengan laporan coverage |
+| Test UI | `npm run test:ui` | Menjalankan test dengan tampilan UI |
 
-1. Login sebagai User
-2. Browse produk di halaman Products
-3. Tambahkan produk ke cart
-4. Checkout dan buat order
-5. Pilih metode pembayaran (Cash/QRIS/EDC)
-6. Dapatkan struk setelah pembayaran
-
-### Admin Flow
-
-1. Login sebagai Admin
-2. Lihat dashboard dengan statistik
-3. Manage produk (tambah, edit, hapus)
-4. Monitor stok dan penjualan
-
-### Kasir Flow
-
-1. Login sebagai Kasir
-2. Lihat order queue
-3. Konfimasi pembayaran
-4. Print struk pesanan untuk kitchen
+---
 
 ## Database Schema
 
-- **User**: Admin, User, Kasir
+- **User**: Admin, Kasir, User
 - **Product**: Produk dengan stok
-- **Order**: Order dengan status (PENDING, CONFIRMED, PREPARING, READY, COMPLETED, CANCELLED)
+- **Order**: Order dengan status (PENDING_PAYMENT, PENDING, CONFIRMED, PREPARING, IN_KITCHEN, READY, COMPLETED, CANCELLED)
 - **OrderItem**: Item dalam order
 - **Payment**: Pembayaran dengan metode (CASH, QRIS)
 - **StockHistory**: History perubahan stok
+- **AuditLog**: Log aktivitas sistem
+- **SystemSetting**: Pengaturan sistem
+- **CampaignBanner**: Banner promosi
+
+---
 
 ## API Routes
 
@@ -165,12 +264,12 @@ Lihat file `prisma/seed.md` untuk detail lengkap.
 
 ### Orders
 - `GET /api/orders` - Get all orders
-- `POST /api/orders` - Create order (User only)
+- `POST /api/orders` - Create order
 - `GET /api/orders/[id]` - Get single order
-- `PUT /api/orders/[id]` - Update order status (Kitchen/Admin)
+- `PUT /api/orders/[id]` - Update order status
 
 ### Payments
-- `POST /api/payments` - Create payment (User only)
+- `POST /api/payments` - Create payment
 
 ### Dashboard
 - `GET /api/dashboard/stats` - Get dashboard statistics (Admin only)
@@ -178,13 +277,19 @@ Lihat file `prisma/seed.md` untuk detail lengkap.
 ### Kasir
 - `GET /api/kitchen/orders` - Get kitchen orders (Kasir/Admin)
 
+---
+
 ## Catatan Penting
 
-1. **Payment System**: Sistem pembayaran saat ini adalah dummy. Untuk production, perlu integrasi dengan payment gateway yang sebenarnya.
+1. **Payment System**: Sistem pembayaran menggunakan Midtrans Snap. Gunakan mode Sandbox untuk pengembangan.
 
-2. **Security**: Pastikan untuk mengubah `JWT_SECRET` di production dengan nilai yang aman.
+2. **Security**: Wajib mengubah `JWT_SECRET` di production dengan nilai acak yang panjang dan aman.
 
-3. **Database**: Pastikan backup database dilakukan secara berkala.
+3. **Database**: Pastikan backup database dilakukan secara berkala sebelum menjalankan migrasi baru.
+
+4. **Cloudinary**: Upload gambar produk membutuhkan konfigurasi Cloudinary yang valid.
+
+---
 
 ## License
 
