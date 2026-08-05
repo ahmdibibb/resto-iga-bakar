@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `user` MODIFY `role` ENUM('OWNER', 'ADMIN', 'USER', 'KASIR') NOT NULL DEFAULT 'USER';

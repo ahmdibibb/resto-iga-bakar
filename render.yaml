@@ -1,0 +1,38 @@
+# Render Blueprint — Resto Iga Bakar
+# https://docs.render.com/blueprint-spec
+
+services:
+  - type: web
+    name: resto-iga-bakar
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: resto-iga-bakar-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+      - key: BYPASS_PREORDER_PICKUP_TIME
+        value: "false"
+      - key: NEXT_PUBLIC_BYPASS_PREORDER_PICKUP_TIME
+        value: "false"
+      - key: PAYMENT_TIMEOUT_MINUTES
+        value: "10"
+      # Set these manually in Render Dashboard after deploy:
+      # - WA_PHONE_NUMBER_ID
+      # - WA_ACCESS_TOKEN
+      # - CLOUDINARY_CLOUD_NAME
+      # - CLOUDINARY_UPLOAD_PRESET
+      # - MIDTRANS_SERVER_KEY
+      # - MIDTRANS_IS_PRODUCTION
+      # - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+      # - NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION
+
+databases:
+  - name: resto-iga-bakar-db
+    plan: free
